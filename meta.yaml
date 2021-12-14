@@ -1,0 +1,53 @@
+{% set name = "GES-echem-suite" %}
+{% set version = "0.1.0alpha" %}
+
+
+
+package:
+  name: "{{ name|lower }}"
+  version: "{{ version }}"
+
+
+
+source:
+  git_url: https://github.com/GES-compchem/GES-echem-suite.git
+  git_tag: 0.1.0-alpha
+
+
+
+
+build:
+  number: 0
+
+
+
+requirements:
+  host:
+    - python
+    - numpy
+    - pandas
+    - scipy
+    - matplotlib
+
+  run:
+    - python
+    - numpy
+    - pandas
+    - scipy
+    - matplotlib
+
+
+about:
+  home: The package home page
+  license: UNKNOWN
+  license_family: OTHER
+  license_file:
+  summary: ""
+  doc_url:
+  dev_url:
+
+
+
+extra:
+  recipe-maintainers:
+    - GES-compchem
