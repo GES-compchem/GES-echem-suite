@@ -3,9 +3,10 @@ import setuptools
 
 setuptools.setup(
     name="GES-echem-suite",
-    version="0.1.0-alpha",
+    version="0.1.1alpha",
     description="",
     long_description="",
     packages=["echemsuite"],
-    install_requires=["numpy", "pandas", "scipy", "matplotlib"],
+    package_data={'echemsuite': ['cellcycling/*', 'cyclicvoltammetry/*',],},
+    install_requires=[],
 )
