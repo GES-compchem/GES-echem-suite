@@ -355,14 +355,14 @@ class SCVAnalysis:
         curr_thr = (np.amax(curr_d2) - np.amin(curr_d2)) / 10.0
 
         edges = np.amin(volt), np.amax(volt)
+        
         # Find clusters of data where each point is within volt/curr threshold
         # grouping function from utils
-
         clusters = grouping(
             volt_base, curr_d2_base, volt_thr, curr_thr, order=fit_type, edges=edges
         )
 
-        cap_idx = clusters[0]
+        cap_idx = clusters[0] # The first cluster should be the most significant
 
         if len(cap_idx) <= 2:
             raise ValueError(
