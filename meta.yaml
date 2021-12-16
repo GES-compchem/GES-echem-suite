@@ -1,5 +1,5 @@
 {% set name = "GES-echem-suite" %}
-{% set version = "0.1.1alpha" %}
+{% set version = "0.1.2a" %}
 
 
 
@@ -10,11 +10,7 @@ package:
 
 
 source:
-  git_url: https://github.com/GES-compchem/GES-echem-suite
-  git_tag: 0.1.2a
-
-
-
+  url: https://github.com/GES-compchem/{{ name }}/archive/refs/tags/{{ version }}.zip
 
 build:
   number: 0
