@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import scipy.integrate as integrate
 import sys
+import warnings
 
 
 class CellCycling:
@@ -10,6 +11,13 @@ class CellCycling:
     """
     def __init__(self, cycles):
         self._cycles = cycles
+        self._number_of_cycles = len(self._cycles)
+        
+        self._capacity_retentions = None  # to be initialized in calculate_retention()
+        self._capacity_efficiencies = None  # to be initialized in calculate_efficiency()
+        
+        self.calculate_capacity_efficiencies()
+        self.calculate_capacity_retention()
 
     def __getitem__(self, cycle):
         return self._cycles[cycle]
@@ -18,7 +26,7 @@ class CellCycling:
         for obj in self._cycles:
             yield obj
 
-    def calculate_retention(self, reference = 0):
+    def calculate_capacity_retention(self, reference = 0):
         """
         Calculates capacity retention between cycles, as the ratio between 
         capacity of cycle n (discharge) minus cycle 1 (discharge)
@@ -26,31 +34,33 @@ class CellCycling:
 
         initial_capacity = self._cycles[reference].capacity_discharge
 
-        self._retention = []
+        self._capacity_retentions = []
 
         for cycle in self._cycles:
-            self._retention.append(cycle.capacity_discharge / initial_capacity * 100)
+            self._capacity_retentions.append(cycle.capacity_discharge / initial_capacity * 100)
 
-        return self._retention
-
-    def calculate_efficiency(self):
+    def calculate_capacity_efficiencies(self):
         """
         Calculates capacity efficiency of the cycles, as the ratio between 
         capacity of cycle n in charge and discharge
         """
 
-        self._efficiency = []
+        self._capacity_efficiencies = []
 
         for cycle in self._cycles:
-            self._efficiency.append(cycle.capacity_discharge / cycle.capacity_charge * 100) 
+            self._capacity_efficiencies.append(cycle.capacity_discharge / cycle.capacity_charge * 100) 
 
     @property
-    def retention(self):
-        return self._retention
+    def capacity_retention(self):
+        return self._capacity_retentions
 
     @property
-    def efficiency(self):
-        return self._efficiency
+    def capacity_efficiency(self):
+        return self._capacity_efficiencies
+    
+    @property
+    def number_of_cycles(self):
+        return self._number_of_cycles
 
 
 class Cycle:
@@ -60,6 +70,8 @@ class Cycle:
 
     def __init__(self, number):
         self._number = number
+        
+        # DEV NOTE: move all variable initializations here to default value
 
     @property
     def number(self):
@@ -199,10 +211,18 @@ class Cycle:
         Computes the coulombic and energy efficiency of the cycle as the ratio 
         between the discharge and charge energies.
         """
-
-        self._coulomb_efficiency = self._capacity_discharge / self._capacity_charge * 100
-        self._energy_efficiency = self._total_energy_discharge / self._total_energy_charge * 100
-        self._voltage_efficiency = self._energy_efficiency / self._coulomb_efficiency * 100
+        if any((self._capacity_charge <= 0, self._total_energy_charge <= 0)):
+            print(f"Warning: cycle {self._number} will be removed due to unphysical charge/discharge value")
+            #warnings.warn(f"Cycle {self._number} will be removed due to unphysical charge/discharge value")
+            
+            # 101 is a sentinel value
+            self._coulomb_efficiency = 101
+            self._energy_efficiency = 101
+            self._voltage_efficiency = 101
+        else:
+            self._coulomb_efficiency = self._capacity_discharge / self._capacity_charge * 100
+            self._energy_efficiency = self._total_energy_discharge / self._total_energy_charge * 100
+            self._voltage_efficiency = self._energy_efficiency / self._coulomb_efficiency * 100
 
         return self._coulomb_efficiency, self._energy_efficiency, self._voltage_efficiency
 
@@ -222,7 +242,7 @@ class Cycle:
 def build_DTA_cycles(filelist):
 
     cycles = []
-    cycle_number = 1
+    cycle_number = 0
 
     for filepath in filelist:
 
@@ -300,7 +320,7 @@ def build_DTA_cycles(filelist):
 def read_mpt_cycles(filelist):
 
     cycles = []
-    cycle_number = 1
+    cycle_number = 0
 
     for filepath in filelist:
 
