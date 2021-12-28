@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import scipy.integrate as integrate
+import sys
 
 
 class CellCycling:
@@ -227,7 +228,7 @@ def build_DTA_cycles(filelist):
 
         print("Loading:", filepath, "\n")
 
-        if filepath.endswith(".DTA"):                                        
+        if filepath.endswith(".DTA".lower()):                                        
         
             with open(filepath, "r", encoding="utf8", errors="ignore") as file:
 
@@ -291,7 +292,7 @@ def build_DTA_cycles(filelist):
                     
         else:
             print("This is not a .DTA file!")
-            exit()  
+            sys.exit()  
 
     return cycles
 
@@ -305,7 +306,7 @@ def read_mpt_cycles(filelist):
 
         print("Loading:", filepath, "\n")
 
-        if filepath.endswith(".mpt"):  
+        if filepath.endswith(".mpt".lower()):  
       
             with open(filepath, "r", encoding="utf8", errors="ignore") as file:
 
@@ -382,7 +383,7 @@ def read_mpt_cycles(filelist):
                 
         else:
             print("This is not a .mpt file!")
-            exit() 
+            sys.exit() 
 
     return cycles
 
@@ -401,7 +402,7 @@ def build_cycles(filelist):
     return CellCycling(cycles)    
 
 
-def time_adjust(cycle):
+def time_adjust(cycle, reverse=False):
 
     if cycle.time_discharge.iloc[0] != cycle.time_charge.iloc[0]:
         time_charge = cycle.time_charge.subtract(cycle.time_charge.iloc[0])
@@ -409,5 +410,8 @@ def time_adjust(cycle):
     else:
         time_charge = cycle.time_charge
         time_discharge = cycle.time_discharge
+        
+    if reverse is True:
+        time_discharge=time_discharge.sort_values(ascending=False)
 
     return time_charge, time_discharge
