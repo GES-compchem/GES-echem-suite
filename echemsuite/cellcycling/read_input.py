@@ -409,14 +409,17 @@ def read_mpt_cycles(filelist):
 
 
 def read_cycles(filelist):
- 
+    for filepath in filelist:
+        filepath = r'%s' %filepath
+    
     cycles = read_mpt_cycles(filelist)
               
     return CellCycling(cycles)
 
 
 def build_cycles(filelist):
-
+    for filepath in filelist:
+        filepath = r'%s' %filepath
     cycles = build_DTA_cycles(filelist)
 
     return CellCycling(cycles)    
