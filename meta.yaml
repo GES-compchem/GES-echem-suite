@@ -13,6 +13,7 @@ source:
   url: https://github.com/GES-compchem/{{ name }}/archive/refs/tags/{{ version }}.zip
 
 build:
+  noarch: python
   number: 0
 
 
