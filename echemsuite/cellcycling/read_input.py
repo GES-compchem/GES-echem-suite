@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import scipy.integrate as integrate
 import sys
+from os import path
 import warnings
 
 
@@ -9,13 +10,16 @@ class CellCycling:
     """
     Contains all the cycles
     """
+
     def __init__(self, cycles):
         self._cycles = cycles
         self._number_of_cycles = len(self._cycles)
-        
+
         self._capacity_retentions = None  # to be initialized in calculate_retention()
-        self._capacity_efficiencies = None  # to be initialized in calculate_efficiency()
-        
+        self._capacity_efficiencies = (
+            None  # to be initialized in calculate_efficiency()
+        )
+
         self.calculate_capacity_efficiencies()
         self.calculate_capacity_retention()
 
@@ -26,7 +30,7 @@ class CellCycling:
         for obj in self._cycles:
             yield obj
 
-    def calculate_capacity_retention(self, reference = 0):
+    def calculate_capacity_retention(self, reference=0):
         """
         Calculates capacity retention between cycles, as the ratio between 
         capacity of cycle n (discharge) minus cycle 1 (discharge)
@@ -37,7 +41,9 @@ class CellCycling:
         self._capacity_retentions = []
 
         for cycle in self._cycles:
-            self._capacity_retentions.append(cycle.capacity_discharge / initial_capacity * 100)
+            self._capacity_retentions.append(
+                cycle.capacity_discharge / initial_capacity * 100
+            )
 
     def calculate_capacity_efficiencies(self):
         """
@@ -48,7 +54,9 @@ class CellCycling:
         self._capacity_efficiencies = []
 
         for cycle in self._cycles:
-            self._capacity_efficiencies.append(cycle.capacity_discharge / cycle.capacity_charge * 100) 
+            self._capacity_efficiencies.append(
+                cycle.capacity_discharge / cycle.capacity_charge * 100
+            )
 
     @property
     def capacity_retention(self):
@@ -57,7 +65,7 @@ class CellCycling:
     @property
     def capacity_efficiency(self):
         return self._capacity_efficiencies
-    
+
     @property
     def number_of_cycles(self):
         return self._number_of_cycles
@@ -70,7 +78,7 @@ class Cycle:
 
     def __init__(self, number):
         self._number = number
-        
+
         # DEV NOTE: move all variable initializations here to default value
 
     @property
@@ -78,50 +86,64 @@ class Cycle:
         return self._number
 
     def add_charge(self, charge):
-       
+
         self._time_charge = charge[0]
         self._voltage_charge = charge[1]
         self._current_charge = charge[2]
-        
+
         """
         Calculate the capacity C (mA.h) of the charge half-cycle as the 
         integral of current over time
         """
+        # accumulated charge dq (mA.h) at each measurement step and cumulative
+        dq = abs(self._current_charge * self._time_charge.diff()) / 3.6
+        self._Q_charge = dq.cumsum()
         
-        self._capacity_charge = abs(integrate.trapz(self._current_charge, self._time_charge)) / 3.6 
-
+        # A/1000 --> mA, s/3600 --> h == /3.6
+        # self._capacity_charge = abs(integrate.trapz(self._current_charge, self._time_charge)) / 3.6
+        self._capacity_charge = self._Q_charge.iloc[-1]  # cheaper?        
+        
+        
         """
         Calculate the total energy E (W.h) of the charge half-cycle as the 
         integral of instantaneous energy over time
         """
-        
+
         # instantaneous power (W)
         self._power_charge = abs(self._current_charge * self._voltage_charge)
-        
-        # accumulated charge (mA.h)
-        dq = self._power_charge.div(3.6) * self._time_charge.diff()
-        self._Q_charge = abs(dq.cumsum())
 
-        # instantaneous energy (Wh)
-        self._energy_charge = dq * self._voltage_charge / 1000
-                    
+        # istantaneous energy dE (W.h) at each measurement step and cumulative
+        dE = (self._power_charge * self._time_charge.diff()) / 3.6
+        self._energy_charge = dE.cumsum()
+        # # instantaneous energy (Wh)
+        # self._energy_charge = dE * self._voltage_charge / 1000
+
         # total energy (W.h)
-        self._total_energy_charge = abs(integrate.trapz(self._power_charge, self._time_charge)) / 3600
-
+        # self._total_energy_charge = abs(integrate.trapz(self._power_charge, self._time_charge)) / 3.6
+        self._total_energy_charge = self._energy_charge.iloc[-1]  # cheaper?
 
     def add_discharge(self, discharge):
-        
+
         self._time_discharge = discharge[0]
         self._voltage_discharge = discharge[1]
         self._current_discharge = discharge[2]
-        
+
         """
         Calculate the capacity C (mA.h) of the discharge half-cycle as the 
         integral of current over time
         """
+        # accumulated charge dq (mA.h) at each measurement step
+        # dq = self._power_discharge.div(3.6) * self._time_discharge.diff()
+        dq = abs(self._current_discharge * self._time_discharge.diff()) / 3.6
+        self._Q_discharge = dq.cumsum()
+        #print(self._Q_discharge)
         
-        self._capacity_discharge = abs(integrate.trapz(self._current_discharge, self._time_discharge)) / 3.6 
+        self._capacity_discharge = self._Q_discharge.iloc[-1]  # cheaper?    
         
+        # self._capacity_discharge = (
+        #     abs(integrate.trapz(self._current_discharge, self._time_discharge)) / 3.6
+        # )
+
         """
         Calculates the total energy E (W.h) of the charge half-cycle as the 
         integral of instantaneous energy over time
@@ -130,45 +152,52 @@ class Cycle:
         # instantaneous power (W)
         self._power_discharge = abs(self._current_discharge * self._voltage_discharge)
 
-        # accumulated charge (mA.h)
-        dq = self._power_discharge.div(3.6) * self._time_discharge.diff()
-        self._Q_discharge = abs(dq.cumsum())
+
+
+        # istantaneous energy dE (W.h) at each measurement step and cumulative
+        dE = (self._power_discharge * self._time_discharge.diff()) / 3.6
+        self._energy_discharge = dE.cumsum()
 
         # instantaneous energy (Wh)
-        self._energy_discharge = dq * self._voltage_discharge / 1000
-        
-        # total energy (W.h)
-        self._total_energy_discharge = abs(integrate.trapz(self._power_discharge, self._time_discharge)) / 3600
+        # self._energy_discharge = dq * self._voltage_discharge / 1000
 
+        # total energy (W.h)
+        self._total_energy_discharge = (
+            abs(integrate.trapz(self._power_discharge, self._time_discharge)) / 3600
+        )
 
     # time
     @property
-    def time_charge(self):                       
+    def time_charge(self):
         return self._time_charge
+
     @property
-    def time_discharge(self):                       
+    def time_discharge(self):
         return self._time_discharge
 
     # voltage
     @property
-    def voltage_charge(self):                       
-        return self._voltage_charge        
+    def voltage_charge(self):
+        return self._voltage_charge
+
     @property
-    def voltage_discharge(self):                       
+    def voltage_discharge(self):
         return self._voltage_discharge
-    
+
     # current
     @property
-    def current_charge(self):                       
+    def current_charge(self):
         return self._current_charge
+
     @property
-    def current_discharge(self):                       
+    def current_discharge(self):
         return self._current_discharge
 
     # power
     @property
     def power_charge(self):
         return self._power_charge
+
     @property
     def power_discharge(self):
         return self._power_discharge
@@ -177,6 +206,7 @@ class Cycle:
     @property
     def energy_charge(self):
         return self._energy_charge
+
     @property
     def energy_discharge(self):
         return self._energy_discharge
@@ -185,26 +215,28 @@ class Cycle:
     @property
     def Q_charge(self):
         return self._Q_charge
+
     @property
     def Q_discharge(self):
         return self._Q_discharge
 
     # capacity
     @property
-    def capacity_charge(self):                       
+    def capacity_charge(self):
         return self._capacity_charge
+
     @property
-    def capacity_discharge(self):    
+    def capacity_discharge(self):
         return self._capacity_discharge
 
     # energy
     @property
     def total_energy_charge(self):
         return self._total_energy_charge
+
     @property
     def total_energy_discharge(self):
         return self._total_energy_discharge
-
 
     def calculate_efficiencies(self):
         """
@@ -212,28 +244,36 @@ class Cycle:
         between the discharge and charge energies.
         """
         if any((self._capacity_charge <= 0, self._total_energy_charge <= 0)):
-            print(f"Warning: cycle {self._number} will be removed due to unphysical charge/discharge value")
-            #warnings.warn(f"Cycle {self._number} will be removed due to unphysical charge/discharge value")
-            
             # 101 is a sentinel value
             self._coulomb_efficiency = 101
             self._energy_efficiency = 101
             self._voltage_efficiency = 101
         else:
-            self._coulomb_efficiency = self._capacity_discharge / self._capacity_charge * 100
-            self._energy_efficiency = self._total_energy_discharge / self._total_energy_charge * 100
-            self._voltage_efficiency = self._energy_efficiency / self._coulomb_efficiency * 100
+            self._coulomb_efficiency = (
+                self._capacity_discharge / self._capacity_charge * 100
+            )
+            self._energy_efficiency = (
+                self._total_energy_discharge / self._total_energy_charge * 100
+            )
+            self._voltage_efficiency = (
+                self._energy_efficiency / self._coulomb_efficiency * 100
+            )
 
-        return self._coulomb_efficiency, self._energy_efficiency, self._voltage_efficiency
-
+        return (
+            self._coulomb_efficiency,
+            self._energy_efficiency,
+            self._voltage_efficiency,
+        )
 
     # efficiencies
     @property
     def coulomb_efficiency(self):
         return self._coulomb_efficiency
+
     @property
     def energy_efficiency(self):
         return self._energy_efficiency
+
     @property
     def voltage_efficiency(self):
         return self._voltage_efficiency
@@ -248,13 +288,16 @@ def build_DTA_cycles(filelist):
 
         print("Loading:", filepath, "\n")
 
-        if filepath.endswith(".DTA".lower()):                                        
-        
+        filename = path.basename(filepath)
+        extension = path.splitext(filename)[1]
+
+        if extension.lower() == ".dta":
+
             with open(filepath, "r", encoding="utf8", errors="ignore") as file:
 
-                beginning = None    # line at which the table begins
-                npoints = None      # number of data points
-                cycle_type = None   # 1 for charge, 0 for discharge
+                beginning = None  # line at which the table begins
+                npoints = None  # number of data points
+                cycle_type = None  # 1 for charge, 0 for discharge
 
                 # finding the "CURVE TABLE npoints" line in file
                 for line_num, line in enumerate(file):
@@ -269,38 +312,41 @@ def build_DTA_cycles(filelist):
                         beginning = line_num + 2
                         npoints = int(line.split()[-1])
                         break
-                    
+
                 # reading data from file
                 data = pd.read_table(
-                        filepath, delimiter = '\t', skiprows=beginning, 
-                        decimal=".", nrows=npoints,
-                        encoding_errors='ignore'
-
+                    filepath,
+                    delimiter="\t",
+                    skiprows=beginning,
+                    decimal=".",
+                    nrows=npoints,
+                    encoding_errors="ignore",
                 )
 
                 # renaming columns to standard format
                 data.rename(
                     columns={
-                        's': 'Time (s)', 
-                        'V vs. Ref.': 'Voltage vs. Ref. (V)',
-                        'A': 'Current (A)'
-                    }, inplace=True
+                        "s": "Time (s)",
+                        "V vs. Ref.": "Voltage vs. Ref. (V)",
+                        "A": "Current (A)",
+                    },
+                    inplace=True,
                 )
 
                 if cycle_type == 1:
                     charge = (
-                        data['Time (s)'],
-                        data['Voltage vs. Ref. (V)'],
-                        data['Current (A)']
+                        data["Time (s)"],
+                        data["Voltage vs. Ref. (V)"],
+                        data["Current (A)"],
                     )
                     cyc = Cycle(cycle_number)
                     cyc.add_charge(charge)
 
                 elif cycle_type == 0:
                     discharge = (
-                        data['Time (s)'],
-                        data['Voltage vs. Ref. (V)'],
-                        data['Current (A)']
+                        data["Time (s)"],
+                        data["Voltage vs. Ref. (V)"],
+                        data["Current (A)"],
                     )
                     cyc.add_discharge(discharge)
                     cyc.calculate_efficiencies()
@@ -308,37 +354,38 @@ def build_DTA_cycles(filelist):
                     if cyc.energy_efficiency < 100:
                         cycles.append(cyc)
                     cycle_number += 1
-                     
-                    
+
         else:
             print("This is not a .DTA file!")
-            sys.exit()  
+            sys.exit()
 
     return cycles
 
 
-def read_mpt_cycles(filelist):
+def read_mpt_cycles(filelist, clean):
 
     cycles = []
     cycle_number = 0
 
     for filepath in filelist:
-
         print("Loading:", filepath, "\n")
 
-        if filepath.endswith(".mpt".lower()):  
-      
+        filename = path.basename(filepath)
+        extension = path.splitext(filename)[1]
+
+        if extension.lower() == ".mpt":
+
             with open(filepath, "r", encoding="utf8", errors="ignore") as file:
 
-                delims=[]   # contains cycle number, first and last line number
+                delims = []  # contains cycle number, first and last line number
                 beginning = None
 
                 for line_num, line in enumerate(file):
                     if "Number of loops : " in line:
                         ncycles = int(line.split(" ")[-1])
 
-                    # Before the output of the experiment, EClab lists the 
-                    # starting and ending line of each loop. These will be used 
+                    # Before the output of the experiment, EClab lists the
+                    # starting and ending line of each loop. These will be used
                     # to slice the pandas dataframe into the different cycles.
                     if "Loop " in line:
                         loop_num = int(line.split(" ")[1])
@@ -350,79 +397,106 @@ def read_mpt_cycles(filelist):
                         beginning = line_num
                         break
 
-                # reading data from file    
+                # reading data from file
                 data = pd.read_table(
-                        filepath, dtype=np.float64, delimiter = '\t', 
-                        skiprows=beginning, decimal=",", 
-                        encoding_errors='ignore'
+                    filepath,
+                    dtype=np.float64,
+                    delimiter="\t",
+                    skiprows=beginning,
+                    decimal=",",
+                    encoding_errors="ignore",
                 )
 
                 # renaming columns to standard format
                 data.rename(
                     columns={
-                        'time/s': 'Time (s)', 
-                        'Ewe/V': 'Voltage vs. Ref. (V)',
-                        'I/mA': 'Current (A)'      # note: these are mA
-                    }, inplace=True
-                )  
+                        "time/s": "Time (s)",
+                        "Ewe/V": "Voltage vs. Ref. (V)",
+                        "I/mA": "Current (A)",  # note: these are mA
+                    },
+                    inplace=True,
+                )
 
                 # convert mA to A
-                data['Current (A)'] = data['Current (A)'].divide(1000)    
+                data["Current (A)"] = data["Current (A)"].divide(1000)
 
                 cycle_num = 0
 
                 # initiate Cycle object providing dataframe view within delims
                 while cycle_num < ncycles:
                     first_row = delims[cycle_num][1]
-                    last_row = delims[cycle_num][2]
+                    last_row = delims[cycle_num][2]+1
 
                     charge = (
-                        data['Time (s)'][first_row:last_row][data['ox/red'] == 1],
-                        data['Voltage vs. Ref. (V)'][first_row:last_row][data['ox/red'] == 1],
-                        data['Current (A)'][first_row:last_row][data['ox/red'] == 1]
+                        data["Time (s)"][first_row:last_row][data["ox/red"] == 1],
+                        data["Voltage vs. Ref. (V)"][first_row:last_row][
+                            data["ox/red"] == 1
+                        ],
+                        data["Current (A)"][first_row:last_row][data["ox/red"] == 1],
                     )
 
                     discharge = (
-                        data['Time (s)'][first_row:last_row][data["ox/red"] == 0],
-                        data['Voltage vs. Ref. (V)'][first_row:last_row][data['ox/red'] == 0],
-                        data['Current (A)'][first_row:last_row][data['ox/red'] == 0]
+                        data["Time (s)"][first_row:last_row][data["ox/red"] == 0],
+                        data["Voltage vs. Ref. (V)"][first_row:last_row][
+                            data["ox/red"] == 0
+                        ],
+                        data["Current (A)"][first_row:last_row][data["ox/red"] == 0],
                     )
-                                                      
-                    cyc = Cycle(cycle_number)
-                    cyc.add_charge(charge)
-                    cyc.add_discharge(discharge)
 
-                    cyc.calculate_efficiencies()
 
-                    if cyc.energy_efficiency < 100:
-                        cycles.append(cyc)
-                   
+                    missing_discharge = False
+
+                    try:
+                        cycle = Cycle(cycle_number)
+                        cycle.add_charge(charge)
+                        cycle.add_discharge(discharge)
+                        
+                        cycle.calculate_efficiencies()
+                        unphysical = (
+                            cycle.energy_efficiency > 100,
+                            cycle.coulomb_efficiency > 100,
+                            cycle.voltage_efficiency > 100,
+                        )
+                    except IndexError:
+                        unphysical = [False]
+                        missing_discharge = True
+                        
+                        
+                    #fmt: off
+                    if missing_discharge:
+                        print(f"Warning: cycle {cycle._number} will be discarded "
+                              "due to missing discharge data")                        
+                    elif any(unphysical) and clean:
+                        print(f"Warning: cycle {cycle._number} will be discarded "
+                              "due to unphysical efficiencies")
+                    #fmt:on
+                    else:
+                        cycles.append(cycle)
+
                     cycle_number += 1
-                    
-                    cycle_num +=1   
-                
+
+                    cycle_num += 1
+
         else:
             print("This is not a .mpt file!")
-            sys.exit() 
+            sys.exit()
 
     return cycles
 
 
-def read_cycles(filelist):
-    for filepath in filelist:
-        filepath = r'%s' %filepath
-    
-    cycles = read_mpt_cycles(filelist)
-              
+def read_cycles(filelist, clean=False):
+    if type(filelist) is str:
+        filelist = [filelist]
+
+    cycles = read_mpt_cycles(filelist, clean)
+
     return CellCycling(cycles)
 
 
 def build_cycles(filelist):
-    for filepath in filelist:
-        filepath = r'%s' %filepath
     cycles = build_DTA_cycles(filelist)
 
-    return CellCycling(cycles)    
+    return CellCycling(cycles)
 
 
 def time_adjust(cycle, reverse=False):
@@ -433,8 +507,8 @@ def time_adjust(cycle, reverse=False):
     else:
         time_charge = cycle.time_charge
         time_discharge = cycle.time_discharge
-        
+
     if reverse is True:
-        time_discharge=time_discharge.sort_values(ascending=False)
+        time_discharge = time_discharge.sort_values(ascending=False)
 
     return time_charge, time_discharge
