@@ -15,12 +15,8 @@ class CellCycling:
         self._cycles = cycles
         self._number_of_cycles = len(self._cycles)
 
-        self._capacity_retentions = None  # to be initialized in calculate_retention()
-        self._capacity_efficiencies = (
-            None  # to be initialized in calculate_efficiency()
-        )
+        self._capacity_retention = None  # to be initialized in calculate_retention()
 
-        self.calculate_capacity_efficiencies()
         self.calculate_capacity_retention()
 
     def __getitem__(self, cycle):
@@ -38,34 +34,29 @@ class CellCycling:
 
         initial_capacity = self._cycles[reference].capacity_discharge
 
-        self._capacity_retentions = []
+        self._capacity_retention = []
 
         for cycle in self._cycles:
-            self._capacity_retentions.append(
+            self._capacity_retention.append(
                 cycle.capacity_discharge / initial_capacity * 100
-            )
-
-    def calculate_capacity_efficiencies(self):
-        """
-        Calculates capacity efficiency of the cycles, as the ratio between 
-        capacity of cycle n in charge and discharge
-        """
-
-        self._capacity_efficiencies = []
-
-        for cycle in self._cycles:
-            self._capacity_efficiencies.append(
-                cycle.capacity_discharge / cycle.capacity_charge * 100
             )
 
     @property
     def capacity_retention(self):
-        return self._capacity_retentions
+        return self._capacity_retention
 
     @property
-    def capacity_efficiency(self):
-        return self._capacity_efficiencies
-
+    def coulomb_efficiencies(self):
+        return [ cycle.coulomb_efficiency for cycle in self._cycles ]
+    
+    @property
+    def voltage_efficiencies(self):
+        return [ cycle.voltage_efficiency for cycle in self._cycles ]
+    
+    @property
+    def energy_efficiencies(self):
+        return [ cycle.energy_efficiency for cycle in self._cycles ]
+    
     @property
     def number_of_cycles(self):
         return self._number_of_cycles
@@ -162,9 +153,10 @@ class Cycle:
         # self._energy_discharge = dq * self._voltage_discharge / 1000
 
         # total energy (W.h)
-        self._total_energy_discharge = (
-            abs(integrate.trapz(self._power_discharge, self._time_discharge)) / 3600
-        )
+        # self._total_energy_discharge = (
+        #     abs(integrate.trapz(self._power_discharge, self._time_discharge)) / 3600
+        # )
+        self._total_energy_discharge = self._energy_discharge.iloc[-1]  # cheaper?
 
     # time
     @property
