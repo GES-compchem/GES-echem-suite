@@ -145,6 +145,7 @@ class CyclicVoltammetry:
                     skiprows=row_idx + 2,
                     names=header,
                     decimal=",",
+                    encoding_errors="ignore",
                 )
                 self.data = self.data.drop(self.data.columns[0], axis=1)
                 uniques = self.data["Cycle n"].value_counts()  #
