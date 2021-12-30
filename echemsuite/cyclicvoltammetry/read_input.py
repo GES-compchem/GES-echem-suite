@@ -64,7 +64,11 @@ class CyclicVoltammetry:
                     break
 
             self.data = pd.read_csv(
-                self.filepath, sep="\t", skiprows=skiprows - 1, decimal=",",
+                self.filepath,
+                sep="\t",
+                skiprows=skiprows - 1,
+                decimal=",",
+                encoding_errors="ignore",
             )
 
             uniques = self.data["cycle number"].value_counts()  #
