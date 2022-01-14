@@ -1,5 +1,5 @@
 {% set name = "GES-echem-suite" %}
-{% set version = "0.1.9a" %}
+{% set version = "0.1.10a" %}
 
 
 
@@ -23,15 +23,11 @@ requirements:
     - python>=3.8
     - pip
     - setuptools
-    - numpy
-    - pandas
-    - scipy
-    - matplotlib
 
   run:
     - python>=3.8
     - numpy
-    - pandas
+    - pandas>=1.3.0
     - scipy
     - matplotlib
 
