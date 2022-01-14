@@ -501,6 +501,7 @@ def time_adjust(cycle, reverse=False):
         time_discharge = cycle.time_discharge
 
     if reverse is True:
-        time_discharge = time_discharge.sort_values(ascending=False)
+        switch = time_discharge-time_charge.iloc[-1]
+        time_discharge = abs(switch)
 
     return time_charge, time_discharge
