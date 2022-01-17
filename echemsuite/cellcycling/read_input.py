@@ -1,6 +1,5 @@
 import pandas as pd
 import numpy as np
-# import scipy.integrate as integrate
 import sys
 from os import path
 import warnings
@@ -11,7 +10,7 @@ class CellCycling:
     Contains all the cycles
     """
 
-    def __init__(self, cycles: int):
+    def __init__(self, cycles: list):
         self._cycles = cycles
         self._number_of_cycles = len(self._cycles)
 
@@ -69,15 +68,6 @@ class Cycle:
 
     def __init__(self, number: int):
         self._number = number
-
-        # initialized by their respective properties 
-        # (concatenation of charge and discharge data)
-        self._time: pd.Series = None
-        self._voltage: pd.Series = None
-        self._current: pd.Series = None
-        self._power: pd.Series = None
-        self._energy: pd.Series = None
-        self._Q: pd.Series = None
 
         # initialized by add_charge
         self._time_charge: pd.Series = None  
