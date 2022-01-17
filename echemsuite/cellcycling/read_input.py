@@ -1,6 +1,5 @@
 import pandas as pd
 import numpy as np
-import scipy.integrate as integrate
 import sys
 from os import path
 import warnings
@@ -11,11 +10,11 @@ class CellCycling:
     Contains all the cycles
     """
 
-    def __init__(self, cycles):
+    def __init__(self, cycles: list):
         self._cycles = cycles
         self._number_of_cycles = len(self._cycles)
 
-        self._capacity_retention = None  # to be initialized in calculate_retention()
+        self._capacity_retention: list = None  # to be initialized in calculate_retention()
 
         self.calculate_capacity_retention()
 
@@ -67,10 +66,36 @@ class Cycle:
     Contains the charge and discharge half-cycles
     """
 
-    def __init__(self, number):
+    def __init__(self, number: int):
         self._number = number
 
-        # DEV NOTE: move all variable initializations here to default value
+        # initialized by add_charge
+        self._time_charge: pd.Series = None  
+        self._voltage_charge: pd.Series = None
+        self._current_charge: pd.Series = None
+
+        self._Q_charge: pd.Series = None
+        self._capacity_charge: np.float64 = None
+        self._power_charge: pd.Series = None
+        self._energy_charge: pd.Series = None
+        self._total_energy_charge: np.float64 = None
+
+        # initialized by add_discharge
+        self._time_discharge: pd.Series = None
+        self._voltage_discharge: pd.Series = None
+        self._current_discharge: pd.Series = None
+        
+        self._Q_discharge: pd.Series = None
+        self._capacity_discharge: np.float64 = None
+        self._power_discharge: pd.Series = None
+        self._energy_discharge: pd.Series = None
+        self._total_energy_discharge: np.float64 = None
+
+        # initialized by calculate_efficiencies
+        self._coulomb_efficiency: np.float64 = None
+        self._energy_efficiency: np.float64 = None
+        self._voltage_efficiency: np.float64 = None
+
 
     @property
     def number(self):
@@ -84,20 +109,20 @@ class Cycle:
 
         """
         Calculate the capacity C (mA.h) of the charge half-cycle as the 
-        integral of current over time
+        accumulated charge over time
         """
-        # accumulated charge dq (mA.h) at each measurement step and cumulative
+        # accumulated charge dq at each measurement step (mA.h)
         dq = abs(self._current_charge * self._time_charge.diff()) / 3.6
+
+        # charge as cumulative sum (mA.h)
         self._Q_charge = dq.cumsum()
-        
-        # A/1000 --> mA, s/3600 --> h == /3.6
-        # self._capacity_charge = abs(integrate.trapz(self._current_charge, self._time_charge)) / 3.6
-        self._capacity_charge = self._Q_charge.iloc[-1]  # cheaper?        
-        
+
+        # capacity as last value of accumulated charge (mA.h)
+        self._capacity_charge = self._Q_charge.iloc[-1]       
         
         """
         Calculate the total energy E (W.h) of the charge half-cycle as the 
-        integral of instantaneous energy over time
+        cumulative sum of energy over time
         """
 
         # instantaneous power (W)
@@ -106,12 +131,9 @@ class Cycle:
         # istantaneous energy dE (W.h) at each measurement step and cumulative
         dE = (self._power_charge * self._time_charge.diff()) / 3.6
         self._energy_charge = dE.cumsum()
-        # # instantaneous energy (Wh)
-        # self._energy_charge = dE * self._voltage_charge / 1000
 
         # total energy (W.h)
-        # self._total_energy_charge = abs(integrate.trapz(self._power_charge, self._time_charge)) / 3.6
-        self._total_energy_charge = self._energy_charge.iloc[-1]  # cheaper?
+        self._total_energy_charge = self._energy_charge.iloc[-1]
 
     def add_discharge(self, discharge):
 
@@ -121,44 +143,33 @@ class Cycle:
 
         """
         Calculate the capacity C (mA.h) of the discharge half-cycle as the 
-        integral of current over time
+        accumulated charge over time
         """
-        # accumulated charge dq (mA.h) at each measurement step
-        # dq = self._power_discharge.div(3.6) * self._time_discharge.diff()
+        # accumulated charge dq at each measurement step (mA.h)
         dq = abs(self._current_discharge * self._time_discharge.diff()) / 3.6
-        self._Q_discharge = dq.cumsum()
-        #print(self._Q_discharge)
-        
-        self._capacity_discharge = self._Q_discharge.iloc[-1]  # cheaper?    
-        
-        # self._capacity_discharge = (
-        #     abs(integrate.trapz(self._current_discharge, self._time_discharge)) / 3.6
-        # )
+
+        # charge as cumulative sum (mA.h)
+        self._Q_discharge = dq.cumsum()    
+
+        # capacity as last value of accumulated charge (mA.h)   
+        self._capacity_discharge = self._Q_discharge.iloc[-1]   
 
         """
         Calculates the total energy E (W.h) of the charge half-cycle as the 
-        integral of instantaneous energy over time
+        cumulative sum of energy over time
         
         """
         # instantaneous power (W)
         self._power_discharge = abs(self._current_discharge * self._voltage_discharge)
 
-
-
         # istantaneous energy dE (W.h) at each measurement step and cumulative
         dE = (self._power_discharge * self._time_discharge.diff()) / 3.6
         self._energy_discharge = dE.cumsum()
 
-        # instantaneous energy (Wh)
-        # self._energy_discharge = dq * self._voltage_discharge / 1000
-
         # total energy (W.h)
-        # self._total_energy_discharge = (
-        #     abs(integrate.trapz(self._power_discharge, self._time_discharge)) / 3600
-        # )
         self._total_energy_discharge = self._energy_discharge.iloc[-1]  # cheaper?
 
-    # time
+    ### TIME ###
     @property
     def time_charge(self):
         return self._time_charge
@@ -167,7 +178,11 @@ class Cycle:
     def time_discharge(self):
         return self._time_discharge
 
-    # voltage
+    @property
+    def time(self):
+        return self._time_charge.append(self._time_discharge)
+
+    ### VOLTAGE ###
     @property
     def voltage_charge(self):
         return self._voltage_charge
@@ -176,7 +191,11 @@ class Cycle:
     def voltage_discharge(self):
         return self._voltage_discharge
 
-    # current
+    @property
+    def voltage(self):
+        return self._voltage_charge.append(self._voltage_discharge)
+
+    ### CURRENT ###
     @property
     def current_charge(self):
         return self._current_charge
@@ -185,7 +204,11 @@ class Cycle:
     def current_discharge(self):
         return self._current_discharge
 
-    # power
+    @property
+    def current(self):
+        return self._current_charge.append(self._current_discharge)
+
+    ### POWER ###
     @property
     def power_charge(self):
         return self._power_charge
@@ -194,7 +217,11 @@ class Cycle:
     def power_discharge(self):
         return self._power_discharge
 
-    # energy
+    @property
+    def power(self):
+        return self._power_charge.append(self._power_discharge)     
+
+    ### ENERGY ###
     @property
     def energy_charge(self):
         return self._energy_charge
@@ -203,7 +230,11 @@ class Cycle:
     def energy_discharge(self):
         return self._energy_discharge
 
-    # accumulated charge
+    @property
+    def energy(self):
+        return self._energy_charge.append(self._energy_discharge)  
+
+    ### ACCUMULATED CHARGE ###
     @property
     def Q_charge(self):
         return self._Q_charge
@@ -212,7 +243,11 @@ class Cycle:
     def Q_discharge(self):
         return self._Q_discharge
 
-    # capacity
+    @property
+    def Q(self):
+        return self._Q_charge.append(self._Q_discharge)  
+
+    ### CAPACITY ###
     @property
     def capacity_charge(self):
         return self._capacity_charge
@@ -221,7 +256,7 @@ class Cycle:
     def capacity_discharge(self):
         return self._capacity_discharge
 
-    # energy
+    ### ENERGY ###
     @property
     def total_energy_charge(self):
         return self._total_energy_charge
@@ -229,6 +264,7 @@ class Cycle:
     @property
     def total_energy_discharge(self):
         return self._total_energy_discharge
+
 
     def calculate_efficiencies(self):
         """
@@ -257,7 +293,7 @@ class Cycle:
             self._voltage_efficiency,
         )
 
-    # efficiencies
+    ### EFFICIENCIES ###
     @property
     def coulomb_efficiency(self):
         return self._coulomb_efficiency
