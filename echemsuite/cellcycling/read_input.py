@@ -95,9 +95,6 @@ class Cycle:
         self._energy_efficiency: np.float64 = None
         self._voltage_efficiency: np.float64 = None
 
-    @property
-    def number(self):
-        return self._number
 
     def add_charge(self, charge):
         self._time_charge = charge[0]
@@ -149,6 +146,7 @@ class Cycle:
         # capacity as last value of accumulated charge (mA.h)   
         self._capacity_discharge = self._Q_discharge.iloc[-1]   
 
+
         """
         Calculates the total energy E (W.h) of the charge half-cycle as the 
         cumulative sum of energy over time
@@ -165,6 +163,10 @@ class Cycle:
         self._total_energy_discharge = self._energy_discharge.iloc[-1]  # cheaper?
 
     ### TIME ###
+    @property
+    def number(self):
+        return self._number
+    
     @property
     def time_charge(self):
         return self._time_charge
