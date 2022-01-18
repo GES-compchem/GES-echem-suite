@@ -2,7 +2,6 @@ import pandas as pd
 import numpy as np
 import sys
 from os import path
-import warnings
 
 
 class CellCycling:
@@ -27,8 +26,8 @@ class CellCycling:
 
     def calculate_capacity_retention(self, reference=0):
         """
-        Calculates capacity retention between cycles, as the ratio between 
-        capacity of cycle n (discharge) minus cycle 1 (discharge)
+        Calculates capacity retention between cycles, as the ratio between
+         capacity of cycle n (discharge) minus cycle 1 (discharge)
         """
 
         initial_capacity = self._cycles[reference].capacity_discharge
@@ -46,15 +45,15 @@ class CellCycling:
 
     @property
     def coulomb_efficiencies(self):
-        return [ cycle.coulomb_efficiency for cycle in self._cycles ]
+        return [cycle.coulomb_efficiency for cycle in self._cycles]
     
     @property
     def voltage_efficiencies(self):
-        return [ cycle.voltage_efficiency for cycle in self._cycles ]
+        return [cycle.voltage_efficiency for cycle in self._cycles]
     
     @property
     def energy_efficiencies(self):
-        return [ cycle.energy_efficiency for cycle in self._cycles ]
+        return [cycle.energy_efficiency for cycle in self._cycles]
     
     @property
     def number_of_cycles(self):
@@ -97,12 +96,7 @@ class Cycle:
         self._voltage_efficiency: np.float64 = None
 
 
-    @property
-    def number(self):
-        return self._number
-
     def add_charge(self, charge):
-
         self._time_charge = charge[0]
         self._voltage_charge = charge[1]
         self._current_charge = charge[2]
@@ -118,8 +112,7 @@ class Cycle:
         self._Q_charge = dq.cumsum()
 
         # capacity as last value of accumulated charge (mA.h)
-        self._capacity_charge = self._Q_charge.iloc[-1]       
-        
+        self._capacity_charge = self._Q_charge.iloc[-1]
         """
         Calculate the total energy E (W.h) of the charge half-cycle as the 
         cumulative sum of energy over time
@@ -136,7 +129,6 @@ class Cycle:
         self._total_energy_charge = self._energy_charge.iloc[-1]
 
     def add_discharge(self, discharge):
-
         self._time_discharge = discharge[0]
         self._voltage_discharge = discharge[1]
         self._current_discharge = discharge[2]
@@ -154,6 +146,7 @@ class Cycle:
         # capacity as last value of accumulated charge (mA.h)   
         self._capacity_discharge = self._Q_discharge.iloc[-1]   
 
+
         """
         Calculates the total energy E (W.h) of the charge half-cycle as the 
         cumulative sum of energy over time
@@ -170,6 +163,10 @@ class Cycle:
         self._total_energy_discharge = self._energy_discharge.iloc[-1]  # cheaper?
 
     ### TIME ###
+    @property
+    def number(self):
+        return self._number
+    
     @property
     def time_charge(self):
         return self._time_charge
