@@ -79,15 +79,15 @@ class CellCycling:
 
     @property
     def coulomb_efficiencies(self):
-        return [self[index].coulomb_efficiency for index in self._indices]
+        return [cycle.coulomb_efficiency for cycle in self]
     
     @property
     def voltage_efficiencies(self):
-        return [self[index].voltage_efficiency for index in self._indices]
+        return [cycle.voltage_efficiency for cycle in self]
     
     @property
     def energy_efficiencies(self):
-        return [self[index].energy_efficiency for index in self._indices]
+        return [cycle.energy_efficiency for cycle in self]
     
     @property
     def number_of_cycles(self):
