@@ -15,9 +15,8 @@ class CellCycling:
 
         self._indices = [cycle.index for cycle in cycles]
 
-        self._capacity_retention: list = None  # to be initialized in calculate_retention()
-
-        self.calculate_capacity_retention()
+        self._capacity_retention: list = None  # initialized in capacity_retention() property
+        self.reference: int = 0  # used for calculating retentions
 
     def __getitem__(self, cycle):
         return self._cycles[cycle]
@@ -27,6 +26,14 @@ class CellCycling:
             yield self._cycles[index]
 
     def mask(self, masked_indices: list):
+        """Cycle masking/hiding feature. Prevents certain cycles from being
+        used/shown in calculations.
+
+        Parameters
+        ----------
+        masked_indices : list
+            list of indices to mask/hide
+        """
         for i in masked_indices:
             try:
                 self._indices.remove(i)
@@ -35,6 +42,14 @@ class CellCycling:
                 pass
 
     def unmask(self, unmasked_indices: list):
+        """Cycle unmasking/unhiding feature. Reinstate cycles from being
+        used/shown in calculations.
+
+        Parameters
+        ----------
+        unmasked_indices : list
+            list of indices to unmask/unhide
+        """
         for i in unmasked_indices:
             if i not in self._indices:
                 if i < self._number_of_cycles:
@@ -48,23 +63,18 @@ class CellCycling:
                 pass
 
 
-    def calculate_capacity_retention(self, reference=0):
-        """
-        Calculates capacity retention between cycles, as the ratio between
-         capacity of cycle n (discharge) minus cycle 1 (discharge)
-        """
+    @property
+    def capacity_retention(self):
 
-        initial_capacity = self._cycles[reference].capacity_discharge
+        initial_capacity = self._cycles[self.reference].capacity_discharge
 
         self._capacity_retention = []
 
-        for cycle in self._cycles:
+        for index in self._indices:
             self._capacity_retention.append(
-                cycle.capacity_discharge / initial_capacity * 100
+                self[index].capacity_discharge / initial_capacity * 100
             )
 
-    @property
-    def capacity_retention(self):
         return self._capacity_retention
 
     @property
