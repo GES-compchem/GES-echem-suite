@@ -13,6 +13,8 @@ class CellCycling:
         self._cycles = cycles
         self._number_of_cycles = len(self._cycles)
 
+        self._indices = [cycle.index for cycle in cycles]
+
         self._capacity_retention: list = None  # to be initialized in calculate_retention()
 
         self.calculate_capacity_retention()
@@ -21,8 +23,30 @@ class CellCycling:
         return self._cycles[cycle]
 
     def __iter__(self):
-        for obj in self._cycles:
-            yield obj
+        for index in self._indices:
+            yield self._cycles[index]
+
+    def mask(self, masked_indices: list):
+        for i in masked_indices:
+            try:
+                self._indices.remove(i)
+            except ValueError:
+                print(f"ERROR: cycle {i} already masked or not present")
+                pass
+
+    def unmask(self, unmasked_indices: list):
+        for i in unmasked_indices:
+            if i not in self._indices:
+                if i < self._number_of_cycles:
+                    self._indices.append(i)
+                    self._indices.sort()
+                else:
+                    print(f"ERROR: cycle {i} does not exist")
+                    pass
+            else:
+                print(f"ERROR: cycle {i} already present")
+                pass
+
 
     def calculate_capacity_retention(self, reference=0):
         """
@@ -45,19 +69,23 @@ class CellCycling:
 
     @property
     def coulomb_efficiencies(self):
-        return [cycle.coulomb_efficiency for cycle in self._cycles]
+        return [self[index].coulomb_efficiency for index in self._indices]
     
     @property
     def voltage_efficiencies(self):
-        return [cycle.voltage_efficiency for cycle in self._cycles]
+        return [self[index].voltage_efficiency for index in self._indices]
     
     @property
     def energy_efficiencies(self):
-        return [cycle.energy_efficiency for cycle in self._cycles]
+        return [self[index].energy_efficiency for index in self._indices]
     
     @property
     def number_of_cycles(self):
         return self._number_of_cycles
+    
+    @property
+    def indices(self):
+        return self._indices
 
 
 class Cycle:
@@ -65,8 +93,8 @@ class Cycle:
     Contains the charge and discharge half-cycles
     """
 
-    def __init__(self, number: int):
-        self._number = number
+    def __init__(self, index: int):
+        self._index = index
 
         # initialized by add_charge
         self._time_charge: pd.Series = None  
@@ -164,8 +192,8 @@ class Cycle:
 
     ### TIME ###
     @property
-    def number(self):
-        return self._number
+    def index(self):
+        return self._index
     
     @property
     def time_charge(self):
@@ -307,7 +335,7 @@ class Cycle:
 def build_DTA_cycles(filelist):
 
     cycles = []
-    cycle_number = 0
+    cycle_index = 0
 
     for filepath in filelist:
 
@@ -364,7 +392,7 @@ def build_DTA_cycles(filelist):
                         data["Voltage vs. Ref. (V)"],
                         data["Current (A)"],
                     )
-                    cyc = Cycle(cycle_number)
+                    cyc = Cycle(cycle_index)
                     cyc.add_charge(charge)
 
                 elif cycle_type == 0:
@@ -378,7 +406,7 @@ def build_DTA_cycles(filelist):
 
                     if cyc.energy_efficiency < 100:
                         cycles.append(cyc)
-                    cycle_number += 1
+                    cycle_index += 1
 
         else:
             print("This is not a .DTA file!")
@@ -390,7 +418,7 @@ def build_DTA_cycles(filelist):
 def read_mpt_cycles(filelist, clean):
 
     cycles = []
-    cycle_number = 0
+    cycle_index = 0
 
     for filepath in filelist:
         print("Loading:", filepath, "\n")
@@ -472,7 +500,7 @@ def read_mpt_cycles(filelist, clean):
                     missing_discharge = False
 
                     try:
-                        cycle = Cycle(cycle_number)
+                        cycle = Cycle(cycle_index)
                         cycle.add_charge(charge)
                         cycle.add_discharge(discharge)
                         
@@ -489,7 +517,7 @@ def read_mpt_cycles(filelist, clean):
                         
                     #fmt: off
                     if missing_discharge:
-                        print(f"Warning: cycle {cycle._number} will be discarded "
+                        print(f"Warning: cycle {cycle._index} will be discarded "
                               "due to missing discharge data")                        
                     elif any(unphysical) and clean:
                         print(f"Warning: cycle {cycle._number} will be discarded "
@@ -498,7 +526,7 @@ def read_mpt_cycles(filelist, clean):
                     else:
                         cycles.append(cycle)
 
-                    cycle_number += 1
+                    cycle_index += 1
 
                     cycle_num += 1
 
