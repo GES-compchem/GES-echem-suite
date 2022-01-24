@@ -26,26 +26,77 @@ class CyclicVoltammetry:
         filename = os.path.basename(self.filepath)
         root = path.splitext(filename)[0]
         extension = path.splitext(filename)[1]
+        
+        self.settings["filename"] = filename
+        self.settings["file_rootname"] = root
 
         if extension.lower() == ".dta":
             self.settings["format"] = "Gamry"
-            # self.settings['folder'] = ''
-            self.settings["filename"] = filename
-            self.settings["file_rootname"] = root
             self.settings["extension"] = "dta"
             self._read_DTA()
         elif extension.lower() == ".mpt":
             self.settings["format"] = "Biologic"
-            self.settings["filename"] = filename
             self.settings["extension"] = "mpt"
-            self.settings["file_rootname"] = root
             self._read_MPT()
+        elif extension.lower() == ".txt":
+            self.settings["format"] = "CH Instruments"
+            self.settings["extension"] = "txt"
+            self._read_TXT()
         elif extension.lower() == "":
             print("No file selected")
             raise ValueError
         else:
             # if extension is not recognized, raise error
             raise ValueError
+
+    def _read_TXT(self):
+        with open(self.filepath, "r", encoding="utf8", errors="ignore") as f:
+            iterator = iter(f)  # iterator avoids checking settings after header
+            
+            for row_number, line in enumerate(iterator):
+                if "High E" in line:
+                    v_init = float(line.split("=")[1])
+                    self.settings["initial voltage"] = float(v_init)
+                if "Low E" in line:
+                    v_final = float(line.split("=")[1])
+                    self.settings["final voltage"] = float(v_final)
+                if "Potential/V, Current/A" in line:
+                    header = line
+                    break
+            
+            header = ["Vf", "Im", "Cycle n", "T"]
+            
+            data = pd.read_csv(
+                self.filepath,
+                sep=",",
+                names=header,
+                decimal='.',
+                skiprows=row_number+1,
+                encoding_errors="ignore",
+            )            
+            
+            data['diff'] = data['Vf'].diff()
+            data['diff'].iloc[0] = data['diff'].iloc[1]
+            
+            is_positive = True
+            switches = 0
+            for row in data.itertuples():
+                condition = row.diff > 0
+                if condition == is_positive:
+                    data.at[row.Index, 'Cycle n'] = switches//2
+                    continue
+                else:
+                    is_positive = condition
+                    switches += 1
+                    data.at[row.Index, 'Cycle n'] = switches//2
+            
+            
+            self.settings["n_cycles"] = switches//2 + 1
+            
+            
+            data['Cycle n'] = data['Cycle n'].astype(int)
+            self.data = data[["Cycle n", "T", "Vf", "Im"]]
+            self.data.set_index("Cycle n", inplace=True)
 
     def _read_MPT(self):
         with open(self.filepath, "r", encoding="utf8", errors="ignore") as f:
