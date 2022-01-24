@@ -25,7 +25,7 @@ class CellCycling:
         for index in self._indices:
             yield self._cycles[index]
 
-    def mask(self, masked_indices: list):
+    def hide(self, masked_indices: list):
         """Cycle masking/hiding feature. Prevents certain cycles from being
         used/shown in calculations.
 
@@ -41,7 +41,7 @@ class CellCycling:
                 print(f"ERROR: cycle {i} already masked or not present")
                 pass
 
-    def unmask(self, unmasked_indices: list):
+    def unhide(self, unmasked_indices: list):
         """Cycle unmasking/unhiding feature. Reinstate cycles from being
         used/shown in calculations.
 
@@ -54,13 +54,13 @@ class CellCycling:
             if i not in self._indices:
                 if i < self._number_of_cycles:
                     self._indices.append(i)
-                    self._indices.sort()
                 else:
                     print(f"ERROR: cycle {i} does not exist")
                     pass
             else:
                 print(f"ERROR: cycle {i} already present")
                 pass
+        self._indices.sort()
 
 
     @property
