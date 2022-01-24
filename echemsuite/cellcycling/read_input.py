@@ -13,51 +13,89 @@ class CellCycling:
         self._cycles = cycles
         self._number_of_cycles = len(self._cycles)
 
-        self._capacity_retention: list = None  # to be initialized in calculate_retention()
+        self._indices = [cycle.index for cycle in cycles]
 
-        self.calculate_capacity_retention()
+        self._capacity_retention: list = None  # initialized in capacity_retention() property
+        self.reference: int = 0  # used for calculating retentions
 
     def __getitem__(self, cycle):
         return self._cycles[cycle]
 
     def __iter__(self):
-        for obj in self._cycles:
-            yield obj
+        for index in self._indices:
+            yield self._cycles[index]
 
-    def calculate_capacity_retention(self, reference=0):
+    def hide(self, masked_indices: list):
+        """Cycle masking/hiding feature. Prevents certain cycles from being
+        used/shown in calculations.
+
+        Parameters
+        ----------
+        masked_indices : list
+            list of indices to mask/hide
         """
-        Calculates capacity retention between cycles, as the ratio between
-         capacity of cycle n (discharge) minus cycle 1 (discharge)
+        for i in masked_indices:
+            try:
+                self._indices.remove(i)
+            except ValueError:
+                print(f"ERROR: cycle {i} already masked or not present")
+                pass
+
+    def unhide(self, unmasked_indices: list):
+        """Cycle unmasking/unhiding feature. Reinstate cycles from being
+        used/shown in calculations.
+
+        Parameters
+        ----------
+        unmasked_indices : list
+            list of indices to unmask/unhide
         """
+        for i in unmasked_indices:
+            if i not in self._indices:
+                if i < self._number_of_cycles:
+                    self._indices.append(i)
+                else:
+                    print(f"ERROR: cycle {i} does not exist")
+                    pass
+            else:
+                print(f"ERROR: cycle {i} already present")
+                pass
+        self._indices.sort()
 
-        initial_capacity = self._cycles[reference].capacity_discharge
-
-        self._capacity_retention = []
-
-        for cycle in self._cycles:
-            self._capacity_retention.append(
-                cycle.capacity_discharge / initial_capacity * 100
-            )
 
     @property
     def capacity_retention(self):
+
+        initial_capacity = self._cycles[self.reference].capacity_discharge
+
+        self._capacity_retention = []
+
+        for index in self._indices:
+            self._capacity_retention.append(
+                self[index].capacity_discharge / initial_capacity * 100
+            )
+
         return self._capacity_retention
 
     @property
     def coulomb_efficiencies(self):
-        return [cycle.coulomb_efficiency for cycle in self._cycles]
+        return [cycle.coulomb_efficiency for cycle in self]
     
     @property
     def voltage_efficiencies(self):
-        return [cycle.voltage_efficiency for cycle in self._cycles]
+        return [cycle.voltage_efficiency for cycle in self]
     
     @property
     def energy_efficiencies(self):
-        return [cycle.energy_efficiency for cycle in self._cycles]
+        return [cycle.energy_efficiency for cycle in self]
     
     @property
     def number_of_cycles(self):
         return self._number_of_cycles
+    
+    @property
+    def indices(self):
+        return self._indices
 
 
 class Cycle:
@@ -65,8 +103,8 @@ class Cycle:
     Contains the charge and discharge half-cycles
     """
 
-    def __init__(self, number: int):
-        self._number = number
+    def __init__(self, index: int):
+        self._index = index
 
         # initialized by add_charge
         self._time_charge: pd.Series = None  
@@ -164,8 +202,8 @@ class Cycle:
 
     ### TIME ###
     @property
-    def number(self):
-        return self._number
+    def index(self):
+        return self._index
     
     @property
     def time_charge(self):
@@ -307,7 +345,7 @@ class Cycle:
 def build_DTA_cycles(filelist):
 
     cycles = []
-    cycle_number = 0
+    cycle_index = 0
 
     for filepath in filelist:
 
@@ -364,7 +402,7 @@ def build_DTA_cycles(filelist):
                         data["Voltage vs. Ref. (V)"],
                         data["Current (A)"],
                     )
-                    cyc = Cycle(cycle_number)
+                    cyc = Cycle(cycle_index)
                     cyc.add_charge(charge)
 
                 elif cycle_type == 0:
@@ -378,7 +416,7 @@ def build_DTA_cycles(filelist):
 
                     if cyc.energy_efficiency < 100:
                         cycles.append(cyc)
-                    cycle_number += 1
+                    cycle_index += 1
 
         else:
             print("This is not a .DTA file!")
@@ -390,7 +428,7 @@ def build_DTA_cycles(filelist):
 def read_mpt_cycles(filelist, clean):
 
     cycles = []
-    cycle_number = 0
+    cycle_index = 0
 
     for filepath in filelist:
         print("Loading:", filepath, "\n")
@@ -472,7 +510,7 @@ def read_mpt_cycles(filelist, clean):
                     missing_discharge = False
 
                     try:
-                        cycle = Cycle(cycle_number)
+                        cycle = Cycle(cycle_index)
                         cycle.add_charge(charge)
                         cycle.add_discharge(discharge)
                         
@@ -489,7 +527,7 @@ def read_mpt_cycles(filelist, clean):
                         
                     #fmt: off
                     if missing_discharge:
-                        print(f"Warning: cycle {cycle._number} will be discarded "
+                        print(f"Warning: cycle {cycle._index} will be discarded "
                               "due to missing discharge data")                        
                     elif any(unphysical) and clean:
                         print(f"Warning: cycle {cycle._number} will be discarded "
@@ -498,7 +536,7 @@ def read_mpt_cycles(filelist, clean):
                     else:
                         cycles.append(cycle)
 
-                    cycle_number += 1
+                    cycle_index += 1
 
                     cycle_num += 1
 
