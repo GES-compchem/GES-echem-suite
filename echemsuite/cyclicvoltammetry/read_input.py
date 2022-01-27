@@ -144,6 +144,11 @@ class CyclicVoltammetry:
         with open(self.filepath, "r", encoding="utf8", errors="ignore") as f:
             iterator = iter(f)  # iterator avoids checking settings after header
 
+            # Temporary fix to read LSV... to be checked in the future
+            vlimit_1 = None # Sentinel values
+            vlimit_2 = None # Sentinel values
+            
+
             # headers for self.settings dict
             row_idx = 0
             for line in iterator:
@@ -165,7 +170,9 @@ class CyclicVoltammetry:
 
             # Find peak (either maximum or minimum) in voltage scan...
             # This is gamry nonsense :@
-            if float(v_init) == float(vlimit_1):
+            if (vlimit_1 is None) or (vlimit_2 is None):
+                pass # do nothing
+            elif float(v_init) == float(vlimit_1):
                 self.settings["final voltage"] = float(vlimit_2)
             else:
                 self.settings["final voltage"] = float(vlimit_1)
