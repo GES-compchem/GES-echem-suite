@@ -442,6 +442,7 @@ def read_mpt_cycles(filelist, clean):
 
                 delims = []  # contains cycle number, first and last line number
                 beginning = None
+                ncycles = 1
 
                 for line_num, line in enumerate(file):
                     if "Number of loops : " in line:
@@ -459,6 +460,10 @@ def read_mpt_cycles(filelist, clean):
                     if "mode\t" in line:
                         beginning = line_num
                         break
+
+                # if no cycles are found, default to "read everything"
+                if len(delims) == 0:
+                    delims = [[0, 0, -2]]   # -2 will be converted to -1 later
 
                 # reading data from file
                 data = pd.read_table(
