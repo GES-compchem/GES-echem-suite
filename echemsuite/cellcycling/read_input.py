@@ -13,7 +13,7 @@ class CellCycling:
         self._cycles = cycles
         self._number_of_cycles = len(self._cycles)
 
-        self._indices = [cycle.index for cycle in cycles]
+        self._numbers = [cycle.number for cycle in cycles]
 
         self._capacity_retention: list = None  # initialized in capacity_retention() property
         self.reference: int = 0  # used for calculating retentions
@@ -22,10 +22,10 @@ class CellCycling:
         return self._cycles[cycle]
 
     def __iter__(self):
-        for index in self._indices:
-            yield self._cycles[index]
+        for number in self._numbers:
+            yield self._cycles[number]
 
-    def hide(self, masked_indices: list):
+    def hide(self, masked_cycles: list):
         """Cycle masking/hiding feature. Prevents certain cycles from being
         used/shown in calculations.
 
@@ -34,14 +34,14 @@ class CellCycling:
         masked_indices : list
             list of indices to mask/hide
         """
-        for i in masked_indices:
+        for i in masked_cycles:
             try:
-                self._indices.remove(i)
+                self._numbers.remove(i)
             except ValueError:
                 print(f"ERROR: cycle {i} already masked or not present")
                 pass
 
-    def unhide(self, unmasked_indices: list):
+    def unhide(self, unmasked_cycles: list):
         """Cycle unmasking/unhiding feature. Reinstate cycles from being
         used/shown in calculations.
 
@@ -50,17 +50,17 @@ class CellCycling:
         unmasked_indices : list
             list of indices to unmask/unhide
         """
-        for i in unmasked_indices:
-            if i not in self._indices:
+        for i in unmasked_cycles:
+            if i not in self._numbers:
                 if i < self._number_of_cycles:
-                    self._indices.append(i)
+                    self._numbers.append(i)
                 else:
                     print(f"ERROR: cycle {i} does not exist")
                     pass
             else:
                 print(f"ERROR: cycle {i} already present")
                 pass
-        self._indices.sort()
+        self._numbers.sort()
 
 
     @property
@@ -70,7 +70,7 @@ class CellCycling:
 
         self._capacity_retention = []
 
-        for index in self._indices:
+        for index in self._numbers:
             self._capacity_retention.append(
                 self[index].capacity_discharge / initial_capacity * 100
             )
@@ -94,8 +94,8 @@ class CellCycling:
         return self._number_of_cycles
     
     @property
-    def indices(self):
-        return self._indices
+    def numbers(self):
+        return self._numbers
 
 
 class Cycle:
@@ -103,8 +103,8 @@ class Cycle:
     Contains the charge and discharge half-cycles
     """
 
-    def __init__(self, index: int):
-        self._index = index
+    def __init__(self, number: int):
+        self._number = number
 
         # initialized by add_charge
         self._time_charge: pd.Series = None  
@@ -202,8 +202,8 @@ class Cycle:
 
     ### TIME ###
     @property
-    def index(self):
-        return self._index
+    def number(self):
+        return self._number
     
     @property
     def time_charge(self):
@@ -345,7 +345,7 @@ class Cycle:
 def build_DTA_cycles(filelist):
 
     cycles = []
-    cycle_index = 0
+    cycle_number = 0
 
     for filepath in filelist:
 
@@ -402,7 +402,7 @@ def build_DTA_cycles(filelist):
                         data["Voltage vs. Ref. (V)"],
                         data["Current (A)"],
                     )
-                    cyc = Cycle(cycle_index)
+                    cyc = Cycle(cycle_number)
                     cyc.add_charge(charge)
 
                 elif cycle_type == 0:
@@ -416,7 +416,7 @@ def build_DTA_cycles(filelist):
 
                     if cyc.energy_efficiency < 100:
                         cycles.append(cyc)
-                    cycle_index += 1
+                    cycle_number += 1
 
         else:
             print("This is not a .DTA file!")
@@ -428,7 +428,7 @@ def build_DTA_cycles(filelist):
 def read_mpt_cycles(filelist, clean):
 
     cycles = []
-    cycle_index = 0
+    cycle_number = 0
 
     for filepath in filelist:
         print("Loading:", filepath, "\n")
@@ -488,12 +488,10 @@ def read_mpt_cycles(filelist, clean):
                 # convert mA to A
                 data["Current (A)"] = data["Current (A)"].divide(1000)
 
-                cycle_num = 0
-
                 # initiate Cycle object providing dataframe view within delims
-                while cycle_num < ncycles:
-                    first_row = delims[cycle_num][1]
-                    last_row = delims[cycle_num][2]+1
+                while cycle_number < ncycles:
+                    first_row = delims[cycle_number][1]
+                    last_row = delims[cycle_number][2]+1
 
                     charge = (
                         data["Time (s)"][first_row:last_row][data["ox/red"] == 1],
@@ -515,7 +513,7 @@ def read_mpt_cycles(filelist, clean):
                     missing_discharge = False
 
                     try:
-                        cycle = Cycle(cycle_index)
+                        cycle = Cycle(cycle_number)
                         cycle.add_charge(charge)
                         cycle.add_discharge(discharge)
                         
@@ -532,7 +530,7 @@ def read_mpt_cycles(filelist, clean):
                         
                     #fmt: off
                     if missing_discharge:
-                        print(f"Warning: cycle {cycle._index} will be discarded "
+                        print(f"Warning: cycle {cycle._number} will be discarded "
                               "due to missing discharge data")                        
                     elif any(unphysical) and clean:
                         print(f"Warning: cycle {cycle._number} will be discarded "
@@ -541,10 +539,8 @@ def read_mpt_cycles(filelist, clean):
                     else:
                         cycles.append(cycle)
 
-                    cycle_index += 1
-
-                    cycle_num += 1
-
+                    cycle_number += 1
+                    
         else:
             print("This is not a .mpt file!")
             sys.exit()
