@@ -154,6 +154,11 @@ class CyclicVoltammetry:
             for line in iterator:
                 row_idx += 1
                 if "SCANRATE" in line:
+                    # Check if dot or comma is used as decimal separator
+                    if "." in line:
+                        separator="."
+                    else:
+                        separator=","
                     scanrate = line.replace(",", ".").split("\t")[2]
                     self.settings["scan rate"] = float(scanrate)
                 elif "VINIT" in line:
@@ -206,7 +211,7 @@ class CyclicVoltammetry:
                     sep="\t",
                     skiprows=row_idx + 2,
                     names=header,
-                    decimal=",",
+                    decimal=separator,
                     encoding_errors="ignore",
                 )
                 self.data = self.data.drop(self.data.columns[0], axis=1)
