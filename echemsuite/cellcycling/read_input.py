@@ -13,55 +13,58 @@ class CellCycling:
         self._cycles = cycles
         self._number_of_cycles = len(self._cycles)
 
-        self._numbers = [cycle.number for cycle in cycles]
+        self._numbers: list = None  # initialized by get_numbers()
 
         self._capacity_retention: list = None  # initialized in capacity_retention() property
         self.reference: int = 0  # used for calculating retentions
 
-    def __getitem__(self, cycle):
-        return self._cycles[cycle]
+    def __getitem__(self, cycle_number):
+        if self._cycles[cycle_number]._hidden is False:
+            return self._cycles[cycle_number]
+        else:
+            print(
+                f"ERROR: cycle {self._cycles[cycle_number].number} is currently hidden."
+            )
+            print("To reinstate it, use the unhide() function")
+            return None
 
     def __iter__(self):
-        for number in self._numbers:
-            yield self._cycles[number]
+        for cycle in self._cycles:
+            if cycle._hidden is False:
+                yield cycle
 
-    def hide(self, masked_cycles: list):
+    def get_numbers(self):
+        self._numbers = [cycle.number for cycle in self]
+
+    def hide(self, hide_indices: list):
         """Cycle masking/hiding feature. Prevents certain cycles from being
         used/shown in calculations.
 
         Parameters
         ----------
-        masked_indices : list
+        hide_indices : list
             list of indices to mask/hide
         """
-        for i in masked_cycles:
-            try:
-                self._numbers.remove(i)
-            except ValueError:
-                print(f"ERROR: cycle {i} already masked or not present")
-                pass
+        for i in hide_indices:
+            print(self._cycles[i]._hidden)
+            self._cycles[i]._hidden = True
+            print(self._cycles[i]._hidden)
 
-    def unhide(self, unmasked_cycles: list):
+        self.get_numbers()
+
+    def unhide(self, unhide_indices: list):
         """Cycle unmasking/unhiding feature. Reinstate cycles from being
         used/shown in calculations.
 
         Parameters
         ----------
-        unmasked_indices : list
+        unhide_indices : list
             list of indices to unmask/unhide
         """
-        for i in unmasked_cycles:
-            if i not in self._numbers:
-                if i < self._number_of_cycles:
-                    self._numbers.append(i)
-                else:
-                    print(f"ERROR: cycle {i} does not exist")
-                    pass
-            else:
-                print(f"ERROR: cycle {i} already present")
-                pass
-        self._numbers.sort()
+        for i in unhide_indices:
+            self._cycles[i]._hidden = False
 
+        self.get_numbers()
 
     @property
     def capacity_retention(self):
@@ -70,9 +73,9 @@ class CellCycling:
 
         self._capacity_retention = []
 
-        for index in self._numbers:
+        for cycle in self:
             self._capacity_retention.append(
-                self[index].capacity_discharge / initial_capacity * 100
+                cycle.capacity_discharge / initial_capacity * 100
             )
 
         return self._capacity_retention
@@ -80,19 +83,19 @@ class CellCycling:
     @property
     def coulomb_efficiencies(self):
         return [cycle.coulomb_efficiency for cycle in self]
-    
+
     @property
     def voltage_efficiencies(self):
         return [cycle.voltage_efficiency for cycle in self]
-    
+
     @property
     def energy_efficiencies(self):
         return [cycle.energy_efficiency for cycle in self]
-    
+
     @property
     def number_of_cycles(self):
         return self._number_of_cycles
-    
+
     @property
     def numbers(self):
         return self._numbers
@@ -105,9 +108,10 @@ class Cycle:
 
     def __init__(self, number: int):
         self._number = number
+        self._hidden: bool = False
 
         # initialized by add_charge
-        self._time_charge: pd.Series = None  
+        self._time_charge: pd.Series = None
         self._voltage_charge: pd.Series = None
         self._current_charge: pd.Series = None
 
@@ -121,7 +125,7 @@ class Cycle:
         self._time_discharge: pd.Series = None
         self._voltage_discharge: pd.Series = None
         self._current_discharge: pd.Series = None
-        
+
         self._Q_discharge: pd.Series = None
         self._capacity_discharge: np.float64 = None
         self._power_discharge: pd.Series = None
@@ -132,7 +136,6 @@ class Cycle:
         self._coulomb_efficiency: np.float64 = None
         self._energy_efficiency: np.float64 = None
         self._voltage_efficiency: np.float64 = None
-
 
     def add_charge(self, charge):
         self._time_charge = charge[0]
@@ -179,11 +182,10 @@ class Cycle:
         dq = abs(self._current_discharge * self._time_discharge.diff()) / 3.6
 
         # charge as cumulative sum (mA.h)
-        self._Q_discharge = dq.cumsum()    
+        self._Q_discharge = dq.cumsum()
 
-        # capacity as last value of accumulated charge (mA.h)   
-        self._capacity_discharge = self._Q_discharge.iloc[-1]   
-
+        # capacity as last value of accumulated charge (mA.h)
+        self._capacity_discharge = self._Q_discharge.iloc[-1]
 
         """
         Calculates the total energy E (W.h) of the charge half-cycle as the 
@@ -191,20 +193,24 @@ class Cycle:
         
         """
         # instantaneous power (W)
-        self._power_discharge = abs(self._current_discharge * self._voltage_discharge)
+        self._power_discharge = abs(
+            self._current_discharge * self._voltage_discharge
+        )
 
         # istantaneous energy dE (W.h) at each measurement step and cumulative
         dE = (self._power_discharge * self._time_discharge.diff()) / 3.6
         self._energy_discharge = dE.cumsum()
 
         # total energy (W.h)
-        self._total_energy_discharge = self._energy_discharge.iloc[-1]  # cheaper?
+        self._total_energy_discharge = self._energy_discharge.iloc[
+            -1
+        ]  # cheaper?
 
     ### TIME ###
     @property
     def number(self):
         return self._number
-    
+
     @property
     def time_charge(self):
         return self._time_charge
@@ -254,7 +260,7 @@ class Cycle:
 
     @property
     def power(self):
-        return self._power_charge.append(self._power_discharge)     
+        return self._power_charge.append(self._power_discharge)
 
     ### ENERGY ###
     @property
@@ -267,7 +273,7 @@ class Cycle:
 
     @property
     def energy(self):
-        return self._energy_charge.append(self._energy_discharge)  
+        return self._energy_charge.append(self._energy_discharge)
 
     ### ACCUMULATED CHARGE ###
     @property
@@ -280,7 +286,7 @@ class Cycle:
 
     @property
     def Q(self):
-        return self._Q_charge.append(self._Q_discharge)  
+        return self._Q_charge.append(self._Q_discharge)
 
     ### CAPACITY ###
     @property
@@ -299,7 +305,6 @@ class Cycle:
     @property
     def total_energy_discharge(self):
         return self._total_energy_discharge
-
 
     def calculate_efficiencies(self):
         """
@@ -414,8 +419,13 @@ def build_DTA_cycles(filelist):
                     cyc.add_discharge(discharge)
                     cyc.calculate_efficiencies()
 
-                    if cyc.energy_efficiency < 100:
-                        cycles.append(cyc)
+                    if cyc.energy_efficiency > 100:
+                        cyc._hidden = True
+                        print(
+                            f"Cycle {cyc.number} hidden due to unphsyical nature"
+                        )
+
+                    cycles.append(cyc)
                     cycle_number += 1
 
         else:
@@ -463,7 +473,7 @@ def read_mpt_cycles(filelist, clean):
 
                 # if no cycles are found, default to "read everything"
                 if len(delims) == 0:
-                    delims = [[0, 0, -2]]   # -2 will be converted to -1 later
+                    delims = [[0, 0, -2]]  # -2 will be converted to -1 later
 
                 # reading data from file
                 data = pd.read_table(
@@ -491,24 +501,31 @@ def read_mpt_cycles(filelist, clean):
                 # initiate Cycle object providing dataframe view within delims
                 while cycle_number < ncycles:
                     first_row = delims[cycle_number][1]
-                    last_row = delims[cycle_number][2]+1
+                    last_row = delims[cycle_number][2] + 1
 
                     charge = (
-                        data["Time (s)"][first_row:last_row][data["ox/red"] == 1],
+                        data["Time (s)"][first_row:last_row][
+                            data["ox/red"] == 1
+                        ],
                         data["Voltage vs. Ref. (V)"][first_row:last_row][
                             data["ox/red"] == 1
                         ],
-                        data["Current (A)"][first_row:last_row][data["ox/red"] == 1],
+                        data["Current (A)"][first_row:last_row][
+                            data["ox/red"] == 1
+                        ],
                     )
 
                     discharge = (
-                        data["Time (s)"][first_row:last_row][data["ox/red"] == 0],
+                        data["Time (s)"][first_row:last_row][
+                            data["ox/red"] == 0
+                        ],
                         data["Voltage vs. Ref. (V)"][first_row:last_row][
                             data["ox/red"] == 0
                         ],
-                        data["Current (A)"][first_row:last_row][data["ox/red"] == 0],
+                        data["Current (A)"][first_row:last_row][
+                            data["ox/red"] == 0
+                        ],
                     )
-
 
                     missing_discharge = False
 
@@ -516,7 +533,7 @@ def read_mpt_cycles(filelist, clean):
                         cycle = Cycle(cycle_number)
                         cycle.add_charge(charge)
                         cycle.add_discharge(discharge)
-                        
+
                         cycle.calculate_efficiencies()
                         unphysical = (
                             cycle.energy_efficiency > 100,
@@ -526,21 +543,22 @@ def read_mpt_cycles(filelist, clean):
                     except IndexError:
                         unphysical = [False]
                         missing_discharge = True
-                        
-                        
-                    #fmt: off
+
+                    # fmt: off
                     if missing_discharge:
                         print(f"Warning: cycle {cycle._number} will be discarded "
-                              "due to missing discharge data")                        
+                              "due to missing discharge data")
+                        cycle._hidden = True                        
                     elif any(unphysical) and clean:
                         print(f"Warning: cycle {cycle._number} will be discarded "
                               "due to unphysical efficiencies")
-                    #fmt:on
-                    else:
-                        cycles.append(cycle)
+                        cycle._hidden = True
+                    # fmt:on
+
+                    cycles.append(cycle)
 
                     cycle_number += 1
-                    
+
         else:
             print("This is not a .mpt file!")
             sys.exit()
@@ -567,13 +585,15 @@ def time_adjust(cycle, reverse=False):
 
     if cycle.time_discharge.iloc[0] != cycle.time_charge.iloc[0]:
         time_charge = cycle.time_charge.subtract(cycle.time_charge.iloc[0])
-        time_discharge = cycle.time_discharge.subtract(cycle.time_charge.iloc[-1])
+        time_discharge = cycle.time_discharge.subtract(
+            cycle.time_charge.iloc[-1]
+        )
     else:
         time_charge = cycle.time_charge
         time_discharge = cycle.time_discharge
 
     if reverse is True:
-        switch = time_discharge-time_charge.iloc[-1]
+        switch = time_discharge - time_charge.iloc[-1]
         time_discharge = abs(switch)
 
     return time_charge, time_discharge
