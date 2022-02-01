@@ -46,9 +46,7 @@ class CellCycling:
             list of indices to mask/hide
         """
         for i in hide_indices:
-            print(self._cycles[i]._hidden)
             self._cycles[i]._hidden = True
-            print(self._cycles[i]._hidden)
 
         self.get_numbers()
 
