@@ -11,7 +11,7 @@ class CellCycling:
 
     def __init__(self, cycles: list):
         self._cycles = cycles
-        self._number_of_cycles = len(self._cycles)
+        self._number_of_cycles: int = None
 
         self._numbers: list = None  # initialized by get_numbers()
 
@@ -92,7 +92,7 @@ class CellCycling:
 
     @property
     def number_of_cycles(self):
-        return self._number_of_cycles
+        return len([cycle for cycle in self])
 
     @property
     def numbers(self):
@@ -436,6 +436,9 @@ def build_DTA_cycles(filelist):
 def read_mpt_cycles(filelist, clean):
 
     cycles = []
+
+    # this variable tracks the GLOBAL cycle numbers and increases between
+    # files. Not to be confused with current_mpt_cycle_num!
     cycle_number = 0
 
     for filepath in filelist:
@@ -497,9 +500,14 @@ def read_mpt_cycles(filelist, clean):
                 data["Current (A)"] = data["Current (A)"].divide(1000)
 
                 # initiate Cycle object providing dataframe view within delims
-                while cycle_number < ncycles:
-                    first_row = delims[cycle_number][1]
-                    last_row = delims[cycle_number][2] + 1
+
+                # this variable iterates over the cycles of the specific file
+                # and is reinitialized every file, not to be confused with
+                # cycle_number!
+                current_mpt_cycle_num = 0
+                while current_mpt_cycle_num < ncycles:
+                    first_row = delims[current_mpt_cycle_num][1]
+                    last_row = delims[current_mpt_cycle_num][2] + 1
 
                     charge = (
                         data["Time (s)"][first_row:last_row][
@@ -556,6 +564,7 @@ def read_mpt_cycles(filelist, clean):
                     cycles.append(cycle)
 
                     cycle_number += 1
+                    current_mpt_cycle_num += 1
 
         else:
             print("This is not a .mpt file!")

@@ -3,7 +3,7 @@ import setuptools
 
 setuptools.setup(
     name="GES-echem-suite",
-    version="0.1.15a",
+    version="0.1.16a",
     description="",
     long_description="",
     packages=["echemsuite"],
