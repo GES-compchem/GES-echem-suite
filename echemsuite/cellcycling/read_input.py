@@ -22,9 +22,7 @@ class CellCycling:
         if self._cycles[cycle_number]._hidden is False:
             return self._cycles[cycle_number]
         else:
-            print(
-                f"ERROR: cycle {self._cycles[cycle_number].number} is currently hidden."
-            )
+            print(f"ERROR: cycle {self._cycles[cycle_number].number} is currently hidden.")
             print("To reinstate it, use the unhide() function")
             return None
 
@@ -72,9 +70,10 @@ class CellCycling:
         self._capacity_retention = []
 
         for cycle in self:
-            self._capacity_retention.append(
-                cycle.capacity_discharge / initial_capacity * 100
-            )
+            if cycle.has_discharge:
+                self._capacity_retention.append(cycle.capacity_discharge / initial_capacity * 100)
+            else:
+                self._capacity_retention.append(None)
 
         return self._capacity_retention
 
@@ -109,6 +108,7 @@ class Cycle:
         self._hidden: bool = False
 
         # initialized by add_charge
+        self._has_charge: bool = False
         self._time_charge: pd.Series = None
         self._voltage_charge: pd.Series = None
         self._current_charge: pd.Series = None
@@ -120,6 +120,7 @@ class Cycle:
         self._total_energy_charge: np.float64 = None
 
         # initialized by add_discharge
+        self._has_discharge: bool = False
         self._time_discharge: pd.Series = None
         self._voltage_discharge: pd.Series = None
         self._current_discharge: pd.Series = None
@@ -167,6 +168,9 @@ class Cycle:
         # total energy (W.h)
         self._total_energy_charge = self._energy_charge.iloc[-1]
 
+        # set "has charge" property to True
+        self._has_charge = True
+
     def add_discharge(self, discharge):
         self._time_discharge = discharge[0]
         self._voltage_discharge = discharge[1]
@@ -191,23 +195,41 @@ class Cycle:
         
         """
         # instantaneous power (W)
-        self._power_discharge = abs(
-            self._current_discharge * self._voltage_discharge
-        )
+        self._power_discharge = abs(self._current_discharge * self._voltage_discharge)
 
         # istantaneous energy dE (W.h) at each measurement step and cumulative
         dE = (self._power_discharge * self._time_discharge.diff()) / 3.6
         self._energy_discharge = dE.cumsum()
 
         # total energy (W.h)
-        self._total_energy_discharge = self._energy_discharge.iloc[
-            -1
-        ]  # cheaper?
+        self._total_energy_discharge = self._energy_discharge.iloc[-1]  # cheaper?
 
-    ### TIME ###
+        # set "has discharge" property to True
+        self._has_discharge = True
+
+    """
+    NUMBER
+    """
+
     @property
     def number(self):
         return self._number
+
+    """
+    CHARGE/DISCHARGE
+    """
+
+    @property
+    def has_charge(self):
+        return self._has_charge
+
+    @property
+    def has_discharge(self):
+        return self._has_discharge
+
+    """
+    TIME
+    """
 
     @property
     def time_charge(self):
@@ -219,9 +241,12 @@ class Cycle:
 
     @property
     def time(self):
-        return self._time_charge.append(self._time_discharge)
+        return pd.concat([self._time_charge, self._time_discharge])
 
-    ### VOLTAGE ###
+    """
+    VOLTAGE
+    """
+
     @property
     def voltage_charge(self):
         return self._voltage_charge
@@ -232,9 +257,12 @@ class Cycle:
 
     @property
     def voltage(self):
-        return self._voltage_charge.append(self._voltage_discharge)
+        return pd.concat([self._voltage_charge, self._voltage_discharge])
 
-    ### CURRENT ###
+    """
+    CURRENT
+    """
+
     @property
     def current_charge(self):
         return self._current_charge
@@ -245,9 +273,12 @@ class Cycle:
 
     @property
     def current(self):
-        return self._current_charge.append(self._current_discharge)
+        return pd.concat([self._current_charge, self._current_discharge])
 
-    ### POWER ###
+    """
+    POWER
+    """
+
     @property
     def power_charge(self):
         return self._power_charge
@@ -258,9 +289,12 @@ class Cycle:
 
     @property
     def power(self):
-        return self._power_charge.append(self._power_discharge)
+        return pd.concat([self._power_charge, self._power_discharge])
 
-    ### ENERGY ###
+    """
+    ENERGY
+    """
+
     @property
     def energy_charge(self):
         return self._energy_charge
@@ -271,9 +305,12 @@ class Cycle:
 
     @property
     def energy(self):
-        return self._energy_charge.append(self._energy_discharge)
+        return pd.concat([self._energy_charge, self._energy_discharge])
 
-    ### ACCUMULATED CHARGE ###
+    """
+    ACCUMULATED CHARGE
+    """
+
     @property
     def Q_charge(self):
         return self._Q_charge
@@ -284,9 +321,12 @@ class Cycle:
 
     @property
     def Q(self):
-        return self._Q_charge.append(self._Q_discharge)
+        return pd.concat([self._Q_charge, self._Q_discharge])
 
-    ### CAPACITY ###
+    """
+    CAPACITY
+    """
+
     @property
     def capacity_charge(self):
         return self._capacity_charge
@@ -295,7 +335,10 @@ class Cycle:
     def capacity_discharge(self):
         return self._capacity_discharge
 
-    ### ENERGY ###
+    """
+    ENERGY
+    """
+
     @property
     def total_energy_charge(self):
         return self._total_energy_charge
@@ -315,15 +358,9 @@ class Cycle:
             self._energy_efficiency = 101
             self._voltage_efficiency = 101
         else:
-            self._coulomb_efficiency = (
-                self._capacity_discharge / self._capacity_charge * 100
-            )
-            self._energy_efficiency = (
-                self._total_energy_discharge / self._total_energy_charge * 100
-            )
-            self._voltage_efficiency = (
-                self._energy_efficiency / self._coulomb_efficiency * 100
-            )
+            self._coulomb_efficiency = self._capacity_discharge / self._capacity_charge * 100
+            self._energy_efficiency = self._total_energy_discharge / self._total_energy_charge * 100
+            self._voltage_efficiency = self._energy_efficiency / self._coulomb_efficiency * 100
 
         return (
             self._coulomb_efficiency,
@@ -331,7 +368,10 @@ class Cycle:
             self._voltage_efficiency,
         )
 
-    ### EFFICIENCIES ###
+    """
+    EFFICIENCIES
+    """
+
     @property
     def coulomb_efficiency(self):
         return self._coulomb_efficiency
@@ -345,90 +385,109 @@ class Cycle:
         return self._voltage_efficiency
 
 
-def build_DTA_cycles(filelist):
+def build_DTA_cycles(filelist, clean=False):
+    """builds a CellCycling object from a list containing charge/discharge pairs
+    
+
+    Parameters
+    ----------
+    filelist : list of lists
+        filelist is a list containing [charge, discharge] pairs. The program allows for the presence
+        of only one of those files, or in the opposite order [discharge, charge]
+    clean : bool
+        if True, only displays cycles with physical meaning (efficiencies < 100% and both charge + 
+        discharge available). If False (default), load everything.
+
+    Returns
+    -------
+    cycles : CellCycling object
+        CellCycling object containing various Cycles objects built according to the given list pairs
+    """
 
     cycles = []
     cycle_number = 0
 
-    for filepath in filelist:
+    # gathering [charge, discharge] pairs from filelist
+    for list_pair in filelist:
+        cyc = Cycle(cycle_number)
 
-        print("Loading:", filepath, "\n")
+        for filepath in list_pair:
 
-        filename = path.basename(filepath)
-        extension = path.splitext(filename)[1]
+            print("Loading:", filepath, "\n")
 
-        if extension.lower() == ".dta":
+            filename = path.basename(filepath)
+            extension = path.splitext(filename)[1]
 
-            with open(filepath, "r", encoding="utf8", errors="ignore") as file:
+            if extension.lower() == ".dta":
 
-                beginning = None  # line at which the table begins
-                npoints = None  # number of data points
-                cycle_type = None  # 1 for charge, 0 for discharge
+                with open(filepath, "r", encoding="utf8", errors="ignore") as file:
 
-                # finding the "CURVE TABLE npoints" line in file
-                for line_num, line in enumerate(file):
+                    beginning = None  # line at which the table begins
+                    npoints = None  # number of data points
+                    cycle_type = None  # 1 for charge, 0 for discharge
 
-                    if "Step 1 Current (A)" in line:
-                        if float(line.split()[2]) > 0:
-                            cycle_type = 1  # positive current = charge
-                        elif float(line.split()[2]) < 0:
-                            cycle_type = 0  # negative current = discharge
+                    # finding the "CURVE TABLE npoints" line in file
+                    for line_num, line in enumerate(file):
 
-                    if "CURVE" in line:
-                        beginning = line_num + 2
-                        npoints = int(line.split()[-1])
-                        break
+                        if "Step 1 Current (A)" in line:
+                            if float(line.split()[2]) > 0:
+                                cycle_type = 1  # positive current = charge
+                            elif float(line.split()[2]) < 0:
+                                cycle_type = 0  # negative current = discharge
 
-                # reading data from file
-                data = pd.read_table(
-                    filepath,
-                    delimiter="\t",
-                    skiprows=beginning,
-                    decimal=".",
-                    nrows=npoints,
-                    encoding_errors="ignore",
-                )
+                        if "CURVE" in line:
+                            beginning = line_num + 2
+                            npoints = int(line.split()[-1])
+                            break
 
-                # renaming columns to standard format
-                data.rename(
-                    columns={
-                        "s": "Time (s)",
-                        "V vs. Ref.": "Voltage vs. Ref. (V)",
-                        "A": "Current (A)",
-                    },
-                    inplace=True,
-                )
+                    # reading data from file
+                    data = pd.read_table(
+                        filepath,
+                        delimiter="\t",
+                        skiprows=beginning,
+                        decimal=".",
+                        nrows=npoints,
+                        encoding_errors="ignore",
+                    )
 
-                if cycle_type == 1:
-                    charge = (
+                    # renaming columns to standard format
+                    data.rename(
+                        columns={
+                            "s": "Time (s)",
+                            "V vs. Ref.": "Voltage vs. Ref. (V)",
+                            "A": "Current (A)",
+                        },
+                        inplace=True,
+                    )
+
+                    halfcycle = (
                         data["Time (s)"],
                         data["Voltage vs. Ref. (V)"],
                         data["Current (A)"],
                     )
-                    cyc = Cycle(cycle_number)
-                    cyc.add_charge(charge)
 
-                elif cycle_type == 0:
-                    discharge = (
-                        data["Time (s)"],
-                        data["Voltage vs. Ref. (V)"],
-                        data["Current (A)"],
-                    )
-                    cyc.add_discharge(discharge)
-                    cyc.calculate_efficiencies()
+                    if cycle_type == 1:
+                        cyc.add_charge(halfcycle)
 
-                    if cyc.energy_efficiency > 100:
+                    elif cycle_type == 0:
+                        cyc.add_discharge(halfcycle)
+
+                    if cyc.has_charge and cyc.has_discharge:
+                        cyc.calculate_efficiencies()
+                        if cyc.energy_efficiency > 100 and clean:
+                            cyc._hidden = True
+                            print(f"Cycle {cyc.number} hidden due to unphsyical nature")
+
+                    elif clean:
                         cyc._hidden = True
-                        print(
-                            f"Cycle {cyc.number} hidden due to unphsyical nature"
-                        )
+                        print(f"Cycle {cyc.number} hidden due to missing charge/discharge")
 
-                    cycles.append(cyc)
-                    cycle_number += 1
+            else:
+                print("This is not a .DTA file!")
+                sys.exit()
 
-        else:
-            print("This is not a .DTA file!")
-            sys.exit()
+        cycles.append(cyc)
+        cycle_number += 1
 
     return cycles
 
@@ -510,27 +569,15 @@ def read_mpt_cycles(filelist, clean):
                     last_row = delims[current_mpt_cycle_num][2] + 1
 
                     charge = (
-                        data["Time (s)"][first_row:last_row][
-                            data["ox/red"] == 1
-                        ],
-                        data["Voltage vs. Ref. (V)"][first_row:last_row][
-                            data["ox/red"] == 1
-                        ],
-                        data["Current (A)"][first_row:last_row][
-                            data["ox/red"] == 1
-                        ],
+                        data["Time (s)"][first_row:last_row][data["ox/red"] == 1],
+                        data["Voltage vs. Ref. (V)"][first_row:last_row][data["ox/red"] == 1],
+                        data["Current (A)"][first_row:last_row][data["ox/red"] == 1],
                     )
 
                     discharge = (
-                        data["Time (s)"][first_row:last_row][
-                            data["ox/red"] == 0
-                        ],
-                        data["Voltage vs. Ref. (V)"][first_row:last_row][
-                            data["ox/red"] == 0
-                        ],
-                        data["Current (A)"][first_row:last_row][
-                            data["ox/red"] == 0
-                        ],
+                        data["Time (s)"][first_row:last_row][data["ox/red"] == 0],
+                        data["Voltage vs. Ref. (V)"][first_row:last_row][data["ox/red"] == 0],
+                        data["Current (A)"][first_row:last_row][data["ox/red"] == 0],
                     )
 
                     missing_discharge = False
@@ -592,9 +639,7 @@ def time_adjust(cycle, reverse=False):
 
     if cycle.time_discharge.iloc[0] != cycle.time_charge.iloc[0]:
         time_charge = cycle.time_charge.subtract(cycle.time_charge.iloc[0])
-        time_discharge = cycle.time_discharge.subtract(
-            cycle.time_charge.iloc[-1]
-        )
+        time_discharge = cycle.time_discharge.subtract(cycle.time_charge.iloc[-1])
     else:
         time_charge = cycle.time_charge
         time_discharge = cycle.time_discharge
