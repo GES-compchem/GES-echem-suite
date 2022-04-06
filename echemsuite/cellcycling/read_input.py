@@ -70,7 +70,7 @@ class CellCycling:
         self._capacity_retention = []
 
         for cycle in self:
-            if cycle.has_discharge:
+            if cycle.discharge:
                 self._capacity_retention.append(cycle.capacity_discharge / initial_capacity * 100)
             else:
                 self._capacity_retention.append(None)
@@ -109,27 +109,11 @@ class Cycle:
 
         # initialized by add_charge
         self._has_charge: bool = False
-        self._time_charge: pd.Series = None
-        self._voltage_charge: pd.Series = None
-        self._current_charge: pd.Series = None
-
-        self._Q_charge: pd.Series = None
-        self._capacity_charge: np.float64 = None
-        self._power_charge: pd.Series = None
-        self._energy_charge: pd.Series = None
-        self._total_energy_charge: np.float64 = None
+        self._charge: HalfCycle = None
 
         # initialized by add_discharge
         self._has_discharge: bool = False
-        self._time_discharge: pd.Series = None
-        self._voltage_discharge: pd.Series = None
-        self._current_discharge: pd.Series = None
-
-        self._Q_discharge: pd.Series = None
-        self._capacity_discharge: np.float64 = None
-        self._power_discharge: pd.Series = None
-        self._energy_discharge: pd.Series = None
-        self._total_energy_discharge: np.float64 = None
+        self._discharge: HalfCycle = None
 
         # initialized by calculate_efficiencies
         self._coulomb_efficiency: np.float64 = None
@@ -137,75 +121,10 @@ class Cycle:
         self._voltage_efficiency: np.float64 = None
 
     def add_charge(self, charge):
-        self._time_charge = charge[0]
-        self._voltage_charge = charge[1]
-        self._current_charge = charge[2]
-
-        """
-        Calculate the capacity C (mA.h) of the charge half-cycle as the 
-        accumulated charge over time
-        """
-        # accumulated charge dq at each measurement step (mA.h)
-        dq = abs(self._current_charge * self._time_charge.diff()) / 3.6
-
-        # charge as cumulative sum (mA.h)
-        self._Q_charge = dq.cumsum()
-
-        # capacity as last value of accumulated charge (mA.h)
-        self._capacity_charge = self._Q_charge.iloc[-1]
-        """
-        Calculate the total energy E (W.h) of the charge half-cycle as the 
-        cumulative sum of energy over time
-        """
-
-        # instantaneous power (W)
-        self._power_charge = abs(self._current_charge * self._voltage_charge)
-
-        # istantaneous energy dE (W.h) at each measurement step and cumulative
-        dE = (self._power_charge * self._time_charge.diff()) / 3.6
-        self._energy_charge = dE.cumsum()
-
-        # total energy (W.h)
-        self._total_energy_charge = self._energy_charge.iloc[-1]
-
-        # set "has charge" property to True
-        self._has_charge = True
+        self._charge = charge
 
     def add_discharge(self, discharge):
-        self._time_discharge = discharge[0]
-        self._voltage_discharge = discharge[1]
-        self._current_discharge = discharge[2]
-
-        """
-        Calculate the capacity C (mA.h) of the discharge half-cycle as the 
-        accumulated charge over time
-        """
-        # accumulated charge dq at each measurement step (mA.h)
-        dq = abs(self._current_discharge * self._time_discharge.diff()) / 3.6
-
-        # charge as cumulative sum (mA.h)
-        self._Q_discharge = dq.cumsum()
-
-        # capacity as last value of accumulated charge (mA.h)
-        self._capacity_discharge = self._Q_discharge.iloc[-1]
-
-        """
-        Calculates the total energy E (W.h) of the charge half-cycle as the 
-        cumulative sum of energy over time
-        
-        """
-        # instantaneous power (W)
-        self._power_discharge = abs(self._current_discharge * self._voltage_discharge)
-
-        # istantaneous energy dE (W.h) at each measurement step and cumulative
-        dE = (self._power_discharge * self._time_discharge.diff()) / 3.6
-        self._energy_discharge = dE.cumsum()
-
-        # total energy (W.h)
-        self._total_energy_discharge = self._energy_discharge.iloc[-1]  # cheaper?
-
-        # set "has discharge" property to True
-        self._has_discharge = True
+        self._discharge = discharge
 
     """
     NUMBER
@@ -220,153 +139,174 @@ class Cycle:
     """
 
     @property
-    def has_charge(self):
-        return self._has_charge
+    def charge(self):
+        return self._charge
 
     @property
-    def has_discharge(self):
-        return self._has_discharge
+    def discharge(self):
+        return self._discharge
 
     """
     TIME
     """
 
+    # LEGACY
     @property
     def time_charge(self):
-        return self._time_charge
+        return self.charge.time
 
+    # LEGACY
     @property
     def time_discharge(self):
-        return self._time_discharge
+        return self.discharge.time
 
     @property
     def time(self):
-        return pd.concat([self._time_charge, self._time_discharge])
+        return pd.concat([self.charge.time, self.discharge.time])
 
     """
     VOLTAGE
     """
 
+    # LEGACY
     @property
     def voltage_charge(self):
-        return self._voltage_charge
+        return self.charge.voltage
 
+    # LEGACY
     @property
     def voltage_discharge(self):
-        return self._voltage_discharge
+        return self.discharge.voltage
 
     @property
     def voltage(self):
-        return pd.concat([self._voltage_charge, self._voltage_discharge])
+        return pd.concat([self.charge.voltage, self.discharge.voltage])
 
     """
     CURRENT
     """
 
+    # LEGACY
     @property
     def current_charge(self):
-        return self._current_charge
+        return self.charge.current
 
+    # LEGACY
     @property
     def current_discharge(self):
-        return self._current_discharge
+        return self.discharge.current
 
     @property
     def current(self):
-        return pd.concat([self._current_charge, self._current_discharge])
+        return pd.concat([self.charge.current, self.discharge.current])
 
     """
     POWER
     """
 
+    # LEGACY
     @property
     def power_charge(self):
-        return self._power_charge
+        return self.charge.power
 
+    # LEGACY
     @property
     def power_discharge(self):
-        return self._power_discharge
+        return self.discharge.power
 
     @property
     def power(self):
-        return pd.concat([self._power_charge, self._power_discharge])
+        return pd.concat([self.charge.power, self.discharge.power])
 
     """
     ENERGY
     """
 
+    # LEGACY
     @property
     def energy_charge(self):
-        return self._energy_charge
+        return self.charge.energy
 
+    # LEGACY
     @property
     def energy_discharge(self):
-        return self._energy_discharge
+        return self.discharge.energy
 
     @property
     def energy(self):
-        return pd.concat([self._energy_charge, self._energy_discharge])
+        return pd.concat([self.charge.energy, self.discharge.energy])
 
     """
     ACCUMULATED CHARGE
     """
 
+    # LEGACY
     @property
     def Q_charge(self):
-        return self._Q_charge
+        return self.charge.Q
 
+    # LEGACY
     @property
     def Q_discharge(self):
-        return self._Q_discharge
+        return self.discharge.Q
 
     @property
     def Q(self):
-        return pd.concat([self._Q_charge, self._Q_discharge])
+        return pd.concat([self.charge.Q, self.discharge.Q])
 
     """
     CAPACITY
     """
 
+    # LEGACY
     @property
     def capacity_charge(self):
-        return self._capacity_charge
+        return self.charge.capacity
 
+    # LEGACY
     @property
     def capacity_discharge(self):
-        return self._capacity_discharge
+        return self.discharge.capacity
 
     """
     ENERGY
     """
 
+    # LEGACY
     @property
     def total_energy_charge(self):
-        return self._total_energy_charge
+        return self.charge.energy
 
+    # LEGACY
     @property
     def total_energy_discharge(self):
-        return self._total_energy_discharge
+        return self.discharge.energy
 
     def calculate_efficiencies(self):
         """
         Computes the coulombic and energy efficiency of the cycle as the ratio 
-        between the discharge and charge energies.
+        between the discharge and charge energies, provided they exist.
         """
-        if any((self._capacity_charge <= 0, self._total_energy_charge <= 0)):
-            # 101 is a sentinel value
-            self._coulomb_efficiency = 101
-            self._energy_efficiency = 101
-            self._voltage_efficiency = 101
-        else:
-            self._coulomb_efficiency = self._capacity_discharge / self._capacity_charge * 100
-            self._energy_efficiency = self._total_energy_discharge / self._total_energy_charge * 100
-            self._voltage_efficiency = self._energy_efficiency / self._coulomb_efficiency * 100
 
-        return (
-            self._coulomb_efficiency,
-            self._energy_efficiency,
-            self._voltage_efficiency,
-        )
+        if self.charge and self.discharge:
+
+            if self.charge.capacity <= 0 or self.charge.total_energy <= 0:
+                # 101 is a sentinel value
+                self._coulomb_efficiency = 101
+                self._energy_efficiency = 101
+                self._voltage_efficiency = 101
+            else:
+                self._coulomb_efficiency = self.discharge.capacity / self.charge.capacity * 100
+                self._energy_efficiency = (
+                    self.discharge.total_energy / self.charge.total_energy * 100
+                )
+                self._voltage_efficiency = self._energy_efficiency / self._coulomb_efficiency * 100
+
+            return (
+                self._coulomb_efficiency,
+                self._energy_efficiency,
+                self._voltage_efficiency,
+            )
 
     """
     EFFICIENCIES
@@ -385,109 +325,216 @@ class Cycle:
         return self._voltage_efficiency
 
 
+class HalfCycle:
+    """HalfCycle object (for storing charge and discharge data)
+    """
+
+    def __init__(self, halfcycle, halfcycle_type):
+        """
+        Parameters
+        ----------
+        halfcycle : Pandas DataFrame
+            DataFrame containing 3 Series: time, voltage, current
+        halfcycle_type : str
+            Should either be "charge" or "discharge"
+        """
+
+        self._halfcycle_type = halfcycle_type
+        self._time = halfcycle[0]
+        self._voltage = halfcycle[1]
+        self._current = halfcycle[2]
+
+        self._Q, self._capacity = self.calculate_Q()
+        self._power, self._energy, self._total_energy = self.calculate_energy()
+
+    def calculate_Q(self):
+        """
+        Calculate the capacity C (mA.h) of the charge half-cycle as the 
+        accumulated charge over time
+        """
+        # accumulated charge dq at each measurement step (mA.h)
+        dq = abs(self._current * self._time.diff()) / 3.6
+
+        # charge as cumulative sum (mA.h)
+        Q = dq.cumsum()
+
+        # capacity as last value of accumulated charge (mA.h)
+        capacity = Q.iloc[-1]
+
+        return Q, capacity
+
+    def calculate_energy(self):
+        """
+        Calculate the total energy E (W.h) of the charge half-cycle as the 
+        cumulative sum of energy over time
+        """
+
+        # instantaneous power (W)
+        power = abs(self._current * self._voltage)
+
+        # istantaneous energy dE (W.h) at each measurement step and cumulative
+        dE = (power * self._time.diff()) / 3.6
+        energy = dE.cumsum()
+
+        # total energy (W.h)
+        total_energy = energy.iloc[-1]
+
+        return power, energy, total_energy
+
+    """
+    PROPERTIES
+    """
+
+    @property
+    def halfcycle_type(self):
+        return self._halfcycle_type
+
+    @property
+    def time(self):
+        return self._time
+
+    @property
+    def voltage(self):
+        return self._voltage
+
+    @property
+    def current(self):
+        return self._current
+
+    @property
+    def Q(self):
+        return self._Q
+
+    @property
+    def capacity(self):
+        return self._capacity
+
+    @property
+    def power(self):
+        return self._power
+
+    @property
+    def energy(self):
+        return self._energy
+
+    @property
+    def total_energy(self):
+        return self._total_energy
+
+
 def build_DTA_cycles(filelist, clean=False):
     """builds a CellCycling object from a list containing charge/discharge pairs
     
 
     Parameters
     ----------
-    filelist : list of lists
-        filelist is a list containing [charge, discharge] pairs. The program allows for the presence
-        of only one of those files, or in the opposite order [discharge, charge]
+    filelist : list
+        file list containing .DTA file paths.
     clean : bool
         if True, only displays cycles with physical meaning (efficiencies < 100% and both charge + 
         discharge available). If False (default), load everything.
 
     Returns
     -------
-    cycles : CellCycling object
-        CellCycling object containing various Cycles objects built according to the given list pairs
+    cycles : list
+        list containing various Cycles objects built according to the given list pairs
     """
+
+    halfcycles = []
+
+    for filepath in filelist:
+
+        print("Loading:", filepath, "\n")
+
+        filename = path.basename(filepath)
+        extension = path.splitext(filename)[1]
+
+        if extension.lower() == ".dta":
+
+            with open(filepath, "r", encoding="utf8", errors="ignore") as file:
+
+                beginning = None  # line at which the table begins
+                npoints = None  # number of data points
+                halfcycle_type = None  # charge/discharge
+
+                # finding the "CURVE TABLE npoints" line in file
+                for line_num, line in enumerate(file):
+
+                    if "Step 1 Current (A)" in line:
+                        if float(line.split()[2]) > 0:
+                            halfcycle_type = "charge"  # positive current = charge
+                        elif float(line.split()[2]) < 0:
+                            halfcycle_type = "discharge"  # negative current = discharge
+
+                    if "CURVE" in line:
+                        beginning = line_num + 2
+                        npoints = int(line.split()[-1])
+                        break
+
+                # reading data from file
+                data = pd.read_table(
+                    filepath,
+                    delimiter="\t",
+                    skiprows=beginning,
+                    decimal=".",
+                    nrows=npoints,
+                    encoding_errors="ignore",
+                )
+
+                # renaming columns to standard format
+                data.rename(
+                    columns={
+                        "s": "Time (s)",
+                        "V vs. Ref.": "Voltage vs. Ref. (V)",
+                        "A": "Current (A)",
+                    },
+                    inplace=True,
+                )
+
+                halfcycle = (
+                    data["Time (s)"],
+                    data["Voltage vs. Ref. (V)"],
+                    data["Current (A)"],
+                )
+
+                halfcycles.append(HalfCycle(halfcycle, halfcycle_type))
+
+        else:
+            print("This is not a .DTA file!")
+            sys.exit()
 
     cycles = []
     cycle_number = 0
 
-    # gathering [charge, discharge] pairs from filelist
-    for list_pair in filelist:
-        cyc = Cycle(cycle_number)
-
-        for filepath in list_pair:
-
-            print("Loading:", filepath, "\n")
-
-            filename = path.basename(filepath)
-            extension = path.splitext(filename)[1]
-
-            if extension.lower() == ".dta":
-
-                with open(filepath, "r", encoding="utf8", errors="ignore") as file:
-
-                    beginning = None  # line at which the table begins
-                    npoints = None  # number of data points
-                    cycle_type = None  # 1 for charge, 0 for discharge
-
-                    # finding the "CURVE TABLE npoints" line in file
-                    for line_num, line in enumerate(file):
-
-                        if "Step 1 Current (A)" in line:
-                            if float(line.split()[2]) > 0:
-                                cycle_type = 1  # positive current = charge
-                            elif float(line.split()[2]) < 0:
-                                cycle_type = 0  # negative current = discharge
-
-                        if "CURVE" in line:
-                            beginning = line_num + 2
-                            npoints = int(line.split()[-1])
-                            break
-
-                    # reading data from file
-                    data = pd.read_table(
-                        filepath,
-                        delimiter="\t",
-                        skiprows=beginning,
-                        decimal=".",
-                        nrows=npoints,
-                        encoding_errors="ignore",
-                    )
-
-                    # renaming columns to standard format
-                    data.rename(
-                        columns={
-                            "s": "Time (s)",
-                            "V vs. Ref.": "Voltage vs. Ref. (V)",
-                            "A": "Current (A)",
-                        },
-                        inplace=True,
-                    )
-
-                    halfcycle = (
-                        data["Time (s)"],
-                        data["Voltage vs. Ref. (V)"],
-                        data["Current (A)"],
-                    )
-
-                    if cycle_type == 1:
-                        cyc.add_charge(halfcycle)
-
-                    elif cycle_type == 0:
-                        cyc.add_discharge(halfcycle)
-
-                    if cyc.has_charge and cyc.has_discharge:
-                        cyc.calculate_efficiencies()
-                        if cyc.energy_efficiency > 100 and clean:
-                            cyc._hidden = True
-                            print(f"Cycle {cyc.number} hidden due to unphsyical nature")
-
-                    elif clean:
-                        cyc._hidden = True
-                        print(f"Cycle {cyc.number} hidden due to missing charge/discharge")
-
-            else:
-                print("This is not a .DTA file!")
-                sys.exit()
-
-        cycles.append(cyc)
+    while halfcycles:
+        cycle = Cycle(cycle_number)
+        half = halfcycles.pop(0)
+        if half.halfcycle_type == "charge":
+            charge = half
+            try:
+                discharge = halfcycles.pop(0)
+                cycle.add_charge(charge)
+                cycle.add_discharge(discharge)
+            except:
+                cycles.append(cycle)
+                continue
+        else:
+            discharge = half
+            cycle.add_discharge(discharge)
+        cycles.append(cycle)
         cycle_number += 1
+
+    for cycle in cycles:
+
+        cycle.calculate_efficiencies()
+
+        if cycle.energy_efficiency and cycle.energy_efficiency > 100 and clean:
+            cycle._hidden = True
+            print(f"Cycle {cycle.number} hidden due to unphsyical nature")
+
+        elif clean:
+            cycle._hidden = True
+            print(f"Cycle {cycle.number} hidden due to missing charge/discharge")
 
     return cycles
 
