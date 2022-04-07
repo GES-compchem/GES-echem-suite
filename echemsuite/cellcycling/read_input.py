@@ -103,26 +103,19 @@ class Cycle:
     Contains the charge and discharge half-cycles
     """
 
-    def __init__(self, number: int):
+    def __init__(self, number: int, charge=None, discharge=None):
+
         self._number = number
+        self._charge: HalfCycle = charge
+        self._discharge: HalfCycle = discharge
+
         self._hidden: bool = False
 
-        # initialized by add_charge
-        self._charge: HalfCycle = None
-
-        # initialized by add_discharge
-        self._discharge: HalfCycle = None
-
-        # initialized by calculate_efficiencies
-        self._coulomb_efficiency: np.float64 = None
-        self._energy_efficiency: np.float64 = None
-        self._voltage_efficiency: np.float64 = None
-
-    def add_charge(self, charge):
-        self._charge = charge
-
-    def add_discharge(self, discharge):
-        self._discharge = discharge
+        (
+            self._coulomb_efficiency,
+            self._energy_efficiency,
+            self._voltage_efficiency,
+        ) = self.calculate_efficiencies()
 
     # CYCLE NUMBER
     @property
@@ -167,6 +160,7 @@ class Cycle:
             return self.charge.current
         elif self.discharge and not self.charge:
             return self.discharge.current
+
     # POWER
     @property
     def power(self):
@@ -217,11 +211,10 @@ class Cycle:
                 )
                 self._voltage_efficiency = self._energy_efficiency / self._coulomb_efficiency * 100
 
-            return (
-                self._coulomb_efficiency,
-                self._energy_efficiency,
-                self._voltage_efficiency,
-            )
+            return self._coulomb_efficiency, self._energy_efficiency, self._voltage_efficiency
+
+        else:
+            return None, None, None
 
     # EFFICIENCIES
     @property
@@ -506,7 +499,7 @@ class HalfCycle:
 
 
 def build_DTA_cycles(filelist, clean):
-    """builds a list of cycles from a list containing charge/discharge file paths
+    """builds a list of cycles from a list containing charge/discharge file paths from 
     
 
     Parameters
@@ -588,30 +581,25 @@ def build_DTA_cycles(filelist, clean):
     cycle_number = 0
 
     while halfcycles:
-        cycle = Cycle(cycle_number)
         half = halfcycles.pop(0)
         if half.halfcycle_type == "charge":
             charge = half
-            cycle.add_charge(charge)
             try:
                 discharge = halfcycles.pop(0)
-                cycle.add_discharge(discharge)
+                cycle = Cycle(number=cycle_number, charge=charge, discharge=discharge)
             except:
+                cycle = Cycle(number=cycle_number, charge=charge, discharge=None)
                 pass
         else:
             discharge = half
-            cycle.add_discharge(discharge)
+            cycle = Cycle(number=cycle_number, charge=None, discharge=discharge)
         cycles.append(cycle)
         cycle_number += 1
 
     for cycle in cycles:
-
-        cycle.calculate_efficiencies()
-
         if cycle.energy_efficiency and cycle.energy_efficiency > 100 and clean:
             cycle._hidden = True
             print(f"Cycle {cycle.number} hidden due to unphsyical nature")
-
         elif not cycle.charge or not cycle.discharge and clean:
             cycle._hidden = True
             print(f"Cycle {cycle.number} hidden due to missing charge/discharge")
@@ -620,6 +608,23 @@ def build_DTA_cycles(filelist, clean):
 
 
 def read_mpt_cycles(filelist, clean):
+    """reads a list of cycles from a list containing cell cycling file paths from BIOLOGIC 
+    instruments (.mpt files)
+    
+
+    Parameters
+    ----------
+    filelist : list
+        file list containing .mpt file paths.
+    clean : bool
+        if True, only displays cycles with physical meaning (efficiencies < 100% and both charge + 
+        discharge available). If False (default), load everything.
+
+    Returns
+    -------
+    cycles : list
+        list containing various Cycles objects built according to the given list pairs
+    """
 
     cycles = []
 
@@ -695,45 +700,52 @@ def read_mpt_cycles(filelist, clean):
                     first_row = delims[current_mpt_cycle_num][1]
                     last_row = delims[current_mpt_cycle_num][2] + 1
 
-                    charge = (
-                        data["Time (s)"][first_row:last_row][data["ox/red"] == 1],
-                        data["Voltage vs. Ref. (V)"][first_row:last_row][data["ox/red"] == 1],
-                        data["Current (A)"][first_row:last_row][data["ox/red"] == 1],
-                    )
-
-                    discharge = (
-                        data["Time (s)"][first_row:last_row][data["ox/red"] == 0],
-                        data["Voltage vs. Ref. (V)"][first_row:last_row][data["ox/red"] == 0],
-                        data["Current (A)"][first_row:last_row][data["ox/red"] == 0],
-                    )
-
-                    missing_discharge = False
+                    try:
+                        charge = HalfCycle(
+                            data["Time (s)"][first_row:last_row][data["ox/red"] == 1],
+                            data["Voltage vs. Ref. (V)"][first_row:last_row][data["ox/red"] == 1],
+                            data["Current (A)"][first_row:last_row][data["ox/red"] == 1],
+                            "charge",
+                        )
+                    except:
+                        charge = None
 
                     try:
-                        cycle = Cycle(cycle_number)
-                        cycle.add_charge(charge)
-                        cycle.add_discharge(discharge)
+                        discharge = HalfCycle(
+                            data["Time (s)"][first_row:last_row][data["ox/red"] == 0],
+                            data["Voltage vs. Ref. (V)"][first_row:last_row][data["ox/red"] == 0],
+                            data["Current (A)"][first_row:last_row][data["ox/red"] == 0],
+                            "discharge",
+                        )
+                    except:
+                        discharge = None
 
-                        cycle.calculate_efficiencies()
+                    cycle = Cycle(number=cycle_number, charge=charge, discharge=discharge)
+
+                    if charge and discharge:
                         unphysical = (
                             cycle.energy_efficiency > 100,
                             cycle.coulomb_efficiency > 100,
                             cycle.voltage_efficiency > 100,
                         )
-                    except IndexError:
-                        unphysical = [False]
-                        missing_discharge = True
 
-                    # fmt: off
-                    if missing_discharge:
-                        print(f"Warning: cycle {cycle._number} will be discarded "
-                              "due to missing discharge data")
-                        cycle._hidden = True                        
-                    elif any(unphysical) and clean:
-                        print(f"Warning: cycle {cycle._number} will be discarded "
-                              "due to unphysical efficiencies")
+                    elif charge and not discharge and clean:
+                        print(
+                            f"WARNING: cycle {cycle._number} will be discarded due to missing discharge data"
+                        )
                         cycle._hidden = True
-                    # fmt:on
+
+                    elif discharge and not charge and clean:
+                        print(
+                            f"WARNING: cycle {cycle._number} will be discarded due to missing charge data"
+                        )
+                        cycle._hidden = True
+
+                    if any(unphysical) and clean:
+                        print(
+                            f"WARNING: cycle {cycle._number} will be discarded due to unphysical efficiencies"
+                        )
+                        cycle._hidden = True
 
                     cycles.append(cycle)
 
