@@ -108,11 +108,9 @@ class Cycle:
         self._hidden: bool = False
 
         # initialized by add_charge
-        self._has_charge: bool = False
         self._charge: HalfCycle = None
 
         # initialized by add_discharge
-        self._has_discharge: bool = False
         self._discharge: HalfCycle = None
 
         # initialized by calculate_efficiencies
@@ -126,18 +124,12 @@ class Cycle:
     def add_discharge(self, discharge):
         self._discharge = discharge
 
-    """
-    NUMBER
-    """
-
+    # CYCLE NUMBER
     @property
     def number(self):
         return self._number
 
-    """
-    CHARGE/DISCHARGE
-    """
-
+    # CHARGE / DISCHARGE
     @property
     def charge(self):
         return self._charge
@@ -146,141 +138,64 @@ class Cycle:
     def discharge(self):
         return self._discharge
 
-    """
-    TIME
-    """
-
-    # LEGACY
-    @property
-    def time_charge(self):
-        return self.charge.time
-
-    # LEGACY
-    @property
-    def time_discharge(self):
-        return self.discharge.time
-
+    # TIME
     @property
     def time(self):
-        return pd.concat([self.charge.time, self.discharge.time])
+        if self.charge and self.discharge:
+            return pd.concat([self.charge.time, self.discharge.time])
+        elif self.charge and not self.discharge:
+            return self.charge.time
+        elif self.discharge and not self.charge:
+            return self.discharge.time
 
-    """
-    VOLTAGE
-    """
-
-    # LEGACY
-    @property
-    def voltage_charge(self):
-        return self.charge.voltage
-
-    # LEGACY
-    @property
-    def voltage_discharge(self):
-        return self.discharge.voltage
-
+    # VOLTAGE
     @property
     def voltage(self):
-        return pd.concat([self.charge.voltage, self.discharge.voltage])
+        if self.charge and self.discharge:
+            return pd.concat([self.charge.voltage, self.discharge.voltage])
+        elif self.charge and not self.discharge:
+            return self.charge.voltage
+        elif self.discharge and not self.charge:
+            return self.discharge.voltage
 
-    """
-    CURRENT
-    """
-
-    # LEGACY
-    @property
-    def current_charge(self):
-        return self.charge.current
-
-    # LEGACY
-    @property
-    def current_discharge(self):
-        return self.discharge.current
-
+    # CURRENT
     @property
     def current(self):
-        return pd.concat([self.charge.current, self.discharge.current])
-
-    """
-    POWER
-    """
-
-    # LEGACY
-    @property
-    def power_charge(self):
-        return self.charge.power
-
-    # LEGACY
-    @property
-    def power_discharge(self):
-        return self.discharge.power
-
+        if self.charge and self.discharge:
+            return pd.concat([self.charge.current, self.discharge.current])
+        elif self.charge and not self.discharge:
+            return self.charge.current
+        elif self.discharge and not self.charge:
+            return self.discharge.current
+    # POWER
     @property
     def power(self):
-        return pd.concat([self.charge.power, self.discharge.power])
+        if self.charge and self.discharge:
+            return pd.concat([self.charge.power, self.discharge.power])
+        elif self.charge and not self.discharge:
+            return self.charge.power
+        elif self.discharge and not self.charge:
+            return self.discharge.power
 
-    """
-    ENERGY
-    """
-
-    # LEGACY
-    @property
-    def energy_charge(self):
-        return self.charge.energy
-
-    # LEGACY
-    @property
-    def energy_discharge(self):
-        return self.discharge.energy
-
+    # ENERGY
     @property
     def energy(self):
-        return pd.concat([self.charge.energy, self.discharge.energy])
+        if self.charge and self.discharge:
+            return pd.concat([self.charge.energy, self.discharge.energy])
+        elif self.charge and not self.discharge:
+            return self.charge.energy
+        elif self.discharge and not self.charge:
+            return self.discharge.energy
 
-    """
-    ACCUMULATED CHARGE
-    """
-
-    # LEGACY
-    @property
-    def Q_charge(self):
-        return self.charge.Q
-
-    # LEGACY
-    @property
-    def Q_discharge(self):
-        return self.discharge.Q
-
+    # ACCUMULATED CHARGE
     @property
     def Q(self):
-        return pd.concat([self.charge.Q, self.discharge.Q])
-
-    """
-    CAPACITY
-    """
-
-    # LEGACY
-    @property
-    def capacity_charge(self):
-        return self.charge.capacity
-
-    # LEGACY
-    @property
-    def capacity_discharge(self):
-        return self.discharge.capacity
-
-    """
-    ENERGY
-    """
-
-    # LEGACY
-    @property
-    def total_energy_charge(self):
-        return self.charge.energy
-
-    # LEGACY
-    @property
-    def total_energy_discharge(self):
-        return self.discharge.energy
+        if self.charge and self.discharge:
+            return pd.concat([self.charge.Q, self.discharge.Q])
+        elif self.charge and not self.discharge:
+            return self.charge.Q
+        elif self.discharge and not self.charge:
+            return self.discharge.Q
 
     def calculate_efficiencies(self):
         """
@@ -308,10 +223,7 @@ class Cycle:
                 self._voltage_efficiency,
             )
 
-    """
-    EFFICIENCIES
-    """
-
+    # EFFICIENCIES
     @property
     def coulomb_efficiency(self):
         return self._coulomb_efficiency
@@ -324,25 +236,191 @@ class Cycle:
     def voltage_efficiency(self):
         return self._voltage_efficiency
 
+    # LEGACY PROPERTIES
+
+    @property
+    def time_charge(self):
+        print(
+            "WARNING: the property 'time_charge' is being deprecated and will no longer be available in future releases!"
+        )
+        print(
+            "Please update your script and replace all occurrences of 'time_charge' with 'charge.time'."
+        )
+        return self.charge.time
+
+    @property
+    def time_discharge(self):
+        print(
+            "WARNING: the property 'time_discharge' is being deprecated and will no longer be available in future releases!"
+        )
+        print(
+            "Please update your script and replace all occurrences of 'time_discharge' with 'discharge.time'."
+        )
+        return self.discharge.time
+
+    @property
+    def voltage_charge(self):
+        print(
+            "WARNING: the property 'voltage_charge' is being deprecated and will no longer be available in future releases!"
+        )
+        print(
+            "Please update your script and replace all occurrences of 'voltage_charge' with 'charge.voltage'."
+        )
+        return self.charge.voltage
+
+    @property
+    def voltage_discharge(self):
+        print(
+            "WARNING: the property 'voltage_discharge' is being deprecated and will no longer be available in future releases!"
+        )
+        print(
+            "Please update your script and replace all occurrences of 'voltage_discharge' with 'discharge.voltage'."
+        )
+        return self.discharge.voltage
+
+    @property
+    def current_charge(self):
+        print(
+            "WARNING: the property 'current_charge' is being deprecated and will no longer be available in future releases!"
+        )
+        print(
+            "Please update your script and replace all occurrences of 'current_charge' with 'charge.current'."
+        )
+        return self.charge.current
+
+    @property
+    def current_discharge(self):
+        print(
+            "WARNING: the property 'current_discharge' is being deprecated and will no longer be available in future releases!"
+        )
+        print(
+            "Please update your script and replace all occurrences of 'current_discharge' with 'discharge.current'."
+        )
+        return self.discharge.current
+
+    @property
+    def power_charge(self):
+        print(
+            "WARNING: the property 'power_charge' is being deprecated and will no longer be available in future releases!"
+        )
+        print(
+            "Please update your script and replace all occurrences of 'power_charge' with 'charge.power'."
+        )
+        return self.charge.power
+
+    @property
+    def power_discharge(self):
+        print(
+            "WARNING: the property 'power_discharge' is being deprecated and will no longer be available in future releases!"
+        )
+        print(
+            "Please update your script and replace all occurrences of 'power_discharge' with 'discharge.power'."
+        )
+        return self.discharge.power
+
+    @property
+    def energy_charge(self):
+        print(
+            "WARNING: the property 'energy_charge' is being deprecated and will no longer be available in future releases!"
+        )
+        print(
+            "Please update your script and replace all occurrences of 'energy_charge' with 'charge.energy'."
+        )
+        return self.charge.energy
+
+    @property
+    def energy_discharge(self):
+        print(
+            "WARNING: the property 'energy_discharge' is being deprecated and will no longer be available in future releases!"
+        )
+        print(
+            "Please update your script and replace all occurrences of 'energy_discharge' with 'discharge.energy'."
+        )
+        return self.discharge.energy
+
+    @property
+    def capacity_charge(self):
+        print(
+            "WARNING: the property 'capacity_charge' is being deprecated and will no longer be available in future releases!"
+        )
+        print(
+            "Please update your script and replace all occurrences of 'capacity_charge' with 'charge.capacity'."
+        )
+        return self.charge.capacity
+
+    @property
+    def capacity_discharge(self):
+        print(
+            "WARNING: the property 'capacity_discharge' is being deprecated and will no longer be available in future releases!"
+        )
+        print(
+            "Please update your script and replace all occurrences of 'capacity_discharge' with 'discharge.capacity'."
+        )
+        return self.discharge.capacity
+
+    @property
+    def Q_charge(self):
+        print(
+            "WARNING: the property 'Q_charge' is being deprecated and will no longer be available in future releases!"
+        )
+        print(
+            "Please update your script and replace all occurrences of 'Q_charge' with 'charge.Q'."
+        )
+        return self.charge.Q
+
+    @property
+    def Q_discharge(self):
+        print(
+            "WARNING: the property 'Q_discharge' is being deprecated and will no longer be available in future releases!"
+        )
+        print(
+            "Please update your script and replace all occurrences of 'Q_discharge' with 'discharge.Q'."
+        )
+        return self.discharge.Q
+
+    @property
+    def total_energy_charge(self):
+        print(
+            "WARNING: the property 'total_energy_charge' is being deprecated and will no longer be available in future releases!"
+        )
+        print(
+            "Please update your script and replace all occurrences of 'total_energy_charge' with 'charge.total_energy'."
+        )
+        return self.charge.total_energy
+
+    @property
+    def total_energy_discharge(self):
+        print(
+            "WARNING: the property 'total_energy_discharge' is being deprecated and will no longer be available in future releases!"
+        )
+        print(
+            "Please update your script and replace all occurrences of 'total_energy_discharge' with 'discharge.total_energy'."
+        )
+        return self.discharge.total_energy
+
 
 class HalfCycle:
-    """HalfCycle object (for storing charge and discharge data)
+    """HalfCycle object (for storing charge or discharge data)
     """
 
-    def __init__(self, halfcycle, halfcycle_type):
+    def __init__(self, time, voltage, current, halfcycle_type):
         """
         Parameters
         ----------
-        halfcycle : Pandas DataFrame
-            DataFrame containing 3 Series: time, voltage, current
+        time : Pandas Series
+            Series containing time data (in s)
+        voltage : Pandas Series
+            Series containing voltage data (in V)
+        current : Pandas Series
+            Series containing current data (in A)
         halfcycle_type : str
             Should either be "charge" or "discharge"
         """
 
+        self._time = time
+        self._voltage = voltage
+        self._current = current
         self._halfcycle_type = halfcycle_type
-        self._time = halfcycle[0]
-        self._voltage = halfcycle[1]
-        self._current = halfcycle[2]
 
         self._Q, self._capacity = self.calculate_Q()
         self._power, self._energy, self._total_energy = self.calculate_energy()
@@ -381,49 +459,54 @@ class HalfCycle:
 
         return power, energy, total_energy
 
-    """
-    PROPERTIES
-    """
-
+    # HALFCYCLE TYPE (charge/discharge)
     @property
     def halfcycle_type(self):
         return self._halfcycle_type
 
+    # TIME
     @property
     def time(self):
         return self._time
 
+    # VOLTAGE
     @property
     def voltage(self):
         return self._voltage
 
+    # CURRENT
     @property
     def current(self):
         return self._current
 
+    # ACCUMULATED CHARGE
     @property
     def Q(self):
         return self._Q
 
+    # CAPACITY
     @property
     def capacity(self):
         return self._capacity
 
+    # POWER
     @property
     def power(self):
         return self._power
 
+    # ENERGY
     @property
     def energy(self):
         return self._energy
 
+    # TOTAL ENERGY
     @property
     def total_energy(self):
         return self._total_energy
 
 
-def build_DTA_cycles(filelist, clean=False):
-    """builds a CellCycling object from a list containing charge/discharge pairs
+def build_DTA_cycles(filelist, clean):
+    """builds a list of cycles from a list containing charge/discharge file paths
     
 
     Parameters
@@ -491,13 +574,11 @@ def build_DTA_cycles(filelist, clean=False):
                     inplace=True,
                 )
 
-                halfcycle = (
-                    data["Time (s)"],
-                    data["Voltage vs. Ref. (V)"],
-                    data["Current (A)"],
-                )
+                time = data["Time (s)"]
+                voltage = data["Voltage vs. Ref. (V)"]
+                current = data["Current (A)"]
 
-                halfcycles.append(HalfCycle(halfcycle, halfcycle_type))
+                halfcycles.append(HalfCycle(time, voltage, current, halfcycle_type))
 
         else:
             print("This is not a .DTA file!")
@@ -511,13 +592,12 @@ def build_DTA_cycles(filelist, clean=False):
         half = halfcycles.pop(0)
         if half.halfcycle_type == "charge":
             charge = half
+            cycle.add_charge(charge)
             try:
                 discharge = halfcycles.pop(0)
-                cycle.add_charge(charge)
                 cycle.add_discharge(discharge)
             except:
-                cycles.append(cycle)
-                continue
+                pass
         else:
             discharge = half
             cycle.add_discharge(discharge)
@@ -532,7 +612,7 @@ def build_DTA_cycles(filelist, clean=False):
             cycle._hidden = True
             print(f"Cycle {cycle.number} hidden due to unphsyical nature")
 
-        elif clean:
+        elif not cycle.charge or not cycle.discharge and clean:
             cycle._hidden = True
             print(f"Cycle {cycle.number} hidden due to missing charge/discharge")
 
@@ -676,8 +756,8 @@ def read_cycles(filelist, clean=False):
     return CellCycling(cycles)
 
 
-def build_cycles(filelist):
-    cycles = build_DTA_cycles(filelist)
+def build_cycles(filelist, clean=False):
+    cycles = build_DTA_cycles(filelist, clean)
 
     return CellCycling(cycles)
 
