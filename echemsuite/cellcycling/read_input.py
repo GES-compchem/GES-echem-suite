@@ -420,7 +420,7 @@ class HalfCycle:
 
     def calculate_Q(self):
         """
-        Calculate the capacity C (mA.h) of the charge half-cycle as the 
+        Calculate the capacity C (mAh) of the charge half-cycle as the 
         accumulated charge over time
         """
         # accumulated charge dq at each measurement step (mA.h)
@@ -436,18 +436,18 @@ class HalfCycle:
 
     def calculate_energy(self):
         """
-        Calculate the total energy E (W.h) of the charge half-cycle as the 
+        Calculate the total energy E (mWh) of the charge half-cycle as the 
         cumulative sum of energy over time
         """
 
         # instantaneous power (W)
         power = abs(self._current * self._voltage)
 
-        # istantaneous energy dE (W.h) at each measurement step and cumulative
+        # istantaneous energy dE (mWh) at each measurement step and cumulative
         dE = (power * self._time.diff()) / 3.6
         energy = dE.cumsum()
 
-        # total energy (W.h)
+        # total energy (mWh)
         total_energy = energy.iloc[-1]
 
         return power, energy, total_energy
