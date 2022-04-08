@@ -3,10 +3,10 @@ import setuptools
 
 setuptools.setup(
     name="GES-echem-suite",
-    version="0.1.14a",
+    version="0.1.17a",
     description="",
     long_description="",
     packages=["echemsuite"],
-    package_data={'echemsuite': ['cellcycling/*', 'cyclicvoltammetry/*',],},
+    package_data={"echemsuite": ["cellcycling/*", "cyclicvoltammetry/*",],},
     install_requires=[],
 )
