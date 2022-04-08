@@ -776,15 +776,15 @@ def build_cycles(filelist, clean=False):
 
 def time_adjust(cycle, reverse=False):
 
-    if cycle.time_discharge.iloc[0] != cycle.time_charge.iloc[0]:
-        time_charge = cycle.time_charge.subtract(cycle.time_charge.iloc[0])
-        time_discharge = cycle.time_discharge.subtract(cycle.time_charge.iloc[-1])
+    if cycle.discharge.time.iloc[0] != cycle.charge.time.iloc[0]:
+        charge_time = cycle.charge.time.subtract(cycle.charge.time.iloc[0])
+        discharge_time = cycle.discharge.time.subtract(cycle.discharge.time.iloc[-1])
     else:
-        time_charge = cycle.time_charge
-        time_discharge = cycle.time_discharge
+        charge_time = cycle.charge.time
+        discharge_time = cycle.discharge.time
 
     if reverse is True:
-        switch = time_discharge - time_charge.iloc[-1]
-        time_discharge = abs(switch)
+        switch = discharge_time - charge_time.iloc[-1]
+        discharge_time = abs(switch)
 
-    return time_charge, time_discharge
+    return charge_time, discharge_time
