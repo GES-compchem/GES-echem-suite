@@ -65,13 +65,13 @@ class CellCycling:
     @property
     def capacity_retention(self):
 
-        initial_capacity = self._cycles[self.reference].capacity_discharge
+        initial_capacity = self._cycles[self.reference].discharge.capacity
 
         self._capacity_retention = []
 
         for cycle in self:
             if cycle.discharge:
-                self._capacity_retention.append(cycle.capacity_discharge / initial_capacity * 100)
+                self._capacity_retention.append(cycle.discharge.capacity / initial_capacity * 100)
             else:
                 self._capacity_retention.append(None)
 
