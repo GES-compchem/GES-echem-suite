@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from scipy.stats import linregress
 import sys
 from os import path
 
@@ -17,6 +18,9 @@ class CellCycling:
 
         self._capacity_retention: list = None  # initialized in capacity_retention() property
         self.reference: int = 0  # used for calculating retentions
+
+        self._retention_fit_parameters = None  # initialized by fit_retention()
+        self._capacity_fade = None  # initialized by fit_retention()
 
     def __getitem__(self, cycle_number):
         if self._cycles[cycle_number]._hidden is False:
@@ -64,37 +68,146 @@ class CellCycling:
 
     @property
     def capacity_retention(self):
-
-        initial_capacity = self._cycles[self.reference].capacity_discharge
+        """
+        List of capacity retentions calculated as the ratios between the discharge capacity at cycle
+        n and the discharge capacity of the reference cycle (by default, first cycle). To change the
+        reference cycle, set the "self.reference" property
+        """
+        initial_capacity = self._cycles[self.reference].discharge.capacity
 
         self._capacity_retention = []
 
         for cycle in self:
             if cycle.discharge:
-                self._capacity_retention.append(cycle.capacity_discharge / initial_capacity * 100)
+                self._capacity_retention.append(cycle.discharge.capacity / initial_capacity * 100)
             else:
                 self._capacity_retention.append(None)
 
         return self._capacity_retention
 
+    def fit_retention(self, start: int, end: int):
+        """Fits the currently available retention data with a linear fit
+        
+        Parameters
+        ----------
+        start : int
+            starting cycle number for the fitting procedure
+        end : int
+            ending cycle number for the fitting procedure
+
+        Returns
+        -------
+        fit_parameters : LinregressResult instance
+            Result is an LinregressResult object with the following attributes:
+            slope
+            intercept
+            rvalue
+            pvalue
+            stderr
+            intercept_stderr
+        """
+
+        retention_array = self.capacity_retention[start:end]
+
+        print(f"INFO: fitting Capacity Retention data from cycle {start} to {end}")
+        self._retention_fit_parameters = linregress(range(start, end), retention_array)
+
+        print(
+            f"INFO: fit equation: retention = {self._retention_fit_parameters.slope} * cycle_number + {self._retention_fit_parameters.intercept}"
+        )
+        print(f"INFO: R^2 = {self._retention_fit_parameters.rvalue**2}")
+
+        # capacity fade calculated between consecutive cycles, taken as the slope of the linear fit
+
+        self._capacity_fade = -(self._retention_fit_parameters.slope) * 100
+
+    @property
+    def fit_parameters(self):
+        """Fitting parameters obtained from the linear fit of the capacity retention"""
+        return self._retention_fit_parameters
+
+    @property
+    def capacity_fade(self):
+        """% of capacity retention lost between two consecutive cycles (note: this is not the TOTAL
+        capacity fade!)"""
+        return self._capacity_fade
+
+    def predict_retention(self, cycle_numbers: list):
+        """Predicts the retention for a given number of cycles, given a series of fit parameters
+        in the form of a LinregressResult object
+
+        Parameters
+        ----------
+        cycle_numbers : list
+            list containing the cycle numbers for which you want to predict the retention
+
+        Returns
+        -------
+        predicted_retentions : list
+            list containing the predicted retention values
+        """
+
+        predicted_retentions = []
+        for cycle_number in cycle_numbers:
+            retention = (
+                self._retention_fit_parameters.slope * cycle_number
+                + self._retention_fit_parameters.intercept
+            )
+            predicted_retentions.append(retention)
+
+        return predicted_retentions
+
+    def retention_threshold(self, thresholds: list):
+        """Predicts the cycle numbers for which the capacity retention reaches a certain threshold
+
+        Parameters
+        ----------
+        thresholds : list
+            list containing the retention thresholds for which you want to predict the cycle number
+
+        Returns
+        -------
+        predicted_thresholds : list
+            list containing the predicted retention values
+        """
+
+        predicted_cycle_numbers = []
+        for retention in thresholds:
+            cycle_number = int(
+                (
+                    (retention - self._retention_fit_parameters.intercept)
+                    / self._retention_fit_parameters.slope
+                )
+                // 1
+            )
+            predicted_cycle_numbers.append(cycle_number)
+
+        return predicted_cycle_numbers
+
     @property
     def coulomb_efficiencies(self):
+        """List of coulombic efficiencies"""
         return [cycle.coulomb_efficiency for cycle in self]
 
     @property
     def voltage_efficiencies(self):
+        """List of voltaic efficiencies"""
         return [cycle.voltage_efficiency for cycle in self]
 
     @property
     def energy_efficiencies(self):
+        """List of energy efficiencies"""
         return [cycle.energy_efficiency for cycle in self]
 
     @property
     def number_of_cycles(self):
+        """Returns the total number of cycles"""
         return len([cycle for cycle in self])
 
     @property
     def numbers(self):
+        """Returns a list of all the available cycle numbers"""
+        self.get_numbers()
         return self._numbers
 
 
@@ -120,20 +233,24 @@ class Cycle:
     # CYCLE NUMBER
     @property
     def number(self):
+        """Cycle number"""
         return self._number
 
     # CHARGE / DISCHARGE
     @property
     def charge(self):
+        """Charge half-cycle"""
         return self._charge
 
     @property
     def discharge(self):
+        """Discharge half-cycle"""
         return self._discharge
 
     # TIME
     @property
     def time(self):
+        """DataFrame containing the time data points (in s) for the complete cycle"""
         if self.charge and self.discharge:
             return pd.concat([self.charge.time, self.discharge.time])
         elif self.charge and not self.discharge:
@@ -144,6 +261,7 @@ class Cycle:
     # VOLTAGE
     @property
     def voltage(self):
+        """DataFrame containing the voltage data (in V) points for the complete cycle"""
         if self.charge and self.discharge:
             return pd.concat([self.charge.voltage, self.discharge.voltage])
         elif self.charge and not self.discharge:
@@ -154,6 +272,7 @@ class Cycle:
     # CURRENT
     @property
     def current(self):
+        """DataFrame containing the current data points (in A) for the complete cycle"""
         if self.charge and self.discharge:
             return pd.concat([self.charge.current, self.discharge.current])
         elif self.charge and not self.discharge:
@@ -164,6 +283,7 @@ class Cycle:
     # POWER
     @property
     def power(self):
+        """DataFrame containing the instantaneous power data points (in W) for the complete cycle"""
         if self.charge and self.discharge:
             return pd.concat([self.charge.power, self.discharge.power])
         elif self.charge and not self.discharge:
@@ -174,6 +294,7 @@ class Cycle:
     # ENERGY
     @property
     def energy(self):
+        """DataFrame containing the instantaneous energy data points (in mWh) for the complete cycle"""
         if self.charge and self.discharge:
             return pd.concat([self.charge.energy, self.discharge.energy])
         elif self.charge and not self.discharge:
@@ -184,6 +305,7 @@ class Cycle:
     # ACCUMULATED CHARGE
     @property
     def Q(self):
+        """DataFrame containing the accumulated charge data points (in mAh) for the complete cycle"""
         if self.charge and self.discharge:
             return pd.concat([self.charge.Q, self.discharge.Q])
         elif self.charge and not self.discharge:
@@ -219,14 +341,17 @@ class Cycle:
     # EFFICIENCIES
     @property
     def coulomb_efficiency(self):
+        """Coulombic efficiency"""
         return self._coulomb_efficiency
 
     @property
     def energy_efficiency(self):
+        """Energy efficiency"""
         return self._energy_efficiency
 
     @property
     def voltage_efficiency(self):
+        """Voltaic efficiency"""
         return self._voltage_efficiency
 
     # LEGACY PROPERTIES
@@ -420,7 +545,7 @@ class HalfCycle:
 
     def calculate_Q(self):
         """
-        Calculate the capacity C (mA.h) of the charge half-cycle as the 
+        Calculate the capacity C (mAh) of the charge half-cycle as the 
         accumulated charge over time
         """
         # accumulated charge dq at each measurement step (mA.h)
@@ -436,18 +561,18 @@ class HalfCycle:
 
     def calculate_energy(self):
         """
-        Calculate the total energy E (W.h) of the charge half-cycle as the 
+        Calculate the total energy E (mWh) of the charge half-cycle as the 
         cumulative sum of energy over time
         """
 
         # instantaneous power (W)
         power = abs(self._current * self._voltage)
 
-        # istantaneous energy dE (W.h) at each measurement step and cumulative
+        # istantaneous energy dE (mWh) at each measurement step and cumulative
         dE = (power * self._time.diff()) / 3.6
         energy = dE.cumsum()
 
-        # total energy (W.h)
+        # total energy (mWh)
         total_energy = energy.iloc[-1]
 
         return power, energy, total_energy
@@ -455,46 +580,55 @@ class HalfCycle:
     # HALFCYCLE TYPE (charge/discharge)
     @property
     def halfcycle_type(self):
+        """Type of half-cycle (charge or discharge)"""
         return self._halfcycle_type
 
     # TIME
     @property
     def time(self):
+        """DataFrame containing the time data points (in s) for the selected half-cycle"""
         return self._time
 
     # VOLTAGE
     @property
     def voltage(self):
+        """DataFrame containing the voltage data points (in V) for the selected half-cycle"""
         return self._voltage
 
     # CURRENT
     @property
     def current(self):
+        """DataFrame containing the current data points (in A) for the selected half-cycle"""
         return self._current
 
     # ACCUMULATED CHARGE
     @property
     def Q(self):
+        """DataFrame containing the accumulated charge data points (in mAh) for the selected half-cycle"""
         return self._Q
 
     # CAPACITY
     @property
     def capacity(self):
+        """Capacity (in mAh) for the selected half-cycle, calculated as the total accumulated charge"""
         return self._capacity
 
     # POWER
     @property
     def power(self):
+        """DataFrame containing the instantaneous power data points (in W) for the selected half-cycle"""
         return self._power
 
     # ENERGY
     @property
     def energy(self):
+        """DataFrame containing the instantaneous energy data points (in mWh) for the selected half-cycle"""
         return self._energy
 
     # TOTAL ENERGY
     @property
     def total_energy(self):
+        """Total energy (in mWh) for the selected half-cycle, calculated as the total accumulated energy"""
         return self._total_energy
 
 
@@ -776,15 +910,15 @@ def build_cycles(filelist, clean=False):
 
 def time_adjust(cycle, reverse=False):
 
-    if cycle.time_discharge.iloc[0] != cycle.time_charge.iloc[0]:
-        time_charge = cycle.time_charge.subtract(cycle.time_charge.iloc[0])
-        time_discharge = cycle.time_discharge.subtract(cycle.time_charge.iloc[-1])
+    if cycle.discharge.time.iloc[0] != cycle.charge.time.iloc[0]:
+        charge_time = cycle.charge.time.subtract(cycle.charge.time.iloc[0])
+        discharge_time = cycle.discharge.time.subtract(cycle.discharge.time.iloc[-1])
     else:
-        time_charge = cycle.time_charge
-        time_discharge = cycle.time_discharge
+        charge_time = cycle.charge.time
+        discharge_time = cycle.discharge.time
 
     if reverse is True:
-        switch = time_discharge - time_charge.iloc[-1]
-        time_discharge = abs(switch)
+        switch = discharge_time - charge_time.iloc[-1]
+        discharge_time = abs(switch)
 
-    return time_charge, time_discharge
+    return charge_time, discharge_time
