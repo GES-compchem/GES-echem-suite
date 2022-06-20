@@ -654,10 +654,10 @@ def build_DTA_cycles(filelist, clean):
 
     for filepath in filelist:
 
-        print("Loading:", filepath, "\n")
-
         filename = path.basename(filepath)
         extension = path.splitext(filename)[1]
+
+        print("Loading:", filepath, "\n")
 
         if extension.lower() == ".dta":
 
@@ -692,18 +692,31 @@ def build_DTA_cycles(filelist, clean):
                 )
 
                 # renaming columns to standard format
-                data.rename(
-                    columns={
-                        "s": "Time (s)",
-                        "V vs. Ref.": "Voltage vs. Ref. (V)",
-                        "A": "Current (A)",
-                    },
-                    inplace=True,
-                )
+                if "V vs. Ref." in data.columns:
+                    data.rename(
+                        columns={
+                            "s": "Time (s)",
+                            "V vs. Ref.": "Voltage vs. Ref. (V)",
+                            "A": "Current (A)",
+                        },
+                        inplace=True,
+                    )
+
+                elif "V" in data.columns:
+                    data.rename(
+                        columns={"s": "Time (s)", "V": "Voltage vs. Ref. (V)", "A": "Current (A)",},
+                        inplace=True,
+                    )
 
                 time = data["Time (s)"]
                 voltage = data["Voltage vs. Ref. (V)"]
                 current = data["Current (A)"]
+
+                if halfcycle_type is None:
+                    if current[0] > 0:
+                        halfcycle_type = "charge"
+                    elif current[0] < 0:
+                        halfcycle_type = "discharge"
 
                 halfcycles.append(HalfCycle(time, voltage, current, halfcycle_type))
 
