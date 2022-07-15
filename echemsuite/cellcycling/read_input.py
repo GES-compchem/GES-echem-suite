@@ -3,7 +3,7 @@ import numpy as np
 from scipy.stats import linregress
 import sys
 from os import path
-
+from datetime import datetime
 
 class CellCycling:
     """
@@ -517,11 +517,13 @@ class Cycle:
         return self.discharge.total_energy
 
 
+
 class HalfCycle:
-    """HalfCycle object (for storing charge or discharge data)
+    """
+    HalfCycle object (for storing charge or discharge data)
     """
 
-    def __init__(self, time, voltage, current, halfcycle_type):
+    def __init__(self, time, voltage, current, halfcycle_type, timestamp):
         """
         Parameters
         ----------
@@ -534,7 +536,7 @@ class HalfCycle:
         halfcycle_type : str
             Should either be "charge" or "discharge"
         """
-
+        self._timestamp = timestamp
         self._time = time
         self._voltage = voltage
         self._current = current
@@ -576,6 +578,19 @@ class HalfCycle:
         total_energy = energy.iloc[-1]
 
         return power, energy, total_energy
+
+    # TIMESTAMP
+    @property
+    def timestamp(self):
+        """Timestamp reporting the date and time at which the measurment was collected"""
+        return self._timestamp
+    
+    @timestamp.setter
+    def timestamp(self, value):
+        """Timestamp reporting the date and time at which the measurment was collected"""
+        if type(value) != datetime:
+            raise TypeError
+        self._timestamp = value
 
     # HALFCYCLE TYPE (charge/discharge)
     @property
@@ -632,7 +647,7 @@ class HalfCycle:
         return self._total_energy
 
 
-def build_DTA_cycles(filelist, clean):
+def build_DTA_cycles(filelist, clean, verbose = False):
     """builds a list of cycles from a list containing charge/discharge file paths from 
     
 
@@ -657,7 +672,8 @@ def build_DTA_cycles(filelist, clean):
         filename = path.basename(filepath)
         extension = path.splitext(filename)[1]
 
-        print("Loading:", filepath, "\n")
+        if verbose:
+            print("Loading: {}".format(filepath))
 
         if extension.lower() == ".dta":
 
@@ -667,8 +683,16 @@ def build_DTA_cycles(filelist, clean):
                 npoints = None  # number of data points
                 halfcycle_type = None  # charge/discharge
 
+                date_str, time_str = None, None #Date and time string buffers
+                timestamp = None # Timestamp reported in the file
+
                 # finding the "CURVE TABLE npoints" line in file
                 for line_num, line in enumerate(file):
+
+                    if line.startswith("DATE"):
+                        date_str = line.split()[2]
+                    elif line.startswith("TIME"):
+                        time_str = line.split()[2]
 
                     if "Step 1 Current (A)" in line:
                         if float(line.split()[2]) > 0:
@@ -680,6 +704,14 @@ def build_DTA_cycles(filelist, clean):
                         beginning = line_num + 2
                         npoints = int(line.split()[-1])
                         break
+                
+                # build timestamp object
+                if date_str != None and time_str != None:
+                    month, day, year = date_str.split("/")
+                    hours, minutes, seconds = time_str.split(":")
+                    timestamp = datetime(int(year), int(month), int(day), int(hours), int(minutes), int(seconds))
+                else:
+                    print("WARNING: Failed to build file timestamp.")
 
                 # reading data from file
                 data = pd.read_table(
@@ -718,11 +750,13 @@ def build_DTA_cycles(filelist, clean):
                     elif current[0] < 0:
                         halfcycle_type = "discharge"
 
-                halfcycles.append(HalfCycle(time, voltage, current, halfcycle_type))
+                halfcycles.append(HalfCycle(time, voltage, current, halfcycle_type, timestamp))
 
         else:
             print("This is not a .DTA file!")
             sys.exit()
+    
+    #halfcycles = sorted(halfcycles, key=lambda obj: obj.timestamp)
 
     cycles = []
     cycle_number = 0
