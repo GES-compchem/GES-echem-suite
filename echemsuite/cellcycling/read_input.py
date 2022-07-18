@@ -1,9 +1,11 @@
+from typing import List
 import pandas as pd
 import numpy as np
 from scipy.stats import linregress
 import sys
 from os import path
 from datetime import datetime
+
 
 class CellCycling:
     """
@@ -647,6 +649,35 @@ class HalfCycle:
         return self._total_energy
 
 
+def join_HalfCycles(join_list: List[HalfCycle]) -> HalfCycle:
+    '''
+    Join HalfCycles class containing partial data into a single complete HalfCycle
+    '''
+
+    #Set timestamp and halfcycle_type according to the first halfcycle file 
+    timestamp = join_list[0]._timestamp
+    halfcycle_type = join_list[0]._halfcycle_type
+
+    # Do a sanity check on the halfcycle_type associated to the given objects
+    for obj in join_list:
+        if obj._halfcycle_type != halfcycle_type:
+            raise RuntimeError
+
+    # Concatenate the data series for voltage and current
+    voltage = pd.concat(obj._voltage for obj in join_list)
+    current = pd.concat(obj._current for obj in join_list)
+    
+    time_list = []
+    for i, obj in enumerate(join_list):
+        offset = 0 if i==0 else time_list[-1]
+        for t in obj.time:
+            time_list.append(t+offset)
+    
+    time = pd.Series(time_list, name="Time (s)")
+    
+    return HalfCycle(time, voltage, current, halfcycle_type, timestamp)
+
+
 def build_DTA_cycles(filelist, clean, verbose = False):
     """builds a list of cycles from a list containing charge/discharge file paths from 
     
@@ -755,8 +786,6 @@ def build_DTA_cycles(filelist, clean, verbose = False):
         else:
             print("This is not a .DTA file!")
             sys.exit()
-    
-    #halfcycles = sorted(halfcycles, key=lambda obj: obj.timestamp)
 
     cycles = []
     cycle_number = 0
