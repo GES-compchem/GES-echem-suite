@@ -81,7 +81,9 @@ class CellCycling:
 
         for cycle in self:
             if cycle.discharge:
-                self._capacity_retention.append(cycle.discharge.capacity / initial_capacity * 100)
+                self._capacity_retention.append(
+                    cycle.discharge.capacity / initial_capacity * 100
+                )
             else:
                 self._capacity_retention.append(None)
 
@@ -329,13 +331,21 @@ class Cycle:
                 self._energy_efficiency = 101
                 self._voltage_efficiency = 101
             else:
-                self._coulomb_efficiency = self.discharge.capacity / self.charge.capacity * 100
+                self._coulomb_efficiency = (
+                    self.discharge.capacity / self.charge.capacity * 100
+                )
                 self._energy_efficiency = (
                     self.discharge.total_energy / self.charge.total_energy * 100
                 )
-                self._voltage_efficiency = self._energy_efficiency / self._coulomb_efficiency * 100
+                self._voltage_efficiency = (
+                    self._energy_efficiency / self._coulomb_efficiency * 100
+                )
 
-            return self._coulomb_efficiency, self._energy_efficiency, self._voltage_efficiency
+            return (
+                self._coulomb_efficiency,
+                self._energy_efficiency,
+                self._voltage_efficiency,
+            )
 
         else:
             return None, None, None
@@ -519,7 +529,6 @@ class Cycle:
         return self.discharge.total_energy
 
 
-
 class HalfCycle:
     """
     HalfCycle object (for storing charge or discharge data)
@@ -586,7 +595,7 @@ class HalfCycle:
     def timestamp(self):
         """Timestamp reporting the date and time at which the measurment was collected"""
         return self._timestamp
-    
+
     @timestamp.setter
     def timestamp(self, value):
         """Timestamp reporting the date and time at which the measurment was collected"""
@@ -650,11 +659,11 @@ class HalfCycle:
 
 
 def join_HalfCycles(join_list: List[HalfCycle]) -> HalfCycle:
-    '''
+    """
     Join HalfCycles class containing partial data into a single complete HalfCycle
-    '''
+    """
 
-    #Set timestamp and halfcycle_type according to the first halfcycle file 
+    # Set timestamp and halfcycle_type according to the first halfcycle file
     timestamp = join_list[0]._timestamp
     halfcycle_type = join_list[0]._halfcycle_type
 
@@ -664,21 +673,21 @@ def join_HalfCycles(join_list: List[HalfCycle]) -> HalfCycle:
             raise RuntimeError
 
     # Concatenate the data series for voltage and current
-    voltage = pd.concat(obj._voltage for obj in join_list)
-    current = pd.concat(obj._current for obj in join_list)
-    
+    voltage = pd.concat([obj._voltage for obj in join_list], ignore_index=True)
+    current = pd.concat([obj._current for obj in join_list], ignore_index=True)
+
     time_list = []
     for i, obj in enumerate(join_list):
-        offset = 0 if i==0 else time_list[-1]
+        offset = 0 if i == 0 else time_list[-1]
         for t in obj.time:
-            time_list.append(t+offset)
-    
+            time_list.append(t + offset)
+
     time = pd.Series(time_list, name="Time (s)")
-    
+
     return HalfCycle(time, voltage, current, halfcycle_type, timestamp)
 
 
-def build_DTA_cycles(filelist, clean, verbose = False):
+def build_DTA_cycles(filelist, clean, verbose=False):
     """builds a list of cycles from a list containing charge/discharge file paths from 
     
 
@@ -714,8 +723,8 @@ def build_DTA_cycles(filelist, clean, verbose = False):
                 npoints = None  # number of data points
                 halfcycle_type = None  # charge/discharge
 
-                date_str, time_str = None, None #Date and time string buffers
-                timestamp = None # Timestamp reported in the file
+                date_str, time_str = None, None  # Date and time string buffers
+                timestamp = None  # Timestamp reported in the file
 
                 # finding the "CURVE TABLE npoints" line in file
                 for line_num, line in enumerate(file):
@@ -735,12 +744,19 @@ def build_DTA_cycles(filelist, clean, verbose = False):
                         beginning = line_num + 2
                         npoints = int(line.split()[-1])
                         break
-                
+
                 # build timestamp object
                 if date_str != None and time_str != None:
                     month, day, year = date_str.split("/")
                     hours, minutes, seconds = time_str.split(":")
-                    timestamp = datetime(int(year), int(month), int(day), int(hours), int(minutes), int(seconds))
+                    timestamp = datetime(
+                        int(year),
+                        int(month),
+                        int(day),
+                        int(hours),
+                        int(minutes),
+                        int(seconds),
+                    )
                 else:
                     print("WARNING: Failed to build file timestamp.")
 
@@ -767,7 +783,11 @@ def build_DTA_cycles(filelist, clean, verbose = False):
 
                 elif "V" in data.columns:
                     data.rename(
-                        columns={"s": "Time (s)", "V": "Voltage vs. Ref. (V)", "A": "Current (A)",},
+                        columns={
+                            "s": "Time (s)",
+                            "V": "Voltage vs. Ref. (V)",
+                            "A": "Current (A)",
+                        },
                         inplace=True,
                     )
 
@@ -781,7 +801,9 @@ def build_DTA_cycles(filelist, clean, verbose = False):
                     elif current[0] < 0:
                         halfcycle_type = "discharge"
 
-                halfcycles.append(HalfCycle(time, voltage, current, halfcycle_type, timestamp))
+                halfcycles.append(
+                    HalfCycle(time, voltage, current, halfcycle_type, timestamp)
+                )
 
         else:
             print("This is not a .DTA file!")
@@ -913,7 +935,9 @@ def read_mpt_cycles(filelist, clean):
                     try:
                         charge = HalfCycle(
                             data["Time (s)"][first_row:last_row][data["ox/red"] == 1],
-                            data["Voltage vs. Ref. (V)"][first_row:last_row][data["ox/red"] == 1],
+                            data["Voltage vs. Ref. (V)"][first_row:last_row][
+                                data["ox/red"] == 1
+                            ],
                             data["Current (A)"][first_row:last_row][data["ox/red"] == 1],
                             "charge",
                         )
@@ -923,7 +947,9 @@ def read_mpt_cycles(filelist, clean):
                     try:
                         discharge = HalfCycle(
                             data["Time (s)"][first_row:last_row][data["ox/red"] == 0],
-                            data["Voltage vs. Ref. (V)"][first_row:last_row][data["ox/red"] == 0],
+                            data["Voltage vs. Ref. (V)"][first_row:last_row][
+                                data["ox/red"] == 0
+                            ],
                             data["Current (A)"][first_row:last_row][data["ox/red"] == 0],
                             "discharge",
                         )
