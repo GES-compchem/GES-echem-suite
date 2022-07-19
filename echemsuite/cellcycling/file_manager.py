@@ -34,7 +34,7 @@ class FileManager:
         self.verbose: bool = verbose  # Enable output to the terminal
         self._bytestreams: Dict[
             str, BytesIO
-        ] = {}  # Dictionary for the BytesIO streams containing the datafiles
+        ] = {}  # Dictionary for the BytesIO streams containing the datafiles ordered by a valid path string
         self._halfcycles: Dict[str, HalfCycle] = {}  # List of the loaded halfcycles
         self._instrument: Instrument = None  # Instrument from which the data are obtained
 
@@ -247,7 +247,7 @@ class FileManager:
                     raise RuntimeError
 
                 # Build the timestamp object
-                if date_str != None and time_str != None:
+                if date_str is not None and time_str is not None:
                     month, day, year = date_str.split("/")
                     hours, minutes, seconds = time_str.split(":")
                     timestamp = datetime(
