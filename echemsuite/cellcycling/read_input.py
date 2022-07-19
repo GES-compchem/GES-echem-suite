@@ -660,7 +660,18 @@ class HalfCycle:
 
 def join_HalfCycles(join_list: List[HalfCycle]) -> HalfCycle:
     """
-    Join HalfCycles class containing partial data into a single complete HalfCycle
+    Join HalfCycles objects containing partial data into a single complete HalfCycle
+
+        Parameters:
+        -----------
+            join_list: List[HalfCycle]
+                list containing all the HalfCycle objects to be joined
+        
+        Returns:
+        --------
+            obj : HalfCycle
+                single halfcycle object obtained from the concatenation of the input data.
+                The timestamp of the output object is set according to the first (oldest) dataset. 
     """
 
     # Set timestamp and halfcycle_type according to the first halfcycle file
