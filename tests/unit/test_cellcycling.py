@@ -14,10 +14,11 @@ import pytest
 import pandas as pd
 import numpy as np
 from datetime import datetime
-from typing import List, Union, Tuple
+from copy import deepcopy
+from typing import Tuple
 from numpy.testing import assert_almost_equal, assert_array_almost_equal
 
-from echemsuite.cellcycling.read_input import Cycle, HalfCycle
+from echemsuite.cellcycling.read_input import Cycle, HalfCycle, join_HalfCycles
 
 
 # %% DEFINE CONSTANT DATASET TO BE USED IN TESTING
@@ -126,6 +127,51 @@ def test_HalfCycle_calculate_energy_function(halfcycle_obj_const, expected_value
     assert_almost_equal(halfcycle._total_energy, tE_exp, decimal=6)
 
 
+# %% TEST FUNCTIONS FOR THE JOIN HALFCYCLE FUNCTION USING THE CONSTANT DATASET
+
+# Test regular operation of the join_HalfCycles function
+def test_join_HalfCycles_function(halfcycle_obj_const):
+
+    # Prepare new_halfcycle by concatenating two halfcycles
+    first = halfcycle_obj_const
+    second = deepcopy(first)
+
+    second._timestamp = datetime.now()
+    new_halfcycle = join_HalfCycles([first, second])
+
+    # Prepare expected series for time, voltage and current
+    time, voltage, current, timestamp = get_dataset_const()
+
+    shifted_time = [t + 4.0 for t in time.tolist()]
+    new_time = pd.Series([*time.tolist(), *shifted_time])
+    new_voltage = pd.concat([voltage, voltage], ignore_index=True)
+    new_current = pd.concat([current, current], ignore_index=True)
+
+    assert new_halfcycle._timestamp == first._timestamp
+    assert new_halfcycle._timestamp == timestamp
+    assert_array_almost_equal(new_halfcycle.time, new_time, decimal=6)
+    assert_array_almost_equal(new_halfcycle.voltage, new_voltage, decimal=6)
+    assert_array_almost_equal(new_halfcycle.current, new_current, decimal=6)
+
+
+# Test that the join_HalfCycles function raises an error when different types of halfcycles are considered
+def test_join_HalfCycles_function_different_type_error(halfcycle_obj_const):
+
+    first = halfcycle_obj_const
+    second = deepcopy(first)
+
+    second._halfcycle_type = "discharge"
+
+    assert first._halfcycle_type != second._halfcycle_type
+
+    try:
+        join_HalfCycles([first, second])
+    except Exception as exc:
+        assert True
+    else:
+        assert False
+
+
 # %% TEST FUNCTIONS FOR THE CYCLE CLASS USING THE CONSTANT DATASET
 
 
@@ -147,7 +193,7 @@ def test_Cycle___init__():
 # Test function to trigger exception when wrong type of halfcycles are used as arguments
 @pytest.mark.xfail
 def test_Cycle_charge_discharge_parameters_monitoring(halfcycle_obj_const):
-    
+
     halfcycle = halfcycle_obj_const
 
     try:
@@ -215,17 +261,17 @@ def test_Cycle_calculate_efficiencies_sentinel_value_feature(halfcycle_obj_const
     wrong_halfcycle._total_energy *= -1
 
     normal_halfcycle = halfcycle_obj_const
-    
+
     cycle = Cycle(0, charge=normal_halfcycle, discharge=wrong_halfcycle)
 
     assert_almost_equal(cycle.coulomb_efficiency, 101, decimal=6)
     assert_almost_equal(cycle.energy_efficiency, 101, decimal=6)
     assert_almost_equal(cycle.voltage_efficiency, 101, decimal=6)
-    
+
 
 # Cumulative test to verify the functions marked as legacy
 def test_Cycle_legacy_functions(cycle_obj_const):
-    
+
     cycle = cycle_obj_const
 
     assert_array_almost_equal(cycle.time_charge, cycle.charge.time, decimal=6)
@@ -244,4 +290,7 @@ def test_Cycle_legacy_functions(cycle_obj_const):
     assert_almost_equal(cycle.capacity_charge, cycle.charge.capacity, decimal=6)
     assert_almost_equal(cycle.capacity_discharge, cycle.discharge.capacity, decimal=6)
     assert_almost_equal(cycle.total_energy_charge, cycle.charge.total_energy, decimal=6)
-    assert_almost_equal(cycle.total_energy_discharge, cycle.discharge.total_energy, decimal=6)
+    assert_almost_equal(
+        cycle.total_energy_discharge, cycle.discharge.total_energy, decimal=6
+    )
+
