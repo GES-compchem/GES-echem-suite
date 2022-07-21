@@ -13,12 +13,13 @@ sys.path.insert(0, parent_path)
 import pytest
 import pandas as pd
 import numpy as np
+import scipy as sp
 from datetime import datetime
 from copy import deepcopy
-from typing import Tuple
+from typing import List, Tuple
 from numpy.testing import assert_almost_equal, assert_array_almost_equal
 
-from echemsuite.cellcycling.read_input import Cycle, HalfCycle, join_HalfCycles
+from echemsuite.cellcycling.read_input import CellCycling, Cycle, HalfCycle, join_HalfCycles
 
 
 # %% DEFINE CONSTANT DATASET TO BE USED IN TESTING
@@ -52,6 +53,19 @@ def cycle_obj_const() -> Cycle:
     discharge_halfcycle = HalfCycle(time, voltage, current, "discharge", timestamp)
 
     return Cycle(0, charge=charge_halfcycle, discharge=discharge_halfcycle)
+
+
+@pytest.fixture
+def cycles_objs_const(cycle_obj_const) -> List[Cycle]:
+    """
+    Returns a list of 5 identical Cycles generated with the cycle_obj_const fixture
+    """
+    cycles = [deepcopy(cycle_obj_const) for _ in range(5)]
+
+    for i, cycle in enumerate(cycles):
+        cycle._number = i
+
+    return cycles
 
 
 @pytest.fixture
@@ -175,7 +189,7 @@ def test_join_HalfCycles_function_different_type_error(halfcycle_obj_const):
 # %% TEST FUNCTIONS FOR THE CYCLE CLASS USING THE CONSTANT DATASET
 
 
-# Test function to check for exceptions raised during HalfCycle object construction
+# Test function to check for exceptions raised during Cycle object construction
 def test_Cycle___init__():
 
     cycle_number = 0
@@ -188,6 +202,7 @@ def test_Cycle___init__():
         assert True
 
     assert cycle._number == cycle_number
+    assert cycle._hidden == False
 
 
 # Test function to trigger exception when wrong type of halfcycles are used as arguments
@@ -293,4 +308,234 @@ def test_Cycle_legacy_functions(cycle_obj_const):
     assert_almost_equal(
         cycle.total_energy_discharge, cycle.discharge.total_energy, decimal=6
     )
+
+
+# %% TEST FUNCTIONS FOR THE CELLCYCLING CLASS USING THE CONSTANT DATASET
+
+
+# Test function to check for exceptions raised during CellCycling object construction
+def test_CellCycling___init__(cycles_objs_const):
+
+    cycles = cycles_objs_const
+
+    try:
+        cellcycling = CellCycling(cycles)
+    except Exception as exc:
+        assert False, f"An exception occurred on Cycle object construction:\n\n{exc}\n"
+    else:
+        assert True
+
+
+# Test function to check if the _number_of_cycles variable is set correctly
+@pytest.mark.xfail
+def test_number_of_cycles_assignment(cycles_objs_const):
+
+    cycles = cycles_objs_const
+    cellcycling = CellCycling(cycles)
+
+    assert cellcycling._number_of_cycles == len(cycles)
+
+
+# Test the __getitem__ member function
+def test_CellCycling___getitem__(cycles_objs_const):
+
+    cycles = cycles_objs_const
+    cellcycling = CellCycling(cycles)
+
+    for i, cycle in enumerate(cycles):
+        assert cellcycling[i] == cycle
+
+    cellcycling._cycles[1]._hidden = True
+    assert cellcycling[1] == None
+
+
+# Test the __iter__ member function
+def test_CellCycling___iter__(cycles_objs_const):
+
+    cycles = cycles_objs_const
+    cellcycling = CellCycling(cycles)
+
+    for i, obj in enumerate(cellcycling):
+        assert obj == cycles[i]
+
+    cellcycling._cycles[1]._hidden = True
+    for _, obj in enumerate(cellcycling):
+        if obj == cellcycling._cycles[1]:
+            assert False, "An hidden cycle has been returned by the class iterator"
+
+    assert cellcycling.reference == 0
+
+
+# Test the CellCycling class get_numbers function
+def test_CellCycling_get_numbers_function(cycles_objs_const):
+
+    cycles = cycles_objs_const
+    cellcycling = CellCycling(cycles)
+    cellcycling.get_numbers()
+
+    assert cellcycling._numbers == [0, 1, 2, 3, 4]
+
+    cellcycling._cycles[1]._hidden = True
+    cellcycling.get_numbers()
+    assert cellcycling._numbers == [0, 2, 3, 4]
+
+
+# Test the CellCycling class hide and unhide functions
+def test_CellCycling_get_hide_unhide_functions(cycles_objs_const):
+
+    cycles = cycles_objs_const
+    cellcycling = CellCycling(cycles)
+
+    for cycle in cellcycling:
+        if cycle._hidden == True:
+            assert False, "Unexpected hidden cycle after construction"
+
+    cellcycling.hide([1, 4])
+    for i, cycle in enumerate(cellcycling._cycles):
+        if cycle._hidden == True and i not in [1, 4]:
+            assert False, "Hidden cycle found at the wrong index"
+
+    assert cellcycling._numbers == [0, 2, 3]
+
+    cellcycling.unhide([1])
+    for i, cycle in enumerate(cellcycling._cycles):
+        if cycle._hidden == True and i != 4:
+            assert False, "Failed to Unhide cycle"
+
+    assert cellcycling._numbers == [0, 1, 2, 3]
+
+
+# Test the CellCycling class capacity_retention function with all equivalent cycles
+def test_CellCycling_capacity_retention_function_equivalent(cycles_objs_const):
+
+    cycles = cycles_objs_const
+    cellcycling = CellCycling(cycles)
+
+    capacity_retention = cellcycling.capacity_retention
+
+    assert capacity_retention == cellcycling._capacity_retention
+
+    assert_array_almost_equal(
+        capacity_retention, [100.0, 100.0, 100.0, 100.0, 100.0], decimal=10
+    )
+
+
+# Test the CellCycling class capacity_retention function with linearly smaller discharge capacity
+def test_CellCycling_capacity_retention_function_linear_fade(cycles_objs_const):
+
+    cycles: List[Cycle] = cycles_objs_const
+
+    residual_disch_capacity = [1.0, 0.9, 0.8, 0.7, 0.6]
+    for i, cycle in enumerate(cycles):
+        cycle._discharge._capacity *= residual_disch_capacity[i]
+    cellcycling = CellCycling(cycles)
+
+    capacity_retention = cellcycling.capacity_retention
+    assert_array_almost_equal(
+        capacity_retention, [100.0, 90.0, 80.0, 70.0, 60.0], decimal=6
+    )
+
+    cellcycling.reference = 1
+    capacity_retention = cellcycling.capacity_retention
+    assert_array_almost_equal(
+        capacity_retention,
+        [111.111111111111, 100.0, 88.8888888888889, 77.7777777777778, 66.6666666666667],
+        decimal=6,
+    )
+
+
+# Test the CellCycling class fit_retention function with all equivalent cycles
+def test_CellCycling_fit_retention_function_equivalent(cycles_objs_const):
+
+    cycles = cycles_objs_const
+    cellcycling = CellCycling(cycles)
+
+    cellcycling.fit_retention(0, 4)
+    regression_data = cellcycling._retention_fit_parameters
+
+    assert type(regression_data) == sp.stats._stats_mstats_common.LinregressResult
+
+    assert_almost_equal(regression_data.slope, 0.0, decimal=6)
+    assert_almost_equal(regression_data.intercept, 100.0, decimal=6)
+
+    assert_almost_equal(cellcycling._capacity_fade, 0.0, decimal=6)
+
+
+# Test the CellCycling class fit_retention function with linearly smaller discharge capacity
+@pytest.mark.xfail
+def test_CellCycling_fit_retention_function_linear_fade(cycles_objs_const):
+
+    cycles: List[Cycle] = cycles_objs_const
+
+    residual_disch_capacity = [1.0, 0.9, 0.8, 0.7, 0.6]
+    for i, cycle in enumerate(cycles):
+        cycle._discharge._capacity *= residual_disch_capacity[i]
+    cellcycling = CellCycling(cycles)
+
+    cellcycling.fit_retention(0, 4)
+    regression_data = cellcycling._retention_fit_parameters
+
+    assert type(regression_data) == sp.stats._stats_mstats_common.LinregressResult
+
+    assert_almost_equal(regression_data.slope, -10.0, decimal=6)
+    assert_almost_equal(regression_data.intercept, 100.0, decimal=6)
+    assert_almost_equal(regression_data.rvalue ** 2, 1.0, decimal=6)
+
+    assert_almost_equal(cellcycling._capacity_fade, 10.0, decimal=6)
+
+
+# Test the CellCycling class predict_retention function with linearly smaller discharge capacity
+def test_CellCycling_predict_retention_function_linear_fade(cycles_objs_const):
+
+    cycles: List[Cycle] = cycles_objs_const
+
+    residual_disch_capacity = [1.0, 0.9, 0.8, 0.7, 0.6]
+    for i, cycle in enumerate(cycles):
+        cycle._discharge._capacity *= residual_disch_capacity[i]
+    cellcycling = CellCycling(cycles)
+
+    cellcycling.fit_retention(0, 4)
+    predicted_retention = cellcycling.predict_retention([5, 6, 7, 9])
+
+    assert_array_almost_equal(predicted_retention, [50.0, 40.0, 30.0, 10.0])
+
+
+# Test the CellCycling class retention_threshold function with linearly smaller discharge capacity
+def test_CellCycling_retention_threshold_function_linear_fade(cycles_objs_const):
+
+    cycles: List[Cycle] = cycles_objs_const
+
+    residual_disch_capacity = [1.0, 0.9, 0.8, 0.7, 0.6]
+    for i, cycle in enumerate(cycles):
+        cycle._discharge._capacity *= residual_disch_capacity[i]
+    cellcycling = CellCycling(cycles)
+
+    cellcycling.fit_retention(0, 4)
+    index_list = cellcycling.retention_threshold([40.0, 0.0])
+
+    assert index_list == [6, 10]
+
+
+# Test to check the correct assignment of class properties
+def test_CellCycling_properties(cycles_objs_const):
+
+    cycles: List[Cycle] = cycles_objs_const
+
+    residual_disch_capacity = [1.0, 0.9, 0.8, 0.7, 0.6]
+    for i, cycle in enumerate(cycles):
+        cycle._discharge._capacity *= residual_disch_capacity[i]
+    cellcycling = CellCycling(cycles)
+
+    cellcycling.fit_retention(0, 4)
+
+    assert cellcycling._retention_fit_parameters == cellcycling.fit_parameters
+    assert cellcycling._capacity_fade == cellcycling.capacity_fade
+
+    for i, cycle in enumerate(cycles):
+        assert cellcycling.coulomb_efficiencies[i] == cycle.coulomb_efficiency
+        assert cellcycling.voltage_efficiencies[i] == cycle.voltage_efficiency
+        assert cellcycling.energy_efficiencies[i] == cycle.energy_efficiency
+
+    assert cellcycling.number_of_cycles == 5
+    assert cellcycling.numbers == [0, 1, 2, 3, 4]
 
