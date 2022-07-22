@@ -322,18 +322,32 @@ class FileManager:
         order: List[List[str]] = []
 
         ncycles, index = 0, 0
-        while index < len(ordered_items) - 1:
-            halfcycle_type = ordered_items[index][1].halfcycle_type
-            order.append([ordered_items[index][0]])
+        while index <= len(ordered_items) - 1:
+
+            name, ref_obj = ordered_items[index]  # Take the first object as a reference
+            order.append([name])  # Add the first object name to the list
+            index += 1  # Move the pointer to the next element in the ordered_items list
+
+            # Check if the index reached the end of the list
+            if index >= len(ordered_items):
+                break
+
+            # Start a iteration loop to search for partial halfcycles
             while True:
-                index += 1
-                if index == len(ordered_items):
-                    break
-                elif ordered_items[index][1].halfcycle_type == halfcycle_type:
+
+                # Check if the halfcycle pointed by index is the same type as the reference one
+                if ordered_items[index][1].halfcycle_type == ref_obj.halfcycle_type:
+                    # Append the partial halfcycle to the current halfcycle index and move the pointer
                     order[ncycles].append(ordered_items[index][0])
+                    index += 1
                 else:
                     break
-            ncycles += 1
+
+                # Check if the index reached the end of the list (double brake catched by while loop condition)
+                if index >= len(ordered_items):
+                    break
+
+            ncycles += 1  # Increment the halfcycle index
 
         return order
 
@@ -392,7 +406,7 @@ class FileManager:
             if cycle.energy_efficiency and cycle.energy_efficiency > 100 and clean:
                 cycle._hidden = True
                 print(f"Cycle {cycle.number} hidden due to unphsyical nature")
-            elif not cycle.charge or not cycle.discharge and clean:
+            elif (not cycle.charge or not cycle.discharge) and clean:
                 cycle._hidden = True
                 print(f"Cycle {cycle.number} hidden due to missing charge/discharge")
 
