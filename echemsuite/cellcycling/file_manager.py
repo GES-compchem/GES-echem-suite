@@ -1,10 +1,11 @@
 import logging
 import pandas as pd
+import numpy as np
 from os import listdir, path
 from enum import Enum
 from io import BytesIO, TextIOWrapper
 from typing import Dict, List
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from echemsuite.cellcycling.read_input import CellCycling, Cycle, HalfCycle, join_HalfCycles
 
@@ -17,6 +18,7 @@ class Instrument(Enum):
     """
 
     GAMRY = "GAMRY"
+    BIOLOGIC = "BIOLOGIC"
 
 
 class FileManager:
@@ -126,6 +128,8 @@ class FileManager:
         # Check if the extension matches any of the existing instrument profiles
         if extension.lower() == ".dta":
             self._instrument = Instrument.GAMRY
+        elif extension.lower() == ".mpt":
+            self._instrument = Instrument.BIOLOGIC
         else:
             logger.error(
                 f"The extension '{extension}' does not appear among the known file types."
@@ -141,34 +145,19 @@ class FileManager:
 
                 filepath = path.join(folder, filename)
 
-                # Veryfiy if the file is empty or if it is not encoded in utf-8
-                try:
-                    with open(filepath, "r") as file:
-                        if file.read() == "":
-                            if self.verbose:
-                                print(
-                                    f"\u001b[35;1mWARNING:\u001b[0m empty file found. Skipping {filename}."
-                                )
-                            logger.warning(f"Empty file found. Skipping {filename}.")
-                            continue
-                except UnicodeDecodeError:
-                    if self.verbose:
-                        print(
-                            f"\u001b[35;1mWARNING:\u001b[0m unable to decode file. Skipping {filename}."
-                        )
-                    logger.warning(f"Unable to decode file. Skipping {filename}.")
-                    continue
-
                 # Load the whole file in the bytestreams buffer
-                with open(filepath, "rb") as file:
-                    if filename in self._bytestreams:
+                with open(filepath, "r", encoding="utf-8", errors="ignore") as file:
+
+                    if file.readlines() == []:
                         if self.verbose:
                             print(
-                                f"\u001b[35;1mWARNING:\u001b[0m duplicate filename found. Skipping {filename}."
+                                f"\u001b[35;1mWARNING:\u001b[0m empty file found. Skipping {filename}."
                             )
-                        logger.warning(f"Duplicate filename found. Skipping {filename}.")
+                        logger.warning(f"Empty file found. Skipping {filename}.")
                         continue
-                    self._bytestreams[filename] = BytesIO(file.read())
+
+                    file.seek(0)
+                    self._bytestreams[filename] = BytesIO(file.read().encode("utf-8"))
 
         if self.verbose:
             print(f"A total of {len(self._bytestreams)} files have been loaded")
@@ -302,6 +291,164 @@ class FileManager:
                 self._halfcycles[filename] = HalfCycle(
                     time, voltage, current, halfcycle_type, timestamp
                 )
+
+        elif self._instrument == Instrument.BIOLOGIC:
+
+            for filename, bytestream in self._bytestreams.items():
+
+                if self.verbose:
+                    print(f"-> Parsing: {filename}")
+
+                delims = []  # contains cycle number, first and last line number
+                beginning = None  # line at which the data table begins
+                ncycles = 1  # number of charge/discharge cycles
+
+                date_str, time_str = None, None  # Date and time string buffers
+                timestamp = None  # Timestamp reported in the file
+
+                # Parsing the file
+                textStream = TextIOWrapper(bytestream, encoding="utf-8")
+                for line_num, line in enumerate(textStream.readlines()):
+
+                    if "Acquisition started on :" in line:
+                        time_str = line.split(" ")[-1]
+                        date_str = line.split(" ")[-2]
+
+                    elif "Number of loops : " in line:
+                        ncycles = int(line.split(" ")[-1])
+
+                    # Before the output of the experiment, EClab lists the
+                    # starting and ending line of each loop. These will be used
+                    # to slice the pandas dataframe into the different cycles.
+                    elif "Loop " in line:
+                        loop_num = int(line.split(" ")[1])
+                        first_pos = int(line.split(" ")[-3])
+                        second_pos = int(line.split(" ")[-1])
+                        delims.append([loop_num, first_pos, second_pos])
+
+                    elif "mode\t" in line:
+                        beginning = line_num
+
+                        # if no cycles are found, default to "read everything"
+                        if len(delims) == 0:
+                            delims = [[0, 0, -2]]  # -2 will be converted to -1 later
+
+                        textStream.seek(
+                            0
+                        )  # Rewind the pointer to the beginning of the stream
+
+                        # reading data from file
+                        data = pd.read_table(
+                            textStream,
+                            dtype=np.float64,
+                            delimiter="\t",
+                            skiprows=beginning,
+                            decimal=",",
+                            encoding_errors="ignore",
+                        )
+
+                        textStream.detach()  # Detaches the TextIOWrapper from the BytesIO stream to avoid bytestream closing on wrapper out of scope
+                        break
+
+                # Confirm that the data has been loaded
+                if data.empty:
+                    logger.error("Failed to locate the header section.")
+                    raise RuntimeError
+
+                # Build the timestamp object
+                if date_str is not None and time_str is not None:
+                    month, day, year = date_str.split("/")
+                    hours, minutes, seconds = time_str.split(":")
+                    timestamp = datetime(
+                        int(year),
+                        int(month),
+                        int(day),
+                        int(hours),
+                        int(minutes),
+                        int(seconds),
+                    )
+                else:
+                    logger.error("Failed to build file timestamp.")
+                    raise RuntimeError
+
+                # renaming columns to standard format
+                data.rename(
+                    columns={
+                        "time/s": "Time (s)",
+                        "Ewe/V": "Voltage vs. Ref. (V)",
+                        "I/mA": "Current (A)",  # note: these are mA
+                    },
+                    inplace=True,
+                )
+
+                # convert mA to A
+                data["Current (A)"] = data["Current (A)"].divide(1000)
+
+                # Iterate on the provided data and build the halfcycles dictionary
+                cycle_num = 0
+                while cycle_num < ncycles:
+
+                    first_row = delims[cycle_num][1]
+                    last_row = delims[cycle_num][2] + 1
+
+                    # Extract a view of the charge/discharge cycle
+                    cycle_sub_data = data[first_row:last_row]
+
+                    # Extract dataset view of the charge cycle, compute timestamp and create HalfCycle object
+                    charge = None
+                    charge_data = cycle_sub_data[cycle_sub_data["ox/red"] == 1]
+                    if charge_data.empty == False:
+
+                        charge_timestamp = timestamp + timedelta(
+                            seconds=charge_data["Time (s)"].tolist()[0]
+                        )
+
+                        charge = HalfCycle(
+                            charge_data["Time (s)"],
+                            charge_data["Voltage vs. Ref. (V)"],
+                            charge_data["Current (A)"],
+                            "charge",
+                            charge_timestamp,
+                        )
+
+                    # Extract dataset view of the discharge cycle, compute timestamp and create HalfCycle object
+                    discharge = None
+                    discharge_data = cycle_sub_data[cycle_sub_data["ox/red"] == 0]
+                    if discharge_data.empty == False:
+
+                        discharge_timestamp = timestamp + timedelta(
+                            seconds=discharge_data["Time (s)"].tolist()[0]
+                        )
+
+                        discharge = HalfCycle(
+                            discharge_data["Time (s)"],
+                            discharge_data["Voltage vs. Ref. (V)"],
+                            discharge_data["Current (A)"],
+                            "discharge",
+                            discharge_timestamp,
+                        )
+
+                    if charge is not None and discharge is not None:
+
+                        # Apply a preventive ordering in halfcycle insertion into dictionary
+                        if charge_timestamp < discharge_timestamp:
+                            self._halfcycles[f"charge_{cycle_num}_{filename}"] = charge
+                            self._halfcycles[
+                                f"discharge_{cycle_num}_{filename}"
+                            ] = discharge
+                        else:
+                            self._halfcycles[
+                                f"discharge_{cycle_num}_{filename}"
+                            ] = discharge
+                            self._halfcycles[f"charge_{cycle_num}_{filename}"] = charge
+
+                    elif charge is not None:
+                        self._halfcycles[f"charge_{cycle_num}_{filename}"] = charge
+
+                    elif discharge is not None:
+                        self._halfcycles[f"discharge_{cycle_num}_{filename}"] = discharge
+
+                    cycle_num += 1
 
         if self.verbose:
             print("Parsing completed")
