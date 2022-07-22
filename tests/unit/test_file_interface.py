@@ -21,7 +21,7 @@ from echemsuite.cellcycling.file_manager import FileManager, Instrument
 from echemsuite.cellcycling.read_input import build_DTA_cycles, HalfCycle
 
 
-# %% DEFINE FILE EMULATION FIXTURES
+# %% DEFINE FILE EMULATION FIXTURES FOR GAMRY .DTA FILES
 
 
 def generate_minimal_dta_file_content(charge: bool, time: str) -> str:
@@ -92,7 +92,46 @@ def folder_with_partial_dta_files(tmp_path_factory):
     return folder
 
 
-# %% DEFINE TEST FUNCTIONS FOR THE FILEMANAGER CLASS
+# %% DEFINE FILE EMULATION FIXTURES FOR BIOLOGIC .MPT FILES
+
+
+def generate_regular_mpt_file_content() -> str:
+
+    content = """
+...
+Acquisition started on : 25/12/2022 13:00:00
+...
+Number of loops : 2
+Loop 0 from point number 0 to 5
+Loop 1 from point number 6 to 11
+
+mode	ox/red	error	control changes	time/s	control/V/mA	Ewe/V	I/mA	dq/mA.h	(Q-Qo)/mA.h	Q charge/discharge/mA.h	Ece/V	P/W	Q discharge/mA.h	Q charge/mA.h	Capacity/mA.h	control/V	control/mA	Ewe-Ece/V	
+1	1	0	1	1,000000000000000E+002	8,0000000E+002	1,0000000E+000	8,0000000E+002	4,000000000000000E+000	1,100000000000000E+003	1,100000000000000E+003	3,0000000E-006	1,0000000E+000	0,000000000000000E+000	1,000000000000000E+003	1,000000000000000E+003	0,0000000E+000	8,0000000E+002	1,0000000E+000
+1	1	0	1	1,010000000000000E+002	8,0000000E+002	1,1000000E+000	8,0000000E+002	4,000000000000000E+000	1,100000000000000E+003	1,100000000000000E+003	3,0000000E-006	1,0000000E+000	0,000000000000000E+000	1,000000000000000E+003	1,000000000000000E+003	0,0000000E+000	8,0000000E+002	1,0000000E+000
+1	1	0	1	1,020000000000000E+002	8,0000000E+002	1,2000000E+000	8,0000000E+002	4,000000000000000E+000	1,100000000000000E+003	1,100000000000000E+003	3,0000000E-006	1,0000000E+000	0,000000000000000E+000	1,000000000000000E+003	1,000000000000000E+003	0,0000000E+000	8,0000000E+002	1,0000000E+000
+1	0	0	0	1,030000000000000E+002	-8,0000000E+002	9,0000000E-001	-8,0000000E+002	-4,000000000000000E-005	1,100000000000000E+003	-4,000000000000000E-005	-8,0000000E-004	-4,0000000E-001	5,000000000000000E-005	0,000000000000000E+000	5,000000000000000E-005	0,0000000E+000	-8,0000000E+002	6,0000000E-001
+1	0	0	0	1,040000000000000E+002	-8,0000000E+002	8,5000000E-001	-8,0000000E+002	-4,000000000000000E+000	1,100000000000000E+003	-4,000000000000000E+000	-8,0000000E-005	-4,0000000E-001	5,000000000000000E+000	0,000000000000000E+000	5,000000000000000E+000	0,0000000E+000	-8,0000000E+002	6,0000000E-001
+1	0	0	0	1,050000000000000E+002	-8,0000000E+002	8,2000000E-001	-8,0000000E+002	-4,000000000000000E+000	1,100000000000000E+003	-4,000000000000000E+000	-8,0000000E-004	-4,0000000E-001	5,000000000000000E+000	0,000000000000000E+000	5,000000000000000E+000	0,0000000E+000	-8,0000000E+002	6,0000000E-001
+1	1	0	1	1,060000000000000E+002	8,0000000E+002	1,0000000E+000	8,0000000E+002	4,000000000000000E+000	1,100000000000000E+003	1,100000000000000E+003	3,0000000E-006	1,0000000E+000	0,000000000000000E+000	1,000000000000000E+003	1,000000000000000E+003	0,0000000E+000	8,0000000E+002	1,0000000E+000
+1	1	0	1	1,070000000000000E+002	8,0000000E+002	1,1000000E+000	8,0000000E+002	4,000000000000000E+000	1,100000000000000E+003	1,100000000000000E+003	3,0000000E-006	1,0000000E+000	0,000000000000000E+000	1,000000000000000E+003	1,000000000000000E+003	0,0000000E+000	8,0000000E+002	1,0000000E+000
+1	1	0	1	1,080000000000000E+002	8,0000000E+002	1,2000000E+000	8,0000000E+002	4,000000000000000E+000	1,100000000000000E+003	1,100000000000000E+003	3,0000000E-006	1,0000000E+000	0,000000000000000E+000	1,000000000000000E+003	1,000000000000000E+003	0,0000000E+000	8,0000000E+002	1,0000000E+000
+1	0	0	0	1,090000000000000E+002	-8,0000000E+002	9,0000000E-001	-8,0000000E+002	-4,000000000000000E-005	1,100000000000000E+003	-4,000000000000000E-005	-8,0000000E-004	-4,0000000E-001	5,000000000000000E-005	0,000000000000000E+000	5,000000000000000E-005	0,0000000E+000	-8,0000000E+002	6,0000000E-001
+1	0	0	0	1,100000000000000E+002	-8,0000000E+002	8,5000000E-001	-8,0000000E+002	-4,000000000000000E+000	1,100000000000000E+003	-4,000000000000000E+000	-8,0000000E-005	-4,0000000E-001	5,000000000000000E+000	0,000000000000000E+000	5,000000000000000E+000	0,0000000E+000	-8,0000000E+002	6,0000000E-001
+1	0	0	0	1,110000000000000E+002	-8,0000000E+002	8,2000000E-001	-8,0000000E+002	-4,000000000000000E+000	1,100000000000000E+003	-4,000000000000000E+000	-8,0000000E-004	-4,0000000E-001	5,000000000000000E+000	0,000000000000000E+000	5,000000000000000E+000	0,0000000E+000	-8,0000000E+002	6,0000000E-001"""
+    return content
+
+
+# Fixture to emulate a folder containing a regular .mpt cycling file
+@pytest.fixture(scope="session")
+def folder_with_regular_mpt_file(tmp_path_factory):
+    folder = tmp_path_factory.mktemp("regular_mpt_files")
+    content = generate_regular_mpt_file_content()
+    file_path = folder / "myCellcycling.mpt"
+    file_path.write_text(content)
+    return folder
+
+
+# %% DEFINE TEST FUNCTIONS FOR THE FILEMANAGER CLASS USING GAMBRY FILES
 
 
 # Test function to check for exceptions raised during FileManager object construction
@@ -411,6 +450,105 @@ def test_FileManager_properties(folder_with_minimal_dta_files):
         assert False, "An unexpected exception occurred on halfcycle setter call."
     else:
         assert manager._halfcycles["A key"] == halfcycle
+
+
+# %% DEFINE TEST FUNCTIONS FOR THE FILEMANAGER CLASS USING BIOLOGIC FILES
+
+
+# Test function to check the FileManager fetch_from_folder function using Biologic files
+def test_FileManager_fetch_from_folder_function_biologic(folder_with_regular_mpt_file):
+
+    manager = FileManager()
+    folder = folder_with_regular_mpt_file
+
+    try:
+        manager.fetch_from_folder(folder, ".mpt", autoparse=False)
+    except Exception as exc:
+        assert (
+            False
+        ), f"An exception occurred during fetching from MPT files folder\n\n{exc}\n"
+
+    assert manager._instrument == Instrument.BIOLOGIC
+    assert len(manager._bytestreams) == 1
+    assert [k for k in manager._bytestreams.keys()] == ["myCellcycling.mpt"]
+
+
+# Test function to check the FileManager parse function using Biologic files
+def test_FileManager_parse_function_biologic(folder_with_regular_mpt_file):
+
+    manager = FileManager()
+
+    folder = folder_with_regular_mpt_file
+    manager.fetch_from_folder(folder, ".mpt", autoparse=False)
+
+    try:
+        manager.parse()
+    except Exception as exc:
+        assert (
+            False
+        ), f"An exception occurred during parsing MPT files bytestreams\n\n{exc}\n"
+
+    assert len(manager._halfcycles) == 4
+
+    for key, halfcycle in manager._halfcycles.items():
+        skey = key.split("_")
+
+        if skey[0] == "charge":
+            assert halfcycle._halfcycle_type == "charge"
+            assert_array_almost_equal(
+                halfcycle._voltage.tolist(), [1.0, 1.1, 1.2], decimal=4
+            )
+            assert_array_almost_equal(
+                halfcycle._current.tolist(), [0.8, 0.8, 0.8], decimal=4
+            )
+
+            # Check the proper time offset
+            t0 = 100 + 6 * int(skey[1])
+            assert_array_almost_equal(
+                halfcycle._time.tolist(), [t0, t0 + 1, t0 + 2], decimal=4
+            )
+
+        else:
+            assert halfcycle._halfcycle_type == "discharge"
+            assert_array_almost_equal(
+                halfcycle._voltage.tolist(), [0.9, 0.85, 0.82], decimal=4
+            )
+            assert_array_almost_equal(
+                halfcycle._current.tolist(), [-0.8, -0.8, -0.8], decimal=4
+            )
+
+            # Check the proper time offset
+            t0 = 103 + 6 * int(skey[1])
+            assert_array_almost_equal(
+                halfcycle._time.tolist(), [t0, t0 + 1, t0 + 2], decimal=4
+            )
+
+
+# Test function to check the FileManager get_cycles function with automatic ordering for biologic
+def test_FileManager_get_cycles_function_biologic(folder_with_regular_mpt_file,):
+
+    manager = FileManager()
+    folder = folder_with_regular_mpt_file
+    manager.fetch_from_folder(folder, ".mpt", autoparse=True)
+
+    assert manager.suggest_ordering() == [
+        ["charge_0_myCellcycling.mpt"],
+        ["discharge_0_myCellcycling.mpt"],
+        ["charge_1_myCellcycling.mpt"],
+        ["discharge_1_myCellcycling.mpt"],
+    ], "Unexpected suggested ordering"
+
+    cycles = manager.get_cycles()
+
+    assert len(cycles) == 2
+
+    assert cycles[0].charge == manager._halfcycles["charge_0_myCellcycling.mpt"]
+    assert cycles[0].discharge == manager._halfcycles["discharge_0_myCellcycling.mpt"]
+    assert cycles[1].charge == manager._halfcycles["charge_1_myCellcycling.mpt"]
+    assert cycles[1].discharge == manager._halfcycles["discharge_1_myCellcycling.mpt"]
+
+    assert cycles[0]._hidden == False
+    assert cycles[1]._hidden == False
 
 
 # %% TEST OF THE LEGACY build_DTA_cycles FUNCTION

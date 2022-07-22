@@ -357,7 +357,7 @@ class FileManager:
 
                 # Build the timestamp object
                 if date_str is not None and time_str is not None:
-                    month, day, year = date_str.split("/")
+                    day, month, year = date_str.split("/")
                     hours, minutes, seconds = time_str.split(":")
                     timestamp = datetime(
                         int(year),
