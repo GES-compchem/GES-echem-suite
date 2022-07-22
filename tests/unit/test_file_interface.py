@@ -13,11 +13,12 @@ sys.path.insert(0, parent_path)
 import pytest
 import pandas as pd
 from os.path import abspath, join
-from io import TextIOWrapper
-from numpy.testing import assert_almost_equal, assert_array_almost_equal
+from datetime import datetime
+from io import TextIOWrapper, BytesIO
+from numpy.testing import assert_array_almost_equal
 
 from echemsuite.cellcycling.file_manager import FileManager, Instrument
-from echemsuite.cellcycling.read_input import build_DTA_cycles
+from echemsuite.cellcycling.read_input import build_DTA_cycles, HalfCycle
 
 
 # %% DEFINE FILE EMULATION FIXTURES
@@ -320,6 +321,96 @@ def test_FileManager_build_cycles_function_regular(folder_with_minimal_dta_files
     for i, cycle in enumerate(cellcycling._cycles):
         assert cycle.charge == cycles[i].charge
         assert cycle.discharge == cycles[i].discharge
+
+
+# Test function to verify the correct assignment of the FileManager class properies
+def test_FileManager_properties(folder_with_minimal_dta_files):
+
+    manager = FileManager()
+    folder, _ = folder_with_minimal_dta_files
+    manager.fetch_from_folder(folder, ".DTA", autoparse=True)
+
+    # Test the proper connection of propery getters
+    assert manager.bytestreams == manager._bytestreams
+    assert manager.halfcycles == manager._halfcycles
+    assert manager.instrument == manager._instrument.name
+
+    # Verify exception raise on wrong type submission to bytestream setter
+    try:
+        manager.bytestreams = "Wrong Type!"
+    except Exception as exc:
+        assert True
+    else:
+        assert (
+            False
+        ), "An exception was not raised when the wrong type was passed to the bytestream setter."
+
+    # Verify exception raise on wrong dictionary type submission to bytestream setter
+    try:
+        manager.bytestreams = {"A key": "Wrong Type!"}
+    except Exception as exc:
+        assert True
+    else:
+        assert (
+            False
+        ), "An exception was not raised when the wrong dictionary type was passed to the bytestream setter."
+
+    # Verify the proper working of the bytestream setter
+    try:
+        manager.bytestreams = {"A key": BytesIO(b"This is the stream content")}
+    except Exception as exc:
+        assert False, "An unexpected exception occurred on bytestream setter call."
+    else:
+        assert (
+            manager._bytestreams["A key"].read().decode("utf-8")
+            == "This is the stream content"
+        )
+
+    # Verify the proper working of the bytestream deleater
+    try:
+        del manager.bytestreams
+    except Exception as exc:
+        assert False, "An unexpected exception occurred on bytestream deleater call."
+    else:
+        assert manager._bytestreams == {}
+
+    # Verify exception raise on wrong type submission to halfcycle setter
+    try:
+        manager.halfcycles = "Wrong Type!"
+    except Exception as exc:
+        assert True
+    else:
+        assert (
+            False
+        ), "An exception was not raised when the wrong type was passed to the halfcycle setter."
+
+    # Verify exception raise on wrong dictionary type submission to halfcycle setter
+
+    try:
+        manager.halfcycles = {"A key": "Wrong Type!"}
+    except Exception as exc:
+        assert True
+    else:
+        assert (
+            False
+        ), "An exception was not raised when the wrong dictionary type was passed to the halfcycle setter."
+
+    # Verify the proper working of the halfcycle setter
+
+    halfcycle = HalfCycle(
+        pd.Series([0.0, 1.0]),
+        pd.Series([1.0, 1.0]),
+        pd.Series([1.0, 1.0]),
+        "charge",
+        datetime.now(),
+    )
+
+    try:
+        manager.halfcycles = {"A key": halfcycle}
+    except Exception as exc:
+        assert False, "An unexpected exception occurred on halfcycle setter call."
+    else:
+        assert manager._halfcycles["A key"] == halfcycle
 
 
 # %% TEST OF THE LEGACY build_DTA_cycles FUNCTION
