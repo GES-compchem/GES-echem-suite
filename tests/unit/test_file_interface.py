@@ -12,10 +12,12 @@ sys.path.insert(0, parent_path)
 # %% IMPORTS
 import pytest
 import pandas as pd
+from os.path import abspath, join
 from io import TextIOWrapper
 from numpy.testing import assert_almost_equal, assert_array_almost_equal
 
 from echemsuite.cellcycling.file_manager import FileManager, Instrument
+from echemsuite.cellcycling.read_input import build_DTA_cycles
 
 
 # %% DEFINE FILE EMULATION FIXTURES
@@ -318,3 +320,44 @@ def test_FileManager_build_cycles_function_regular(folder_with_minimal_dta_files
     for i, cycle in enumerate(cellcycling._cycles):
         assert cycle.charge == cycles[i].charge
         assert cycle.discharge == cycles[i].discharge
+
+
+# %% TEST OF THE LEGACY build_DTA_cycles FUNCTION
+
+# Test function to check the build_DTA_cycles function with with regular charge/discharge
+def test_build_DTA_cycles_function_regular(folder_with_minimal_dta_files):
+
+    folder, data = folder_with_minimal_dta_files
+
+    folder = abspath(folder)
+    filelist = [
+        join(folder, "charge_1.DTA"),
+        join(folder, "discharge_1.DTA"),
+        join(folder, "charge_2.DTA"),
+        join(folder, "discharge_2.DTA"),
+    ]
+    cycles = build_DTA_cycles(filelist, False)
+
+    assert len(cycles) == 2
+
+    assert cycles[0]._hidden == False
+    assert cycles[1]._hidden == False
+
+
+# Test function to check the build_DTA_cycles function with with regular charge/discharge and clean option
+def test_build_DTA_cycles_function_regular_with_clean(folder_with_minimal_dta_files):
+
+    folder, data = folder_with_minimal_dta_files
+
+    folder = abspath(folder)
+    filelist = [
+        join(folder, "charge_1.DTA"),
+        join(folder, "discharge_1.DTA"),
+        join(folder, "charge_2.DTA"),
+    ]
+    cycles = build_DTA_cycles(filelist, True)
+
+    assert len(cycles) == 2
+
+    assert cycles[0]._hidden == False
+    assert cycles[1]._hidden == True
