@@ -17,8 +17,13 @@ from datetime import datetime
 from io import TextIOWrapper, BytesIO
 from numpy.testing import assert_array_almost_equal
 
-from echemsuite.cellcycling.file_manager import FileManager, Instrument
-from echemsuite.cellcycling.read_input import build_DTA_cycles, read_mpt_cycles, HalfCycle
+from echemsuite.cellcycling.cycles import HalfCycle
+from echemsuite.cellcycling.read_input import (
+    build_DTA_cycles,
+    read_mpt_cycles,
+    FileManager,
+    Instrument,
+)
 
 
 # %% DEFINE FILE EMULATION FIXTURES FOR GAMRY .DTA FILES
@@ -347,15 +352,15 @@ def test_FileManager_get_cycles_function_partial_custom_ordering_with_clean(
     assert cycles[1]._hidden == False
 
 
-# Test function to check the FileManager build_cycles function with with regular charge/discharge
-def test_FileManager_build_cycles_function_regular(folder_with_minimal_dta_files):
+# Test function to check the FileManager get_cellcycling function with with regular charge/discharge
+def test_FileManager_get_cellcycling_function_regular(folder_with_minimal_dta_files):
 
     manager = FileManager()
     folder, _ = folder_with_minimal_dta_files
     manager.fetch_from_folder(folder, ".DTA", autoparse=True)
 
     cycles = manager.get_cycles()
-    cellcycling = manager.build_cycles()
+    cellcycling = manager.get_cellcycling()
 
     for i, cycle in enumerate(cellcycling._cycles):
         assert cycle.charge == cycles[i].charge

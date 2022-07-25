@@ -19,7 +19,7 @@ from copy import deepcopy
 from typing import List, Tuple
 from numpy.testing import assert_almost_equal, assert_array_almost_equal
 
-from echemsuite.cellcycling.read_input import (
+from echemsuite.cellcycling.cycles import (
     CellCycling,
     Cycle,
     HalfCycle,
