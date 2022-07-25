@@ -6,6 +6,8 @@ import sys
 from os import path
 from datetime import datetime
 
+from echemsuite.utils import deprecation_warning
+
 
 class CellCycling:
     """
@@ -370,162 +372,82 @@ class Cycle:
 
     @property
     def time_charge(self):
-        print(
-            "WARNING: the property 'time_charge' is being deprecated and will no longer be available in future releases!"
-        )
-        print(
-            "Please update your script and replace all occurrences of 'time_charge' with 'charge.time'."
-        )
+        deprecation_warning("Cycle.time_charge", "Cycle.charge.time")
         return self.charge.time
 
     @property
     def time_discharge(self):
-        print(
-            "WARNING: the property 'time_discharge' is being deprecated and will no longer be available in future releases!"
-        )
-        print(
-            "Please update your script and replace all occurrences of 'time_discharge' with 'discharge.time'."
-        )
+        deprecation_warning("Cycle.time_disharge", "Cycle.discharge.time")
         return self.discharge.time
 
     @property
     def voltage_charge(self):
-        print(
-            "WARNING: the property 'voltage_charge' is being deprecated and will no longer be available in future releases!"
-        )
-        print(
-            "Please update your script and replace all occurrences of 'voltage_charge' with 'charge.voltage'."
-        )
+        deprecation_warning("Cycle.voltage_charge", "Cycle.charge.voltage")
         return self.charge.voltage
 
     @property
     def voltage_discharge(self):
-        print(
-            "WARNING: the property 'voltage_discharge' is being deprecated and will no longer be available in future releases!"
-        )
-        print(
-            "Please update your script and replace all occurrences of 'voltage_discharge' with 'discharge.voltage'."
-        )
+        deprecation_warning("Cycle.voltage_discharge", "Cycle.discharge.voltage")
         return self.discharge.voltage
 
     @property
     def current_charge(self):
-        print(
-            "WARNING: the property 'current_charge' is being deprecated and will no longer be available in future releases!"
-        )
-        print(
-            "Please update your script and replace all occurrences of 'current_charge' with 'charge.current'."
-        )
+        deprecation_warning("Cycle.current_charge", "Cycle.charge.current")
         return self.charge.current
 
     @property
     def current_discharge(self):
-        print(
-            "WARNING: the property 'current_discharge' is being deprecated and will no longer be available in future releases!"
-        )
-        print(
-            "Please update your script and replace all occurrences of 'current_discharge' with 'discharge.current'."
-        )
+        deprecation_warning("Cycle.current_discharge", "Cycle.discharge.current")
         return self.discharge.current
 
     @property
     def power_charge(self):
-        print(
-            "WARNING: the property 'power_charge' is being deprecated and will no longer be available in future releases!"
-        )
-        print(
-            "Please update your script and replace all occurrences of 'power_charge' with 'charge.power'."
-        )
+        deprecation_warning("Cycle.power_charge", "Cycle.charge.power")
         return self.charge.power
 
     @property
     def power_discharge(self):
-        print(
-            "WARNING: the property 'power_discharge' is being deprecated and will no longer be available in future releases!"
-        )
-        print(
-            "Please update your script and replace all occurrences of 'power_discharge' with 'discharge.power'."
-        )
+        deprecation_warning("Cycle.power_discharge", "Cycle.discharge.power")
         return self.discharge.power
 
     @property
     def energy_charge(self):
-        print(
-            "WARNING: the property 'energy_charge' is being deprecated and will no longer be available in future releases!"
-        )
-        print(
-            "Please update your script and replace all occurrences of 'energy_charge' with 'charge.energy'."
-        )
+        deprecation_warning("Cycle.energy_charge", "Cycle.charge.energy")
         return self.charge.energy
 
     @property
     def energy_discharge(self):
-        print(
-            "WARNING: the property 'energy_discharge' is being deprecated and will no longer be available in future releases!"
-        )
-        print(
-            "Please update your script and replace all occurrences of 'energy_discharge' with 'discharge.energy'."
-        )
+        deprecation_warning("Cycle.energy_discharge", "Cycle.discharge.energy")
         return self.discharge.energy
 
     @property
     def capacity_charge(self):
-        print(
-            "WARNING: the property 'capacity_charge' is being deprecated and will no longer be available in future releases!"
-        )
-        print(
-            "Please update your script and replace all occurrences of 'capacity_charge' with 'charge.capacity'."
-        )
+        deprecation_warning("Cycle.capacity_charge", "Cycle.charge.capacity")
         return self.charge.capacity
 
     @property
     def capacity_discharge(self):
-        print(
-            "WARNING: the property 'capacity_discharge' is being deprecated and will no longer be available in future releases!"
-        )
-        print(
-            "Please update your script and replace all occurrences of 'capacity_discharge' with 'discharge.capacity'."
-        )
+        deprecation_warning("Cycle.capacity_discharge", "Cycle.discharge.capacity")
         return self.discharge.capacity
 
     @property
     def Q_charge(self):
-        print(
-            "WARNING: the property 'Q_charge' is being deprecated and will no longer be available in future releases!"
-        )
-        print(
-            "Please update your script and replace all occurrences of 'Q_charge' with 'charge.Q'."
-        )
+        deprecation_warning("Cycle.Q_charge", "Cycle.charge.Q")
         return self.charge.Q
 
     @property
     def Q_discharge(self):
-        print(
-            "WARNING: the property 'Q_discharge' is being deprecated and will no longer be available in future releases!"
-        )
-        print(
-            "Please update your script and replace all occurrences of 'Q_discharge' with 'discharge.Q'."
-        )
+        deprecation_warning("Cycle.Q_discharge", "Cycle.discharge.Q")
         return self.discharge.Q
 
     @property
     def total_energy_charge(self):
-        print(
-            "WARNING: the property 'total_energy_charge' is being deprecated and will no longer be available in future releases!"
-        )
-        print(
-            "Please update your script and replace all occurrences of 'total_energy_charge' with 'charge.total_energy'."
-        )
+        deprecation_warning("Cycle.total_energy_charge", "Cycle.charge.total_energy")
         return self.charge.total_energy
 
     @property
     def total_energy_discharge(self):
-        print(
-            "WARNING: the property 'total_energy_discharge' is being deprecated and will no longer be available in future releases!"
-        )
-        print(
-            "Please update your script and replace all occurrences of 'total_energy_discharge' with 'discharge.total_energy'."
-        )
+        deprecation_warning("Cycle.total_energy_discharge", "Cycle.discharge.total_energy")
         return self.discharge.total_energy
 
 
@@ -971,7 +893,7 @@ def read_mpt_cycles(filelist, clean):
                             ],
                             data["Current (A)"][first_row:last_row][data["ox/red"] == 1],
                             "charge",
-                            timestamp,  #Equal for all cycles CHANGE
+                            timestamp,  # Equal for all cycles CHANGE
                         )
                     except:
                         charge = None
@@ -984,7 +906,7 @@ def read_mpt_cycles(filelist, clean):
                             ],
                             data["Current (A)"][first_row:last_row][data["ox/red"] == 0],
                             "discharge",
-                            timestamp,  #Equal for all cycles CHANGE
+                            timestamp,  # Equal for all cycles CHANGE
                         )
                     except:
                         discharge = None
