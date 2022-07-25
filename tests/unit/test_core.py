@@ -19,10 +19,17 @@ from copy import deepcopy
 from typing import List, Tuple
 from numpy.testing import assert_almost_equal, assert_array_almost_equal
 
-from echemsuite.cellcycling.read_input import CellCycling, Cycle, HalfCycle, join_HalfCycles
+from echemsuite.cellcycling.read_input import (
+    CellCycling,
+    Cycle,
+    HalfCycle,
+    join_HalfCycles,
+    time_adjust,
+)
 
 
 # %% DEFINE CONSTANT DATASET TO BE USED IN TESTING
+
 
 def get_dataset_const() -> Tuple[pd.Series, pd.Series, pd.Series, datetime]:
     time = pd.Series([0.0, 1.0, 2.0, 3.0, 4.0])
@@ -537,4 +544,39 @@ def test_CellCycling_properties(cycles_objs_const):
 
     assert cellcycling.number_of_cycles == 5
     assert cellcycling.numbers == [0, 1, 2, 3, 4]
+
+
+# %% TEST FOR THE time_adjust FUNCTION
+
+
+# Test the time_adjust_function no reverse equal time-series
+def test_time_adjust_function_equal(cycle_obj_const):
+    cycle = cycle_obj_const
+
+    charge_time, discharge_time = time_adjust(cycle)
+
+    assert_array_almost_equal(charge_time, [0.0, 1.0, 2.0, 3.0, 4.0])
+    assert_array_almost_equal(discharge_time, [0.0, 1.0, 2.0, 3.0, 4.0])
+
+
+# Test the time_adjust_function equal time-series with reverse
+def test_time_adjust_function_equal_reverse(cycle_obj_const):
+    cycle = cycle_obj_const
+
+    charge_time, discharge_time = time_adjust(cycle, reverse=True)
+
+    assert_array_almost_equal(charge_time, [0.0, 1.0, 2.0, 3.0, 4.0])
+    assert_array_almost_equal(discharge_time, [4.0, 3.0, 2.0, 1.0, 0.0])
+
+
+# Test the time_adjust_function no reverse different time-series
+def test_time_adjust_function_different(cycle_obj_const):
+    cycle = cycle_obj_const
+
+    cycle.discharge._time = pd.Series([1.0, 2.0, 3.0, 4.0, 5.0])
+
+    charge_time, discharge_time = time_adjust(cycle)
+
+    assert_array_almost_equal(charge_time, [0.0, 1.0, 2.0, 3.0, 4.0])
+    assert_array_almost_equal(discharge_time, [-4.0, -3.0, -2.0, -1.0, 0.0])
 
