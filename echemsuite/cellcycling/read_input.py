@@ -889,9 +889,16 @@ def read_mpt_cycles(filelist, clean):
                 beginning = None
                 ncycles = 1
 
+                date_str, time_str = None, None  # Date and time string buffers
+                timestamp = None  # Timestamp reported in the file
+
                 for line_num, line in enumerate(file):
                     if "Number of loops : " in line:
                         ncycles = int(line.split(" ")[-1])
+
+                    if "Acquisition started on :" in line:
+                        time_str = line.split(" ")[-1]
+                        date_str = line.split(" ")[-2]
 
                     # Before the output of the experiment, EClab lists the
                     # starting and ending line of each loop. These will be used
@@ -933,6 +940,19 @@ def read_mpt_cycles(filelist, clean):
                 # convert mA to A
                 data["Current (A)"] = data["Current (A)"].divide(1000)
 
+                # Build the timestamp object
+                if date_str is not None and time_str is not None:
+                    day, month, year = date_str.split("/")
+                    hours, minutes, seconds = time_str.split(":")
+                    timestamp = datetime(
+                        int(year),
+                        int(month),
+                        int(day),
+                        int(hours),
+                        int(minutes),
+                        int(seconds),
+                    )
+
                 # initiate Cycle object providing dataframe view within delims
 
                 # this variable iterates over the cycles of the specific file
@@ -951,6 +971,7 @@ def read_mpt_cycles(filelist, clean):
                             ],
                             data["Current (A)"][first_row:last_row][data["ox/red"] == 1],
                             "charge",
+                            timestamp,  #Equal for all cycles CHANGE
                         )
                     except:
                         charge = None
@@ -963,6 +984,7 @@ def read_mpt_cycles(filelist, clean):
                             ],
                             data["Current (A)"][first_row:last_row][data["ox/red"] == 0],
                             "discharge",
+                            timestamp,  #Equal for all cycles CHANGE
                         )
                     except:
                         discharge = None
@@ -976,6 +998,12 @@ def read_mpt_cycles(filelist, clean):
                             cycle.voltage_efficiency > 100,
                         )
 
+                        if any(unphysical) and clean:
+                            print(
+                                f"WARNING: cycle {cycle._number} will be discarded due to unphysical efficiencies"
+                            )
+                            cycle._hidden = True
+
                     elif charge and not discharge and clean:
                         print(
                             f"WARNING: cycle {cycle._number} will be discarded due to missing discharge data"
@@ -985,12 +1013,6 @@ def read_mpt_cycles(filelist, clean):
                     elif discharge and not charge and clean:
                         print(
                             f"WARNING: cycle {cycle._number} will be discarded due to missing charge data"
-                        )
-                        cycle._hidden = True
-
-                    if any(unphysical) and clean:
-                        print(
-                            f"WARNING: cycle {cycle._number} will be discarded due to unphysical efficiencies"
                         )
                         cycle._hidden = True
 

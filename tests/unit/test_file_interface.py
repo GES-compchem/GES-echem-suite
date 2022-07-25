@@ -18,7 +18,7 @@ from io import TextIOWrapper, BytesIO
 from numpy.testing import assert_array_almost_equal
 
 from echemsuite.cellcycling.file_manager import FileManager, Instrument
-from echemsuite.cellcycling.read_input import build_DTA_cycles, HalfCycle
+from echemsuite.cellcycling.read_input import build_DTA_cycles, read_mpt_cycles, HalfCycle
 
 
 # %% DEFINE FILE EMULATION FIXTURES FOR GAMRY .DTA FILES
@@ -590,3 +590,20 @@ def test_build_DTA_cycles_function_regular_with_clean(folder_with_minimal_dta_fi
 
     assert cycles[0]._hidden == False
     assert cycles[1]._hidden == True
+
+
+# %% TEST OF THE LEGACY read_mpt_cycles FUNCTION
+
+# Test function to check the read_mpt_cycles function
+def test_read_mpt_cycles_function_regular(folder_with_regular_mpt_file):
+
+    folder = folder_with_regular_mpt_file
+
+    folder = abspath(folder)
+    filelist = [join(folder, "myCellcycling.mpt")]
+    cycles = read_mpt_cycles(filelist, False)
+
+    assert len(cycles) == 2
+
+    assert cycles[0]._hidden == False
+    assert cycles[1]._hidden == False
