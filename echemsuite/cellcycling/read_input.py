@@ -637,6 +637,7 @@ def build_DTA_cycles(filelist, clean, verbose=False):
     cycles : list
         list containing various Cycles objects built according to the given list pairs
     """
+    deprecation_warning("build_DTA_cycles", "FileManager")
 
     halfcycles = []
 
@@ -790,6 +791,7 @@ def read_mpt_cycles(filelist, clean):
     cycles : list
         list containing various Cycles objects built according to the given list pairs
     """
+    deprecation_warning("read_mpt_cycles", "FileManager")
 
     cycles = []
 
@@ -951,6 +953,9 @@ def read_mpt_cycles(filelist, clean):
 
 
 def read_cycles(filelist, clean=False):
+
+    deprecation_warning("read_cycles", "FileManager")
+    
     if type(filelist) is str:
         filelist = [filelist]
 
@@ -960,6 +965,9 @@ def read_cycles(filelist, clean=False):
 
 
 def build_cycles(filelist, clean=False):
+
+    deprecation_warning("build_cycles", "FileManager")
+
     cycles = build_DTA_cycles(filelist, clean)
 
     return CellCycling(cycles)
