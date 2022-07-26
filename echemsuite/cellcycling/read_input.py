@@ -893,7 +893,12 @@ def read_mpt_cycles(filelist, clean):
                             cycle.coulomb_efficiency > 100,
                             cycle.voltage_efficiency > 100,
                         )
-
+                        if any(unphysical) and clean:
+                            print(
+                                f"WARNING: cycle {cycle._number} will be discarded due to unphysical efficiencies"
+                            )
+                            cycle._hidden = True
+                    
                     elif charge and not discharge and clean:
                         print(
                             f"WARNING: cycle {cycle._number} will be discarded due to missing discharge data"
@@ -906,11 +911,6 @@ def read_mpt_cycles(filelist, clean):
                         )
                         cycle._hidden = True
 
-                    if any(unphysical) and clean:
-                        print(
-                            f"WARNING: cycle {cycle._number} will be discarded due to unphysical efficiencies"
-                        )
-                        cycle._hidden = True
 
                     cycles.append(cycle)
 
