@@ -79,7 +79,9 @@ class CellCycling:
 
         for cycle in self:
             if cycle.discharge:
-                self._capacity_retention.append(cycle.discharge.capacity / initial_capacity * 100)
+                self._capacity_retention.append(
+                    cycle.discharge.capacity / initial_capacity * 100
+                )
             else:
                 self._capacity_retention.append(None)
 
@@ -119,7 +121,7 @@ class CellCycling:
 
         # capacity fade calculated between consecutive cycles, taken as the slope of the linear fit
 
-        self._capacity_fade = -(self._retention_fit_parameters.slope) * 100
+        self._capacity_fade = -(self._retention_fit_parameters.slope)
 
     @property
     def fit_parameters(self):
@@ -327,13 +329,21 @@ class Cycle:
                 self._energy_efficiency = 101
                 self._voltage_efficiency = 101
             else:
-                self._coulomb_efficiency = self.discharge.capacity / self.charge.capacity * 100
+                self._coulomb_efficiency = (
+                    self.discharge.capacity / self.charge.capacity * 100
+                )
                 self._energy_efficiency = (
                     self.discharge.total_energy / self.charge.total_energy * 100
                 )
-                self._voltage_efficiency = self._energy_efficiency / self._coulomb_efficiency * 100
+                self._voltage_efficiency = (
+                    self._energy_efficiency / self._coulomb_efficiency * 100
+                )
 
-            return self._coulomb_efficiency, self._energy_efficiency, self._voltage_efficiency
+            return (
+                self._coulomb_efficiency,
+                self._energy_efficiency,
+                self._voltage_efficiency,
+            )
 
         else:
             return None, None, None
@@ -704,7 +714,11 @@ def build_DTA_cycles(filelist, clean):
 
                 elif "V" in data.columns:
                     data.rename(
-                        columns={"s": "Time (s)", "V": "Voltage vs. Ref. (V)", "A": "Current (A)",},
+                        columns={
+                            "s": "Time (s)",
+                            "V": "Voltage vs. Ref. (V)",
+                            "A": "Current (A)",
+                        },
                         inplace=True,
                     )
 
@@ -747,7 +761,7 @@ def build_DTA_cycles(filelist, clean):
         if cycle.energy_efficiency and cycle.energy_efficiency > 100 and clean:
             cycle._hidden = True
             print(f"Cycle {cycle.number} hidden due to unphsyical nature")
-        elif not cycle.charge or not cycle.discharge and clean:
+        elif (not cycle.charge or not cycle.discharge) and clean:
             cycle._hidden = True
             print(f"Cycle {cycle.number} hidden due to missing charge/discharge")
 
@@ -850,7 +864,9 @@ def read_mpt_cycles(filelist, clean):
                     try:
                         charge = HalfCycle(
                             data["Time (s)"][first_row:last_row][data["ox/red"] == 1],
-                            data["Voltage vs. Ref. (V)"][first_row:last_row][data["ox/red"] == 1],
+                            data["Voltage vs. Ref. (V)"][first_row:last_row][
+                                data["ox/red"] == 1
+                            ],
                             data["Current (A)"][first_row:last_row][data["ox/red"] == 1],
                             "charge",
                         )
@@ -860,7 +876,9 @@ def read_mpt_cycles(filelist, clean):
                     try:
                         discharge = HalfCycle(
                             data["Time (s)"][first_row:last_row][data["ox/red"] == 0],
-                            data["Voltage vs. Ref. (V)"][first_row:last_row][data["ox/red"] == 0],
+                            data["Voltage vs. Ref. (V)"][first_row:last_row][
+                                data["ox/red"] == 0
+                            ],
                             data["Current (A)"][first_row:last_row][data["ox/red"] == 0],
                             "discharge",
                         )
@@ -875,7 +893,12 @@ def read_mpt_cycles(filelist, clean):
                             cycle.coulomb_efficiency > 100,
                             cycle.voltage_efficiency > 100,
                         )
-
+                        if any(unphysical) and clean:
+                            print(
+                                f"WARNING: cycle {cycle._number} will be discarded due to unphysical efficiencies"
+                            )
+                            cycle._hidden = True
+                    
                     elif charge and not discharge and clean:
                         print(
                             f"WARNING: cycle {cycle._number} will be discarded due to missing discharge data"
@@ -888,11 +911,6 @@ def read_mpt_cycles(filelist, clean):
                         )
                         cycle._hidden = True
 
-                    if any(unphysical) and clean:
-                        print(
-                            f"WARNING: cycle {cycle._number} will be discarded due to unphysical efficiencies"
-                        )
-                        cycle._hidden = True
 
                     cycles.append(cycle)
 
