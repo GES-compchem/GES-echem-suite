@@ -761,7 +761,7 @@ def build_DTA_cycles(filelist, clean):
         if cycle.energy_efficiency and cycle.energy_efficiency > 100 and clean:
             cycle._hidden = True
             print(f"Cycle {cycle.number} hidden due to unphsyical nature")
-        elif not cycle.charge or not cycle.discharge and clean:
+        elif (not cycle.charge or not cycle.discharge) and clean:
             cycle._hidden = True
             print(f"Cycle {cycle.number} hidden due to missing charge/discharge")
 
