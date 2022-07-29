@@ -54,7 +54,6 @@ class FileManager:
 
     @bytestreams.setter
     def bytestreams(self, value: Dict[str, BytesIO]) -> None:
-
         if type(value) != dict:
             logger.error(
                 f"Bytestream setter expects a Dict type. Received '{type(value)}' instead"
@@ -96,7 +95,6 @@ class FileManager:
                     f"Halfcycles dictionary must be of type Dict[str, HalfCycle]. Received 'Dict[{type(key)}, {type(item)}]' instead."
                 )
                 raise ValueError
-
         self._halfcycles = value
 
     @property
@@ -634,7 +632,6 @@ def build_DTA_cycles(
 ) -> List[Cycle]:
     """builds a list of cycles from a list containing charge/discharge file paths from 
     
-
     Parameters
     ----------
     filelist : list
