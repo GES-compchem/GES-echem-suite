@@ -13,11 +13,12 @@ class CellCycling:
 
     def __init__(self, cycles: list):
         self._cycles = cycles
-        self._number_of_cycles: int = None
 
         self._numbers: list = None  # initialized by get_numbers()
 
-        self._capacity_retention: list = None  # initialized in capacity_retention() property
+        self._capacity_retention: list = (
+            None  # initialized in capacity_retention() property
+        )
         self.reference: int = 0  # used for calculating retentions
 
         self._retention_fit_parameters = None  # initialized by fit_retention()
@@ -35,6 +36,12 @@ class CellCycling:
         for cycle in self._cycles:
             if cycle._hidden is False:
                 yield cycle
+
+    def __len__(self):
+        """
+        Returns the total number of cycles available
+        """
+        return len([cycle for cycle in self])
 
     def get_numbers(self):
         self._numbers = [cycle.number for cycle in self]
@@ -90,7 +97,7 @@ class CellCycling:
 
     def fit_retention(self, start: int, end: int):
         """Fits the currently available retention data with a linear fit
-        
+
         Parameters
         ----------
         start : int
@@ -122,7 +129,7 @@ class CellCycling:
 
         # capacity fade calculated between consecutive cycles, taken as the slope of the linear fit
 
-        self._capacity_fade = -(self._retention_fit_parameters.slope) * 100
+        self._capacity_fade = -(self._retention_fit_parameters.slope)
 
     @property
     def fit_parameters(self):
@@ -203,11 +210,6 @@ class CellCycling:
         return [cycle.energy_efficiency for cycle in self]
 
     @property
-    def number_of_cycles(self):
-        """Returns the total number of cycles"""
-        return len([cycle for cycle in self])
-
-    @property
     def numbers(self):
         """Returns a list of all the available cycle numbers"""
         self.get_numbers()
@@ -222,8 +224,15 @@ class Cycle:
     def __init__(self, number: int, charge=None, discharge=None):
 
         self._number = number
+
         self._charge: HalfCycle = charge
         self._discharge: HalfCycle = discharge
+
+        if charge and charge._halfcycle_type != "charge":
+            raise TypeError
+        
+        if discharge and discharge._halfcycle_type != "discharge":
+            raise TypeError
 
         self._hidden: bool = False
 
@@ -318,7 +327,7 @@ class Cycle:
 
     def calculate_efficiencies(self):
         """
-        Computes the coulombic and energy efficiency of the cycle as the ratio 
+        Computes the coulombic and energy efficiency of the cycle as the ratio
         between the discharge and charge energies, provided they exist.
         """
 
@@ -477,7 +486,7 @@ class HalfCycle:
 
     def calculate_Q(self):
         """
-        Calculate the capacity C (mAh) of the charge half-cycle as the 
+        Calculate the capacity C (mAh) of the charge half-cycle as the
         accumulated charge over time
         """
         # accumulated charge dq at each measurement step (mA.h)
@@ -493,7 +502,7 @@ class HalfCycle:
 
     def calculate_energy(self):
         """
-        Calculate the total energy E (mWh) of the charge half-cycle as the 
+        Calculate the total energy E (mWh) of the charge half-cycle as the
         cumulative sum of energy over time
         """
 
@@ -585,12 +594,12 @@ def join_HalfCycles(join_list: List[HalfCycle]) -> HalfCycle:
         -----------
             join_list: List[HalfCycle]
                 list containing all the HalfCycle objects to be joined
-        
+
         Returns:
         --------
             obj : HalfCycle
                 single halfcycle object obtained from the concatenation of the input data.
-                The timestamp of the output object is set according to the first (oldest) dataset. 
+                The timestamp of the output object is set according to the first (oldest) dataset.
     """
 
     # Set timestamp and halfcycle_type according to the first halfcycle file

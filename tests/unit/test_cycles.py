@@ -212,7 +212,6 @@ def test_Cycle___init__():
 
 
 # Test function to trigger exception when wrong type of halfcycles are used as arguments
-@pytest.mark.xfail
 def test_Cycle_charge_discharge_parameters_monitoring(halfcycle_obj_const):
 
     halfcycle = halfcycle_obj_const
@@ -276,14 +275,14 @@ def test_Cycle_calculate_efficiencies_function(cycle_obj_const):
 def test_Cycle_calculate_efficiencies_sentinel_value_feature(halfcycle_obj_const):
 
     # Generate a test charge HalfCycle with a negative current sign
-    wrong_halfcycle = halfcycle_obj_const
-    wrong_halfcycle._halfcycle_type = "discharge"
+    wrong_halfcycle = deepcopy(halfcycle_obj_const)
     wrong_halfcycle._capacity *= -1
     wrong_halfcycle._total_energy *= -1
 
-    normal_halfcycle = halfcycle_obj_const
+    normal_halfcycle = deepcopy(halfcycle_obj_const)
+    normal_halfcycle._halfcycle_type = "discharge"
 
-    cycle = Cycle(0, charge=normal_halfcycle, discharge=wrong_halfcycle)
+    cycle = Cycle(0, charge=wrong_halfcycle, discharge=normal_halfcycle)
 
     assert_almost_equal(cycle.coulomb_efficiency, 101, decimal=6)
     assert_almost_equal(cycle.energy_efficiency, 101, decimal=6)
@@ -332,14 +331,23 @@ def test_CellCycling___init__(cycles_objs_const):
         assert True
 
 
-# Test function to check if the _number_of_cycles variable is set correctly
-@pytest.mark.xfail
-def test_number_of_cycles_assignment(cycles_objs_const):
+# Test function to check the __len__ method of the CellCycling
+def test_CellCycling___len__(cycles_objs_const):
 
     cycles = cycles_objs_const
     cellcycling = CellCycling(cycles)
 
-    assert cellcycling._number_of_cycles == len(cycles)
+    assert len(cellcycling) == len(cellcycling._cycles)
+
+
+# Test function to check the __len__ method of the CellCycling with hidden cycle
+def test_CellCycling_with_hide__len__(cycles_objs_const):
+
+    cycles = cycles_objs_const
+    cellcycling = CellCycling(cycles)
+    cellcycling.hide([0])
+
+    assert len(cellcycling) == len(cellcycling._cycles)-1
 
 
 # Test the __getitem__ member function
@@ -468,7 +476,6 @@ def test_CellCycling_fit_retention_function_equivalent(cycles_objs_const):
 
 
 # Test the CellCycling class fit_retention function with linearly smaller discharge capacity
-@pytest.mark.xfail
 def test_CellCycling_fit_retention_function_linear_fade(cycles_objs_const):
 
     cycles: List[Cycle] = cycles_objs_const
@@ -542,7 +549,6 @@ def test_CellCycling_properties(cycles_objs_const):
         assert cellcycling.voltage_efficiencies[i] == cycle.voltage_efficiency
         assert cellcycling.energy_efficiencies[i] == cycle.energy_efficiency
 
-    assert cellcycling.number_of_cycles == 5
     assert cellcycling.numbers == [0, 1, 2, 3, 4]
 
 
