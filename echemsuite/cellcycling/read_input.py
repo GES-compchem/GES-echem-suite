@@ -1,707 +1,318 @@
+from copy import deepcopy
+import logging
 import pandas as pd
 import numpy as np
-from scipy.stats import linregress
-import sys
-from os import path
+from os import listdir, path
+from enum import Enum
+from io import BytesIO, TextIOWrapper
+from typing import Dict, List
+from datetime import datetime, timedelta
+
+from echemsuite.utils import deprecation_warning
+from echemsuite.cellcycling.cycles import CellCycling, Cycle, HalfCycle, join_HalfCycles
 
 
-class CellCycling:
+logger = logging.getLogger(__name__)
+
+
+class Instrument(Enum):
     """
-    Contains all the cycles
+    Simple enumeration to easily reference instrument types
     """
 
-    def __init__(self, cycles: list):
-        self._cycles = cycles
-        self._number_of_cycles: int = None
+    GAMRY = "GAMRY"
+    BIOLOGIC = "BIOLOGIC"
 
-        self._numbers: list = None  # initialized by get_numbers()
 
-        self._capacity_retention: list = None  # initialized in capacity_retention() property
-        self.reference: int = 0  # used for calculating retentions
+class FileManager:
+    """
+    Universal loader class for cellcycling files. The class provides a simple interface to
+    load .dta and .mpt files from a user-specified path. The class stores the loaded files
+    in memory using an array of BytesIO objects. The class implements parse and sorting
+    functions that allow the user to read the halfcycles files, organize them based on their
+    timestamp and join them in a specified order to build a list of complete cycles. The
+    class also supports the joining of partial halfcycles files.
 
-        self._retention_fit_parameters = None  # initialized by fit_retention()
-        self._capacity_fade = None  # initialized by fit_retention()
+        Constructor parameters
+        ----------------------
+        verbose : bool
+            if True, a progress report for the main functions will be reported on terminal
 
-    def __getitem__(self, cycle_number):
-        if self._cycles[cycle_number]._hidden is False:
-            return self._cycles[cycle_number]
-        else:
-            print(f"ERROR: cycle {self._cycles[cycle_number].number} is currently hidden.")
-            print("To reinstate it, use the unhide() function")
-            return None
+        Class properties
+        ----------------
+        bytestreams : Dict[str, BytesIO]
+            dictionary containing the BytesIO content of a given file encoded by filename
+        halfcycles : Dict[str, HalfCycle]
+            dictionary containing the HalfCycles objects parsed from the bytestreams register
+            each object is associated with a key that coincides with the filename in the case
+            of .dta files or with a fictitious key (reporting type and cycle number o the
+            halfcycle) in case of the .mpt files.
+        instrument : str
+            name of the instrument brand used to acquire the data
+    """
 
-    def __iter__(self):
-        for cycle in self._cycles:
-            if cycle._hidden is False:
-                yield cycle
+    def __init__(self, verbose: bool = False) -> None:
 
-    def get_numbers(self):
-        self._numbers = [cycle.number for cycle in self]
-
-    def hide(self, hide_indices: list):
-        """Cycle masking/hiding feature. Prevents certain cycles from being
-        used/shown in calculations.
-
-        Parameters
-        ----------
-        hide_indices : list
-            list of indices to mask/hide
-        """
-        for i in hide_indices:
-            self._cycles[i]._hidden = True
-
-        self.get_numbers()
-
-    def unhide(self, unhide_indices: list):
-        """Cycle unmasking/unhiding feature. Reinstate cycles from being
-        used/shown in calculations.
-
-        Parameters
-        ----------
-        unhide_indices : list
-            list of indices to unmask/unhide
-        """
-        for i in unhide_indices:
-            self._cycles[i]._hidden = False
-
-        self.get_numbers()
+        self.verbose: bool = verbose  # Enable output to the terminal
+        self._bytestreams: Dict[
+            str, BytesIO
+        ] = (
+            {}
+        )  # Dictionary for the BytesIO streams containing the datafiles ordered by a valid path string
+        self._halfcycles: Dict[str, HalfCycle] = {}  # List of the loaded halfcycles
+        self._instrument: Instrument = None  # Instrument from which the data are obtained
 
     @property
-    def capacity_retention(self):
+    def bytestreams(self) -> Dict[str, BytesIO]:
         """
-        List of capacity retentions calculated as the ratios between the discharge capacity at cycle
-        n and the discharge capacity of the reference cycle (by default, first cycle). To change the
-        reference cycle, set the "self.reference" property
+        Dictionary containing the BytesIO of the loaded files orderd by a filename sting key.
         """
-        initial_capacity = self._cycles[self.reference].discharge.capacity
+        for stream in self._bytestreams.values():
+            stream.seek(0)
+        return self._bytestreams
 
-        self._capacity_retention = []
+    @bytestreams.setter
+    def bytestreams(self, value: Dict[str, BytesIO]) -> None:
+        if type(value) != dict:
+            logger.error(
+                f"Bytestream setter expects a Dict type. Received '{type(value)}' instead"
+            )
+            raise TypeError
 
-        for cycle in self:
-            if cycle.discharge:
-                self._capacity_retention.append(
-                    cycle.discharge.capacity / initial_capacity * 100
+        for key, item in value.items():
+            if type(key) != str or type(item) != BytesIO:
+                logger.error(
+                    f"Bytestream dictionary must be of type Dict[str, BytesIO]. Received 'Dict[{type(key)}, {type(item)}]' instead."
                 )
+                raise ValueError
+
+        self._bytestreams = value
+
+    @bytestreams.deleter
+    def bytestreams(self) -> None:
+        self._bytestreams = {}
+
+    @property
+    def halfcycles(self) -> Dict[str, HalfCycle]:
+        """
+        Dictionary containing the HalfCycle classes containing the charge/discharge
+        curves. Each entry is orderd by a filename sting key.
+        """
+        return self._halfcycles
+
+    @halfcycles.setter
+    def halfcycles(self, value: Dict[str, HalfCycle]):
+        if type(value) != dict:
+            logger.error(
+                f"Halfcycles setter expects a Dict type. Received '{type(value)}' instead"
+            )
+            raise TypeError
+
+        for key, item in value.items():
+            if type(key) != str or type(item) != HalfCycle:
+                logger.error(
+                    f"Halfcycles dictionary must be of type Dict[str, HalfCycle]. Received 'Dict[{type(key)}, {type(item)}]' instead."
+                )
+                raise ValueError
+        self._halfcycles = value
+
+    @property
+    def instrument(self) -> str:
+        """
+        Type of instrument used to acquire the loaded dataset.
+        """
+        return self._instrument.name
+
+    def fetch_files(self, filelist: List[str], autoparse: bool = True) -> None:
+        """
+        Loads, as BytesIO streams, multiple files contained in a user defined filelist.
+
+            Parameters
+            ----------
+                filelist : List[str]
+                    list containing the path to the files that needs to be loaded
+                autoparse : bool
+                    if set to True will automatically call the parse member function at the end of the fetching operation
+        """
+
+        # Convert all the given paths to absolute paths
+        buffer = [path.abspath(filepath) for filepath in filelist]
+        filelist = deepcopy(buffer)
+
+        # Take the extension of the first file as reference
+        extension = path.splitext(path.basename(filelist[0]))[1]
+
+        self._bytestreams = {}  # Empty the bytestream buffer
+
+        # Load each file in the filelist
+        for filepath in filelist:
+
+            filename = path.basename(filepath)
+
+            if self.verbose:
+                print(f"-> Loading: {filename}")
+
+            # Check if the extension of each file matches the extension taken from the first
+            file_extension = path.splitext(filename)[1]
+            if file_extension != extension:
+                logger.error("file extensions in filelist do not match")
+                raise ValueError
+
+            # Check if the extension matches any of the existing instrument profiles
+            if extension.lower() == ".dta":
+                self._instrument = Instrument.GAMRY
+            elif extension.lower() == ".mpt":
+                self._instrument = Instrument.BIOLOGIC
             else:
-                self._capacity_retention.append(None)
+                logger.error(
+                    f"The extension '{extension}' does not appear among the known file types."
+                )
+                raise TypeError
 
-        return self._capacity_retention
+            # Load the whole file in the bytestreams buffer
+            with open(filepath, "r", encoding="utf-8", errors="ignore") as file:
 
-    def fit_retention(self, start: int, end: int):
-        """Fits the currently available retention data with a linear fit
-        
-        Parameters
-        ----------
-        start : int
-            starting cycle number for the fitting procedure
-        end : int
-            ending cycle number for the fitting procedure
+                if file.readlines() == []:
+                    if self.verbose:
+                        print(
+                            f"\u001b[35;1mWARNING:\u001b[0m empty file found. Skipping {filename}."
+                        )
+                    logger.warning(f"Empty file found. Skipping {filename}.")
+                    continue
 
-        Returns
-        -------
-        fit_parameters : LinregressResult instance
-            Result is an LinregressResult object with the following attributes:
-            slope
-            intercept
-            rvalue
-            pvalue
-            stderr
-            intercept_stderr
+                file.seek(0)
+                self._bytestreams[filename] = BytesIO(file.read().encode("utf-8"))
+
+        if self.verbose:
+            print(f"A total of {len(self._bytestreams)} files have been loaded")
+
+        if autoparse:
+            self.parse()
+
+    def fetch_from_folder(
+        self, folder: str, extension: str, autoparse: bool = True
+    ) -> None:
+        """
+        Loads, as BytesIO streams, multiple files from a folder filtering them by extension.
+
+            Parameters
+            ----------
+                folder : str
+                    string containing the path to the folder from which the files needs to be loaded
+                extension : str
+                    string containing the extension of the files to be loaded
+                autoparse : bool
+                    if set to True will automatically call the parse member function at the end of the fetching operation
         """
 
-        retention_array = self.capacity_retention[start:end]
+        # Check if directory exists
+        if path.isdir(folder) == False:
+            logger.error(f"The path '{folder}' does not correspond to a folder.")
+            raise ValueError
+        folder = path.abspath(folder)
 
-        print(f"INFO: fitting Capacity Retention data from cycle {start} to {end}")
-        self._retention_fit_parameters = linregress(range(start, end), retention_array)
-
-        print(
-            f"INFO: fit equation: retention = {self._retention_fit_parameters.slope} * cycle_number + {self._retention_fit_parameters.intercept}"
-        )
-        print(f"INFO: R^2 = {self._retention_fit_parameters.rvalue**2}")
-
-        # capacity fade calculated between consecutive cycles, taken as the slope of the linear fit
-
-        self._capacity_fade = -(self._retention_fit_parameters.slope)
-
-    @property
-    def fit_parameters(self):
-        """Fitting parameters obtained from the linear fit of the capacity retention"""
-        return self._retention_fit_parameters
-
-    @property
-    def capacity_fade(self):
-        """% of capacity retention lost between two consecutive cycles (note: this is not the TOTAL
-        capacity fade!)"""
-        return self._capacity_fade
-
-    def predict_retention(self, cycle_numbers: list):
-        """Predicts the retention for a given number of cycles, given a series of fit parameters
-        in the form of a LinregressResult object
-
-        Parameters
-        ----------
-        cycle_numbers : list
-            list containing the cycle numbers for which you want to predict the retention
-
-        Returns
-        -------
-        predicted_retentions : list
-            list containing the predicted retention values
-        """
-
-        predicted_retentions = []
-        for cycle_number in cycle_numbers:
-            retention = (
-                self._retention_fit_parameters.slope * cycle_number
-                + self._retention_fit_parameters.intercept
+        # Check if the extension matches any of the existing instrument profiles
+        if extension.lower() not in [".dta", ".mpt"]:
+            logger.error(
+                f"The extension '{extension}' does not appear among the known file types."
             )
-            predicted_retentions.append(retention)
+            raise TypeError
 
-        return predicted_retentions
+        # Load the file in the bytestream buffer
+        filelist = []
+        for filename in listdir(folder):
+            if filename.endswith(extension):
+                filelist.append(path.join(folder, filename))
 
-    def retention_threshold(self, thresholds: list):
-        """Predicts the cycle numbers for which the capacity retention reaches a certain threshold
+        self.fetch_files(filelist, autoparse=autoparse)
 
-        Parameters
-        ----------
-        thresholds : list
-            list containing the retention thresholds for which you want to predict the cycle number
-
-        Returns
-        -------
-        predicted_thresholds : list
-            list containing the predicted retention values
+    def parse(self) -> None:
+        """
+        Parse the BytesIO streams contained in the "bytestreams" buffer and update the "halfcycles" dictionary.
         """
 
-        predicted_cycle_numbers = []
-        for retention in thresholds:
-            cycle_number = int(
-                (
-                    (retention - self._retention_fit_parameters.intercept)
-                    / self._retention_fit_parameters.slope
-                )
-                // 1
-            )
-            predicted_cycle_numbers.append(cycle_number)
-
-        return predicted_cycle_numbers
-
-    @property
-    def coulomb_efficiencies(self):
-        """List of coulombic efficiencies"""
-        return [cycle.coulomb_efficiency for cycle in self]
-
-    @property
-    def voltage_efficiencies(self):
-        """List of voltaic efficiencies"""
-        return [cycle.voltage_efficiency for cycle in self]
-
-    @property
-    def energy_efficiencies(self):
-        """List of energy efficiencies"""
-        return [cycle.energy_efficiency for cycle in self]
-
-    @property
-    def number_of_cycles(self):
-        """Returns the total number of cycles"""
-        return len([cycle for cycle in self])
-
-    @property
-    def numbers(self):
-        """Returns a list of all the available cycle numbers"""
-        self.get_numbers()
-        return self._numbers
-
-
-class Cycle:
-    """
-    Contains the charge and discharge half-cycles
-    """
-
-    def __init__(self, number: int, charge=None, discharge=None):
-
-        self._number = number
-        self._charge: HalfCycle = charge
-        self._discharge: HalfCycle = discharge
-
-        self._hidden: bool = False
-
-        (
-            self._coulomb_efficiency,
-            self._energy_efficiency,
-            self._voltage_efficiency,
-        ) = self.calculate_efficiencies()
-
-    # CYCLE NUMBER
-    @property
-    def number(self):
-        """Cycle number"""
-        return self._number
-
-    # CHARGE / DISCHARGE
-    @property
-    def charge(self):
-        """Charge half-cycle"""
-        return self._charge
-
-    @property
-    def discharge(self):
-        """Discharge half-cycle"""
-        return self._discharge
-
-    # TIME
-    @property
-    def time(self):
-        """DataFrame containing the time data points (in s) for the complete cycle"""
-        if self.charge and self.discharge:
-            return pd.concat([self.charge.time, self.discharge.time])
-        elif self.charge and not self.discharge:
-            return self.charge.time
-        elif self.discharge and not self.charge:
-            return self.discharge.time
-
-    # VOLTAGE
-    @property
-    def voltage(self):
-        """DataFrame containing the voltage data (in V) points for the complete cycle"""
-        if self.charge and self.discharge:
-            return pd.concat([self.charge.voltage, self.discharge.voltage])
-        elif self.charge and not self.discharge:
-            return self.charge.voltage
-        elif self.discharge and not self.charge:
-            return self.discharge.voltage
-
-    # CURRENT
-    @property
-    def current(self):
-        """DataFrame containing the current data points (in A) for the complete cycle"""
-        if self.charge and self.discharge:
-            return pd.concat([self.charge.current, self.discharge.current])
-        elif self.charge and not self.discharge:
-            return self.charge.current
-        elif self.discharge and not self.charge:
-            return self.discharge.current
-
-    # POWER
-    @property
-    def power(self):
-        """DataFrame containing the instantaneous power data points (in W) for the complete cycle"""
-        if self.charge and self.discharge:
-            return pd.concat([self.charge.power, self.discharge.power])
-        elif self.charge and not self.discharge:
-            return self.charge.power
-        elif self.discharge and not self.charge:
-            return self.discharge.power
-
-    # ENERGY
-    @property
-    def energy(self):
-        """DataFrame containing the instantaneous energy data points (in mWh) for the complete cycle"""
-        if self.charge and self.discharge:
-            return pd.concat([self.charge.energy, self.discharge.energy])
-        elif self.charge and not self.discharge:
-            return self.charge.energy
-        elif self.discharge and not self.charge:
-            return self.discharge.energy
-
-    # ACCUMULATED CHARGE
-    @property
-    def Q(self):
-        """DataFrame containing the accumulated charge data points (in mAh) for the complete cycle"""
-        if self.charge and self.discharge:
-            return pd.concat([self.charge.Q, self.discharge.Q])
-        elif self.charge and not self.discharge:
-            return self.charge.Q
-        elif self.discharge and not self.charge:
-            return self.discharge.Q
-
-    def calculate_efficiencies(self):
-        """
-        Computes the coulombic and energy efficiency of the cycle as the ratio 
-        between the discharge and charge energies, provided they exist.
-        """
-
-        if self.charge and self.discharge:
-
-            if self.charge.capacity <= 0 or self.charge.total_energy <= 0:
-                # 101 is a sentinel value
-                self._coulomb_efficiency = 101
-                self._energy_efficiency = 101
-                self._voltage_efficiency = 101
-            else:
-                self._coulomb_efficiency = (
-                    self.discharge.capacity / self.charge.capacity * 100
-                )
-                self._energy_efficiency = (
-                    self.discharge.total_energy / self.charge.total_energy * 100
-                )
-                self._voltage_efficiency = (
-                    self._energy_efficiency / self._coulomb_efficiency * 100
-                )
-
-            return (
-                self._coulomb_efficiency,
-                self._energy_efficiency,
-                self._voltage_efficiency,
-            )
-
-        else:
-            return None, None, None
-
-    # EFFICIENCIES
-    @property
-    def coulomb_efficiency(self):
-        """Coulombic efficiency"""
-        return self._coulomb_efficiency
-
-    @property
-    def energy_efficiency(self):
-        """Energy efficiency"""
-        return self._energy_efficiency
-
-    @property
-    def voltage_efficiency(self):
-        """Voltaic efficiency"""
-        return self._voltage_efficiency
-
-    # LEGACY PROPERTIES
-
-    @property
-    def time_charge(self):
-        print(
-            "WARNING: the property 'time_charge' is being deprecated and will no longer be available in future releases!"
-        )
-        print(
-            "Please update your script and replace all occurrences of 'time_charge' with 'charge.time'."
-        )
-        return self.charge.time
-
-    @property
-    def time_discharge(self):
-        print(
-            "WARNING: the property 'time_discharge' is being deprecated and will no longer be available in future releases!"
-        )
-        print(
-            "Please update your script and replace all occurrences of 'time_discharge' with 'discharge.time'."
-        )
-        return self.discharge.time
-
-    @property
-    def voltage_charge(self):
-        print(
-            "WARNING: the property 'voltage_charge' is being deprecated and will no longer be available in future releases!"
-        )
-        print(
-            "Please update your script and replace all occurrences of 'voltage_charge' with 'charge.voltage'."
-        )
-        return self.charge.voltage
-
-    @property
-    def voltage_discharge(self):
-        print(
-            "WARNING: the property 'voltage_discharge' is being deprecated and will no longer be available in future releases!"
-        )
-        print(
-            "Please update your script and replace all occurrences of 'voltage_discharge' with 'discharge.voltage'."
-        )
-        return self.discharge.voltage
-
-    @property
-    def current_charge(self):
-        print(
-            "WARNING: the property 'current_charge' is being deprecated and will no longer be available in future releases!"
-        )
-        print(
-            "Please update your script and replace all occurrences of 'current_charge' with 'charge.current'."
-        )
-        return self.charge.current
-
-    @property
-    def current_discharge(self):
-        print(
-            "WARNING: the property 'current_discharge' is being deprecated and will no longer be available in future releases!"
-        )
-        print(
-            "Please update your script and replace all occurrences of 'current_discharge' with 'discharge.current'."
-        )
-        return self.discharge.current
-
-    @property
-    def power_charge(self):
-        print(
-            "WARNING: the property 'power_charge' is being deprecated and will no longer be available in future releases!"
-        )
-        print(
-            "Please update your script and replace all occurrences of 'power_charge' with 'charge.power'."
-        )
-        return self.charge.power
-
-    @property
-    def power_discharge(self):
-        print(
-            "WARNING: the property 'power_discharge' is being deprecated and will no longer be available in future releases!"
-        )
-        print(
-            "Please update your script and replace all occurrences of 'power_discharge' with 'discharge.power'."
-        )
-        return self.discharge.power
-
-    @property
-    def energy_charge(self):
-        print(
-            "WARNING: the property 'energy_charge' is being deprecated and will no longer be available in future releases!"
-        )
-        print(
-            "Please update your script and replace all occurrences of 'energy_charge' with 'charge.energy'."
-        )
-        return self.charge.energy
-
-    @property
-    def energy_discharge(self):
-        print(
-            "WARNING: the property 'energy_discharge' is being deprecated and will no longer be available in future releases!"
-        )
-        print(
-            "Please update your script and replace all occurrences of 'energy_discharge' with 'discharge.energy'."
-        )
-        return self.discharge.energy
-
-    @property
-    def capacity_charge(self):
-        print(
-            "WARNING: the property 'capacity_charge' is being deprecated and will no longer be available in future releases!"
-        )
-        print(
-            "Please update your script and replace all occurrences of 'capacity_charge' with 'charge.capacity'."
-        )
-        return self.charge.capacity
-
-    @property
-    def capacity_discharge(self):
-        print(
-            "WARNING: the property 'capacity_discharge' is being deprecated and will no longer be available in future releases!"
-        )
-        print(
-            "Please update your script and replace all occurrences of 'capacity_discharge' with 'discharge.capacity'."
-        )
-        return self.discharge.capacity
-
-    @property
-    def Q_charge(self):
-        print(
-            "WARNING: the property 'Q_charge' is being deprecated and will no longer be available in future releases!"
-        )
-        print(
-            "Please update your script and replace all occurrences of 'Q_charge' with 'charge.Q'."
-        )
-        return self.charge.Q
-
-    @property
-    def Q_discharge(self):
-        print(
-            "WARNING: the property 'Q_discharge' is being deprecated and will no longer be available in future releases!"
-        )
-        print(
-            "Please update your script and replace all occurrences of 'Q_discharge' with 'discharge.Q'."
-        )
-        return self.discharge.Q
-
-    @property
-    def total_energy_charge(self):
-        print(
-            "WARNING: the property 'total_energy_charge' is being deprecated and will no longer be available in future releases!"
-        )
-        print(
-            "Please update your script and replace all occurrences of 'total_energy_charge' with 'charge.total_energy'."
-        )
-        return self.charge.total_energy
-
-    @property
-    def total_energy_discharge(self):
-        print(
-            "WARNING: the property 'total_energy_discharge' is being deprecated and will no longer be available in future releases!"
-        )
-        print(
-            "Please update your script and replace all occurrences of 'total_energy_discharge' with 'discharge.total_energy'."
-        )
-        return self.discharge.total_energy
-
-
-class HalfCycle:
-    """HalfCycle object (for storing charge or discharge data)
-    """
-
-    def __init__(self, time, voltage, current, halfcycle_type):
-        """
-        Parameters
-        ----------
-        time : Pandas Series
-            Series containing time data (in s)
-        voltage : Pandas Series
-            Series containing voltage data (in V)
-        current : Pandas Series
-            Series containing current data (in A)
-        halfcycle_type : str
-            Should either be "charge" or "discharge"
-        """
-
-        self._time = time
-        self._voltage = voltage
-        self._current = current
-        self._halfcycle_type = halfcycle_type
-
-        self._Q, self._capacity = self.calculate_Q()
-        self._power, self._energy, self._total_energy = self.calculate_energy()
-
-    def calculate_Q(self):
-        """
-        Calculate the capacity C (mAh) of the charge half-cycle as the 
-        accumulated charge over time
-        """
-        # accumulated charge dq at each measurement step (mA.h)
-        dq = abs(self._current * self._time.diff()) / 3.6
-
-        # charge as cumulative sum (mA.h)
-        Q = dq.cumsum()
-
-        # capacity as last value of accumulated charge (mA.h)
-        capacity = Q.iloc[-1]
-
-        return Q, capacity
-
-    def calculate_energy(self):
-        """
-        Calculate the total energy E (mWh) of the charge half-cycle as the 
-        cumulative sum of energy over time
-        """
-
-        # instantaneous power (W)
-        power = abs(self._current * self._voltage)
-
-        # istantaneous energy dE (mWh) at each measurement step and cumulative
-        dE = (power * self._time.diff()) / 3.6
-        energy = dE.cumsum()
-
-        # total energy (mWh)
-        total_energy = energy.iloc[-1]
-
-        return power, energy, total_energy
-
-    # HALFCYCLE TYPE (charge/discharge)
-    @property
-    def halfcycle_type(self):
-        """Type of half-cycle (charge or discharge)"""
-        return self._halfcycle_type
-
-    # TIME
-    @property
-    def time(self):
-        """DataFrame containing the time data points (in s) for the selected half-cycle"""
-        return self._time
-
-    # VOLTAGE
-    @property
-    def voltage(self):
-        """DataFrame containing the voltage data points (in V) for the selected half-cycle"""
-        return self._voltage
-
-    # CURRENT
-    @property
-    def current(self):
-        """DataFrame containing the current data points (in A) for the selected half-cycle"""
-        return self._current
-
-    # ACCUMULATED CHARGE
-    @property
-    def Q(self):
-        """DataFrame containing the accumulated charge data points (in mAh) for the selected half-cycle"""
-        return self._Q
-
-    # CAPACITY
-    @property
-    def capacity(self):
-        """Capacity (in mAh) for the selected half-cycle, calculated as the total accumulated charge"""
-        return self._capacity
-
-    # POWER
-    @property
-    def power(self):
-        """DataFrame containing the instantaneous power data points (in W) for the selected half-cycle"""
-        return self._power
-
-    # ENERGY
-    @property
-    def energy(self):
-        """DataFrame containing the instantaneous energy data points (in mWh) for the selected half-cycle"""
-        return self._energy
-
-    # TOTAL ENERGY
-    @property
-    def total_energy(self):
-        """Total energy (in mWh) for the selected half-cycle, calculated as the total accumulated energy"""
-        return self._total_energy
-
-
-def build_DTA_cycles(filelist, clean):
-    """builds a list of cycles from a list containing charge/discharge file paths from 
-    
-
-    Parameters
-    ----------
-    filelist : list
-        file list containing .DTA file paths.
-    clean : bool
-        if True, only displays cycles with physical meaning (efficiencies < 100% and both charge + 
-        discharge available). If False (default), load everything.
-
-    Returns
-    -------
-    cycles : list
-        list containing various Cycles objects built according to the given list pairs
-    """
-
-    halfcycles = []
-
-    for filepath in filelist:
-
-        filename = path.basename(filepath)
-        extension = path.splitext(filename)[1]
-
-        print("Loading:", filepath, "\n")
-
-        if extension.lower() == ".dta":
-
-            with open(filepath, "r", encoding="utf8", errors="ignore") as file:
+        # Check if the bytestreams buffer is empty
+        if self._bytestreams == {}:
+            logger.error("Parse function called on empty bytestreams dictionary.")
+            raise RuntimeError
+
+        # Load the halfcycles from data in the bytestreams buffer based on the type of instrument
+        self._halfcycles = {}
+        if self._instrument == Instrument.GAMRY:
+            for filename, bytestream in self._bytestreams.items():
+
+                if self.verbose:
+                    print(f"-> Parsing: {filename}")
 
                 beginning = None  # line at which the table begins
                 npoints = None  # number of data points
                 halfcycle_type = None  # charge/discharge
 
-                # finding the "CURVE TABLE npoints" line in file
-                for line_num, line in enumerate(file):
+                date_str, time_str = None, None  # Date and time string buffers
+                timestamp = None  # Timestamp reported in the file
 
+                data = pd.DataFrame()  # Empty pandas dataframe to store data
+
+                # Parsing the file
+                textStream = TextIOWrapper(bytestream, encoding="utf-8")
+                for line_num, line in enumerate(textStream.readlines()):
+
+                    line = line.strip("\n")
+
+                    # Read the time and date lines
+                    if line.startswith("DATE"):
+                        date_str = line.split()[2]
+                    elif line.startswith("TIME"):
+                        time_str = line.split()[2]
+
+                    # Read the sign of the current to define halfcycle type
                     if "Step 1 Current (A)" in line:
                         if float(line.split()[2]) > 0:
                             halfcycle_type = "charge"  # positive current = charge
                         elif float(line.split()[2]) < 0:
                             halfcycle_type = "discharge"  # negative current = discharge
 
-                    if "CURVE" in line:
+                    # Search the "CURVE TABLE npoints" line and load the data
+                    if line.startswith("CURVE"):
                         beginning = line_num + 2
                         npoints = int(line.split()[-1])
+
+                        # Rewind the pointer to the beginning of the stream
+                        textStream.seek(0)
+                        data = pd.read_table(
+                            textStream,
+                            delimiter="\t",
+                            skiprows=beginning,
+                            decimal=".",
+                            nrows=npoints,
+                            encoding_errors="ignore",
+                        )
+
+                        textStream.detach()  # Detaches the TextIOWrapper from the BytesIO stream to avoid bytestream closing on wrapper out of scope
                         break
 
-                # reading data from file
-                data = pd.read_table(
-                    filepath,
-                    delimiter="\t",
-                    skiprows=beginning,
-                    decimal=".",
-                    nrows=npoints,
-                    encoding_errors="ignore",
-                )
+                # Confirm that the data has been loaded
+                if data.empty:
+                    logger.error("Failed to locate the CURVE section.")
+                    raise RuntimeError
 
-                # renaming columns to standard format
+                # Build the timestamp object
+                if date_str is not None and time_str is not None:
+                    month, day, year = date_str.split("/")
+                    hours, minutes, seconds = time_str.split(":")
+                    timestamp = datetime(
+                        int(year),
+                        int(month),
+                        int(day),
+                        int(hours),
+                        int(minutes),
+                        int(seconds),
+                    )
+                else:
+                    logger.error("Failed to build file timestamp.")
+                    raise RuntimeError
+
+                # Renaming columns to standard format
                 if "V vs. Ref." in data.columns:
                     data.rename(
                         columns={
@@ -722,6 +333,12 @@ def build_DTA_cycles(filelist, clean):
                         inplace=True,
                     )
 
+                # Drop the lines corresponding to t<=0 and skip whe detecting empty dataframes
+                data.drop(data[data["Time (s)"] <= 0].index, inplace=True)
+
+                if data.empty:
+                    continue
+
                 time = data["Time (s)"]
                 voltage = data["Voltage vs. Ref. (V)"]
                 current = data["Current (A)"]
@@ -732,111 +349,88 @@ def build_DTA_cycles(filelist, clean):
                     elif current[0] < 0:
                         halfcycle_type = "discharge"
 
-                halfcycles.append(HalfCycle(time, voltage, current, halfcycle_type))
+                self._halfcycles[filename] = HalfCycle(
+                    time, voltage, current, halfcycle_type, timestamp
+                )
 
-        else:
-            print("This is not a .DTA file!")
-            sys.exit()
+        elif self._instrument == Instrument.BIOLOGIC:
 
-    cycles = []
-    cycle_number = 0
+            for filename, bytestream in self._bytestreams.items():
 
-    while halfcycles:
-        half = halfcycles.pop(0)
-        if half.halfcycle_type == "charge":
-            charge = half
-            try:
-                discharge = halfcycles.pop(0)
-                cycle = Cycle(number=cycle_number, charge=charge, discharge=discharge)
-            except:
-                cycle = Cycle(number=cycle_number, charge=charge, discharge=None)
-                pass
-        else:
-            discharge = half
-            cycle = Cycle(number=cycle_number, charge=None, discharge=discharge)
-        cycles.append(cycle)
-        cycle_number += 1
-
-    for cycle in cycles:
-        if cycle.energy_efficiency and cycle.energy_efficiency > 100 and clean:
-            cycle._hidden = True
-            print(f"Cycle {cycle.number} hidden due to unphsyical nature")
-        elif (not cycle.charge or not cycle.discharge) and clean:
-            cycle._hidden = True
-            print(f"Cycle {cycle.number} hidden due to missing charge/discharge")
-
-    return cycles
-
-
-def read_mpt_cycles(filelist, clean):
-    """reads a list of cycles from a list containing cell cycling file paths from BIOLOGIC 
-    instruments (.mpt files)
-    
-
-    Parameters
-    ----------
-    filelist : list
-        file list containing .mpt file paths.
-    clean : bool
-        if True, only displays cycles with physical meaning (efficiencies < 100% and both charge + 
-        discharge available). If False (default), load everything.
-
-    Returns
-    -------
-    cycles : list
-        list containing various Cycles objects built according to the given list pairs
-    """
-
-    cycles = []
-
-    # this variable tracks the GLOBAL cycle numbers and increases between
-    # files. Not to be confused with current_mpt_cycle_num!
-    cycle_number = 0
-
-    for filepath in filelist:
-        print("Loading:", filepath, "\n")
-
-        filename = path.basename(filepath)
-        extension = path.splitext(filename)[1]
-
-        if extension.lower() == ".mpt":
-
-            with open(filepath, "r", encoding="utf8", errors="ignore") as file:
+                if self.verbose:
+                    print(f"-> Parsing: {filename}")
 
                 delims = []  # contains cycle number, first and last line number
-                beginning = None
-                ncycles = 1
+                beginning = None  # line at which the data table begins
+                ncycles = 1  # number of charge/discharge cycles
 
-                for line_num, line in enumerate(file):
-                    if "Number of loops : " in line:
+                date_str, time_str = None, None  # Date and time string buffers
+                timestamp = None  # Timestamp reported in the file
+
+                # Parsing the file
+                textStream = TextIOWrapper(bytestream, encoding="utf-8")
+                for line_num, line in enumerate(textStream.readlines()):
+
+                    if "Acquisition started on :" in line:
+                        time_str = line.split(" ")[-1]
+                        date_str = line.split(" ")[-2]
+
+                    elif "Number of loops : " in line:
                         ncycles = int(line.split(" ")[-1])
 
                     # Before the output of the experiment, EClab lists the
                     # starting and ending line of each loop. These will be used
                     # to slice the pandas dataframe into the different cycles.
-                    if "Loop " in line:
+                    elif "Loop " in line:
                         loop_num = int(line.split(" ")[1])
                         first_pos = int(line.split(" ")[-3])
                         second_pos = int(line.split(" ")[-1])
                         delims.append([loop_num, first_pos, second_pos])
 
-                    if "mode\t" in line:
+                    elif "mode\t" in line:
                         beginning = line_num
+
+                        # if no cycles are found, default to "read everything"
+                        if len(delims) == 0:
+                            delims = [[0, 0, -2]]  # -2 will be converted to -1 later
+
+                        textStream.seek(
+                            0
+                        )  # Rewind the pointer to the beginning of the stream
+
+                        # reading data from file
+                        data = pd.read_table(
+                            textStream,
+                            dtype=np.float64,
+                            delimiter="\t",
+                            skiprows=beginning,
+                            decimal=",",
+                            encoding_errors="ignore",
+                        )
+
+                        textStream.detach()  # Detaches the TextIOWrapper from the BytesIO stream to avoid bytestream closing on wrapper out of scope
                         break
 
-                # if no cycles are found, default to "read everything"
-                if len(delims) == 0:
-                    delims = [[0, 0, -2]]  # -2 will be converted to -1 later
+                # Confirm that the data has been loaded
+                if data.empty:
+                    logger.error("Failed to locate the header section.")
+                    raise RuntimeError
 
-                # reading data from file
-                data = pd.read_table(
-                    filepath,
-                    dtype=np.float64,
-                    delimiter="\t",
-                    skiprows=beginning,
-                    decimal=",",
-                    encoding_errors="ignore",
-                )
+                # Build the timestamp object
+                if date_str is not None and time_str is not None:
+                    day, month, year = date_str.split("/")
+                    hours, minutes, seconds = time_str.split(":")
+                    timestamp = datetime(
+                        int(year),
+                        int(month),
+                        int(day),
+                        int(hours),
+                        int(minutes),
+                        int(seconds),
+                    )
+                else:
+                    logger.error("Failed to build file timestamp.")
+                    raise RuntimeError
 
                 # renaming columns to standard format
                 data.rename(
@@ -851,80 +445,283 @@ def read_mpt_cycles(filelist, clean):
                 # convert mA to A
                 data["Current (A)"] = data["Current (A)"].divide(1000)
 
-                # initiate Cycle object providing dataframe view within delims
+                # Iterate on the provided data and build the halfcycles dictionary
+                cycle_num = 0
+                while cycle_num < ncycles:
 
-                # this variable iterates over the cycles of the specific file
-                # and is reinitialized every file, not to be confused with
-                # cycle_number!
-                current_mpt_cycle_num = 0
-                while current_mpt_cycle_num < ncycles:
-                    first_row = delims[current_mpt_cycle_num][1]
-                    last_row = delims[current_mpt_cycle_num][2] + 1
+                    first_row = delims[cycle_num][1]
+                    last_row = delims[cycle_num][2] + 1
 
-                    try:
+                    # Extract a view of the charge/discharge cycle
+                    cycle_sub_data = data[first_row:last_row]
+
+                    # Extract dataset view of the charge cycle, compute timestamp and create HalfCycle object
+                    charge = None
+                    charge_data = cycle_sub_data[cycle_sub_data["ox/red"] == 1]
+                    if charge_data.empty == False:
+
+                        charge_timestamp = timestamp + timedelta(
+                            seconds=charge_data["Time (s)"].tolist()[0]
+                        )
+
                         charge = HalfCycle(
-                            data["Time (s)"][first_row:last_row][data["ox/red"] == 1],
-                            data["Voltage vs. Ref. (V)"][first_row:last_row][
-                                data["ox/red"] == 1
-                            ],
-                            data["Current (A)"][first_row:last_row][data["ox/red"] == 1],
+                            charge_data["Time (s)"],
+                            charge_data["Voltage vs. Ref. (V)"],
+                            charge_data["Current (A)"],
                             "charge",
+                            charge_timestamp,
                         )
-                    except:
-                        charge = None
 
-                    try:
+                    # Extract dataset view of the discharge cycle, compute timestamp and create HalfCycle object
+                    discharge = None
+                    discharge_data = cycle_sub_data[cycle_sub_data["ox/red"] == 0]
+                    if discharge_data.empty == False:
+
+                        discharge_timestamp = timestamp + timedelta(
+                            seconds=discharge_data["Time (s)"].tolist()[0]
+                        )
+
                         discharge = HalfCycle(
-                            data["Time (s)"][first_row:last_row][data["ox/red"] == 0],
-                            data["Voltage vs. Ref. (V)"][first_row:last_row][
-                                data["ox/red"] == 0
-                            ],
-                            data["Current (A)"][first_row:last_row][data["ox/red"] == 0],
+                            discharge_data["Time (s)"],
+                            discharge_data["Voltage vs. Ref. (V)"],
+                            discharge_data["Current (A)"],
                             "discharge",
+                            discharge_timestamp,
                         )
-                    except:
-                        discharge = None
 
+                    if charge is not None and discharge is not None:
+
+                        # Apply a preventive ordering in halfcycle insertion into dictionary
+                        if charge_timestamp < discharge_timestamp:
+                            self._halfcycles[f"charge_{cycle_num}_{filename}"] = charge
+                            self._halfcycles[
+                                f"discharge_{cycle_num}_{filename}"
+                            ] = discharge
+                        else:
+                            self._halfcycles[
+                                f"discharge_{cycle_num}_{filename}"
+                            ] = discharge
+                            self._halfcycles[f"charge_{cycle_num}_{filename}"] = charge
+
+                    elif charge is not None:
+                        self._halfcycles[f"charge_{cycle_num}_{filename}"] = charge
+
+                    elif discharge is not None:
+                        self._halfcycles[f"discharge_{cycle_num}_{filename}"] = discharge
+
+                    cycle_num += 1
+
+        if self.verbose:
+            print("Parsing completed")
+
+    def suggest_ordering(self) -> List[List[str]]:
+        """
+        Examine the bytestreams buffer and suggests a possible file ordering and merging scheme based on
+        half-cycle type and timestamp.
+
+            Returns
+            -------
+                order : List[List[str]]
+                    list of lists of filenames. Each list contains the halfcycles entries that must be
+                    merged in a single HalfCycle class.
+        """
+        # Sort the halfcycles files accorging to their timestamp
+        ordered_items = sorted(self._halfcycles.items(), key=lambda x: x[1].timestamp)
+
+        order: List[List[str]] = []
+
+        ncycles, index = 0, 0
+        while index <= len(ordered_items) - 1:
+
+            name, ref_obj = ordered_items[index]  # Take the first object as a reference
+            order.append([name])  # Add the first object name to the list
+            index += 1  # Move the pointer to the next element in the ordered_items list
+
+            # Check if the index reached the end of the list
+            if index >= len(ordered_items):
+                break
+
+            # Start a iteration loop to search for partial halfcycles
+            while True:
+
+                # Check if the halfcycle pointed by index is the same type as the reference one
+                if ordered_items[index][1].halfcycle_type == ref_obj.halfcycle_type:
+                    # Append the partial halfcycle to the current halfcycle index and move the pointer
+                    order[ncycles].append(ordered_items[index][0])
+                    index += 1
+                else:
+                    break
+
+                # Check if the index reached the end of the list (double brake catched by while loop condition)
+                if index >= len(ordered_items):
+                    break
+
+            ncycles += 1  # Increment the halfcycle index
+
+        return order
+
+    def get_cycles(self, custom_order: List[str] = [], clean: bool = False) -> List[Cycle]:
+        """
+        Build the Cycles list from a given halfcycles order.
+
+            Parameters:
+            -----------
+                custom_order: List[str]
+                    list of lists of filenames. Each list contains the halfcycles entries that must be merged in
+                    a single HalfCycle class. If left empty the ordering generated by the suggest_ordering method
+                    will be used.
+                clean : bool
+                    if True, only displays cycles with physical meaning (efficiencies < 100% and both charge +
+                    discharge available). If False (default), load everything.
+
+            Returns:
+            --------
+                cycles : List[Cycle]
+                    list containing the set of charge/discharge Cycles class created from the given dataset
+        """
+
+        # If available use user ordering as order list else use the suggested one
+        order: List[List[str]] = (
+            self.suggest_ordering() if custom_order == [] else custom_order
+        )
+
+        # Create a local list of subsequent halfcycles by joining partial ones if existent
+        halfcycles = []
+        for block in order:  # Iterate over each ordering block
+            if len(block) == 1:
+                # If the halfcycle is complete append it to the halfcycle list as it is
+                halfcycles.append(self._halfcycles[block[0]])
+            else:
+                # Else create a list of partial halfcycles and join them in a single one
+                merge_list = [self._halfcycles[name] for name in block]
+                halfcycles.append(join_HalfCycles(merge_list))
+
+        cycles = []  # Empty list to hold the cycles
+        cycle_number = 0  # Cycle counter to give to the cycles subsequent integer numbering
+
+        # Iterate over the ordered list of complete halfcycles and build the cycles
+        # ASSUMPTION: a cycle always starts with a charge
+        while halfcycles:
+            half = halfcycles.pop(0)  # Extract the first halfcycle from the list
+
+            # If the type is a charge search for the discharge and complete the cycle
+            if half.halfcycle_type == "charge":
+                charge = half
+                try:
+                    discharge = halfcycles.pop(0)
                     cycle = Cycle(number=cycle_number, charge=charge, discharge=discharge)
+                except:
+                    cycle = Cycle(number=cycle_number, charge=charge, discharge=None)
+                    pass
 
-                    if charge and discharge:
-                        unphysical = (
-                            cycle.energy_efficiency > 100,
-                            cycle.coulomb_efficiency > 100,
-                            cycle.voltage_efficiency > 100,
-                        )
-                        if any(unphysical) and clean:
-                            print(
-                                f"WARNING: cycle {cycle._number} will be discarded due to unphysical efficiencies"
-                            )
-                            cycle._hidden = True
-                    
-                    elif charge and not discharge and clean:
-                        print(
-                            f"WARNING: cycle {cycle._number} will be discarded due to missing discharge data"
-                        )
-                        cycle._hidden = True
+            # If the type is a discharge start the first cycle with a None charge cycle
+            else:
+                discharge = half
+                cycle = Cycle(number=cycle_number, charge=None, discharge=discharge)
 
-                    elif discharge and not charge and clean:
-                        print(
-                            f"WARNING: cycle {cycle._number} will be discarded due to missing charge data"
-                        )
-                        cycle._hidden = True
+            # Append the newly created cycle to the list and increment the counter
+            cycles.append(cycle)
+            cycle_number += 1
+
+        # Perform the cleaning operation if clean is set to true
+        for cycle in cycles:
+
+            # Remove cycles with efficiencies higher than 100%
+            if cycle.energy_efficiency and cycle.energy_efficiency > 100 and clean:
+                cycle._hidden = True
+                print(f"Cycle {cycle.number} hidden due to unphsyical nature")
+
+            # Remove cycle with only a charge or a discharge
+            elif (not cycle.charge or not cycle.discharge) and clean:
+                cycle._hidden = True
+                print(f"Cycle {cycle.number} hidden due to missing charge/discharge")
+
+        return cycles  # Return the cycle list to the user
+
+    def get_cellcycling(
+        self, custom_order: List[str] = [], clean: bool = False
+    ) -> CellCycling:
+        """
+        Build a CellCycling object from a given halfcycles order.
+
+            Parameters:
+            -----------
+                custom_order: List[str]
+                    list of lists of filenames. Each list contains the halfcycles entries that must be merged in
+                    a single HalfCycle class. If left empty the ordering generated by the suggest_ordering method
+                    will be used.
+                clean : bool
+                    if True, only displays cycles with physical meaning (efficiencies < 100% and both charge +
+                    discharge available). If False (default), load everything.
+
+            Returns:
+            --------
+                obj : CellCycling
+                    CellCycling object containing all the charge/discharge Cycles classes.
+        """
+
+        cycles = self.get_cycles(custom_order=custom_order, clean=clean)
+        return CellCycling(cycles)
 
 
-                    cycles.append(cycle)
+def build_DTA_cycles(
+    filelist: List[str], clean: bool, verbose: bool = False
+) -> List[Cycle]:
+    """builds a list of cycles from a list containing charge/discharge file paths from
 
-                    cycle_number += 1
-                    current_mpt_cycle_num += 1
+    Parameters
+    ----------
+    filelist : list
+        file list containing .DTA file paths.
+    clean : bool
+        if True, only displays cycles with physical meaning (efficiencies < 100% and both charge +
+        discharge available). If False (default), load everything.
 
-        else:
-            print("This is not a .mpt file!")
-            sys.exit()
+    Returns
+    -------
+    cycles : list
+        list containing various Cycles objects built according to the given list pairs
+    """
+    deprecation_warning("build_DTA_cycles", "FileManager")
+
+    manager = FileManager(verbose=verbose)
+    manager.fetch_files(filelist)
+    cycles = manager.get_cycles(clean=clean)
+
+    return cycles
+
+
+def read_mpt_cycles(filelist: List[str], clean: bool, verbose: bool = False):
+    """reads a list of cycles from a list containing cell cycling file paths from BIOLOGIC
+    instruments (.mpt files)
+
+
+    Parameters
+    ----------
+    filelist : list
+        file list containing .mpt file paths.
+    clean : bool
+        if True, only displays cycles with physical meaning (efficiencies < 100% and both charge +
+        discharge available). If False (default), load everything.
+
+    Returns
+    -------
+    cycles : list
+        list containing various Cycles objects built according to the given list pairs
+    """
+    deprecation_warning("read_mpt_cycles", "FileManager")
+
+    manager = FileManager(verbose=verbose)
+    manager.fetch_files(filelist)
+    cycles = manager.get_cycles(clean=clean)
 
     return cycles
 
 
 def read_cycles(filelist, clean=False):
+
+    deprecation_warning("read_cycles", "FileManager")
+
     if type(filelist) is str:
         filelist = [filelist]
 
@@ -934,22 +731,9 @@ def read_cycles(filelist, clean=False):
 
 
 def build_cycles(filelist, clean=False):
+
+    deprecation_warning("build_cycles", "FileManager")
+
     cycles = build_DTA_cycles(filelist, clean)
 
     return CellCycling(cycles)
-
-
-def time_adjust(cycle, reverse=False):
-
-    if cycle.discharge.time.iloc[0] != cycle.charge.time.iloc[0]:
-        charge_time = cycle.charge.time.subtract(cycle.charge.time.iloc[0])
-        discharge_time = cycle.discharge.time.subtract(cycle.discharge.time.iloc[-1])
-    else:
-        charge_time = cycle.charge.time
-        discharge_time = cycle.discharge.time
-
-    if reverse is True:
-        switch = discharge_time - charge_time.iloc[-1]
-        discharge_time = abs(switch)
-
-    return charge_time, discharge_time
