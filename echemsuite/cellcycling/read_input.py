@@ -466,8 +466,11 @@ class FileManager:
                             seconds=charge_data["Time (s)"].tolist()[0]
                         )
 
+                        start_time = charge_data["Time (s)"].iloc[0]
+                        shifted_timescale = charge_data["Time (s)"].subtract(start_time)
+
                         charge = HalfCycle(
-                            charge_data["Time (s)"],
+                            shifted_timescale,
                             charge_data["Voltage vs. Ref. (V)"],
                             charge_data["Current (A)"],
                             "charge",
@@ -482,9 +485,12 @@ class FileManager:
                         discharge_timestamp = timestamp + timedelta(
                             seconds=discharge_data["Time (s)"].tolist()[0]
                         )
+                        
+                        start_time = discharge_data["Time (s)"].iloc[0]
+                        shifted_timescale = discharge_data["Time (s)"].subtract(start_time)
 
                         discharge = HalfCycle(
-                            discharge_data["Time (s)"],
+                            shifted_timescale,
                             discharge_data["Voltage vs. Ref. (V)"],
                             discharge_data["Current (A)"],
                             "discharge",
