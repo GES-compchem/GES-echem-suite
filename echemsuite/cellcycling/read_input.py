@@ -338,8 +338,9 @@ class FileManager:
 
                 if data.empty:
                     continue
-
-                time = data["Time (s)"]
+                
+                start_time = data["Time (s)"].iloc[0]
+                time = data["Time (s)"].subtract(start_time)
                 voltage = data["Voltage vs. Ref. (V)"]
                 current = data["Current (A)"]
 
