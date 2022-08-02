@@ -371,6 +371,8 @@ class FileManager:
                 textStream = TextIOWrapper(bytestream, encoding="utf-8")
                 for line_num, line in enumerate(textStream.readlines()):
 
+                    line = line.strip("\n")
+
                     if "Acquisition started on :" in line:
                         time_str = line.split(" ")[-1]
                         date_str = line.split(" ")[-2]
