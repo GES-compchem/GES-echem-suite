@@ -498,6 +498,10 @@ def test_FileManager_parse_function_biologic(folder_with_regular_mpt_file):
     for key, halfcycle in manager._halfcycles.items():
         skey = key.split("_")
 
+        assert_array_almost_equal(
+            halfcycle._time.tolist(), [0, 1, 2], decimal=4
+        )
+
         if skey[0] == "charge":
             assert halfcycle._halfcycle_type == "charge"
             assert_array_almost_equal(
@@ -505,13 +509,7 @@ def test_FileManager_parse_function_biologic(folder_with_regular_mpt_file):
             )
             assert_array_almost_equal(
                 halfcycle._current.tolist(), [0.8, 0.8, 0.8], decimal=4
-            )
-
-            # Check the proper time offset
-            t0 = 100 + 6 * int(skey[1])
-            assert_array_almost_equal(
-                halfcycle._time.tolist(), [t0, t0 + 1, t0 + 2], decimal=4
-            )
+            )           
 
         else:
             assert halfcycle._halfcycle_type == "discharge"
@@ -520,12 +518,6 @@ def test_FileManager_parse_function_biologic(folder_with_regular_mpt_file):
             )
             assert_array_almost_equal(
                 halfcycle._current.tolist(), [-0.8, -0.8, -0.8], decimal=4
-            )
-
-            # Check the proper time offset
-            t0 = 103 + 6 * int(skey[1])
-            assert_array_almost_equal(
-                halfcycle._time.tolist(), [t0, t0 + 1, t0 + 2], decimal=4
             )
 
 
