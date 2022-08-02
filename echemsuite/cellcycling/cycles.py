@@ -230,7 +230,7 @@ class Cycle:
 
         if charge and charge._halfcycle_type != "charge":
             raise TypeError
-        
+
         if discharge and discharge._halfcycle_type != "discharge":
             raise TypeError
 
@@ -613,13 +613,15 @@ def join_HalfCycles(join_list: List[HalfCycle]) -> HalfCycle:
 
     # Concatenate the data series for voltage and current
     voltage = pd.concat([obj._voltage for obj in join_list], ignore_index=True)
-    current = pd.concat([obj._current for obj in join_list], ignore_index=True)
+    current = pd.concat([obj._current for obj in join_list], ignore_index=True)    
 
+    dt = 0
     time_list = []
     for i, obj in enumerate(join_list):
         offset = 0 if i == 0 else time_list[-1]
         for t in obj.time:
-            time_list.append(t + offset)
+            time_list.append(t + offset + dt)
+        dt = time_list[-1]-time_list[-2]
 
     time = pd.Series(time_list, name="Time (s)")
 

@@ -162,11 +162,12 @@ def test_join_HalfCycles_function(halfcycle_obj_const):
     # Prepare expected series for time, voltage and current
     time, voltage, current, timestamp = get_dataset_const()
 
-    shifted_time = [t + 4.0 for t in time.tolist()]
+    shifted_time = [t + 5.0 for t in time.tolist()]
     new_time = pd.Series([*time.tolist(), *shifted_time])
     new_voltage = pd.concat([voltage, voltage], ignore_index=True)
     new_current = pd.concat([current, current], ignore_index=True)
 
+    assert len(new_halfcycle.time) == len(first.time) + len(second.time)
     assert new_halfcycle._timestamp == first._timestamp
     assert new_halfcycle._timestamp == timestamp
     assert_array_almost_equal(new_halfcycle.time, new_time, decimal=6)
