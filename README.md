@@ -1,6 +1,6 @@
 # GES-echem-suite
 
-https://github.com/GES-ppravatto/GES-echem-suite/actions/workflows/tests.yml/badge.svg
+![Tests](https://github.com/GES-ppravatto/GES-echem-suite/actions/workflows/tests.yml/badge.svg)
 
 The `GES-echem-suite` library is a small collection of python3 tools developed to aid the 
 manipulation and analysis of electrochemical data deriving from cell-cycling experiments and
