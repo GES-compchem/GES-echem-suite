@@ -101,6 +101,17 @@ def test_HalfCycle___init__() -> None:
     else:
         assert True
 
+# Test the rejection of random strings from the halfcycle_type field
+def test_HalfCycle_check_type___init__() -> None:
+    time, voltage, current, timestamp = get_dataset_const()
+
+    try:
+        HalfCycle(time, voltage, current, "wrong", timestamp)
+    except Exception as exc:
+        assert True
+    else:
+        assert False, f"An exception was expected from the HalfCycle object constructor\n"
+
 
 # Test to check the correct assignment of class properties
 def test_HalfCycle_properties(halfcycle_obj_const):

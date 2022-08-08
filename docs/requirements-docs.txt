@@ -1,0 +1,6 @@
+jupyter-book
+sphinx
+matplotlib
+numpy
+ghp-import
+sphinx-rtd-theme
