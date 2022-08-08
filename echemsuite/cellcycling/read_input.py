@@ -232,14 +232,14 @@ class FileManager:
         """
 
         # Check if the bytestreams buffer is empty
-        if self._bytestreams == {}:
+        if self.bytestreams == {}:
             logger.error("Parse function called on empty bytestreams dictionary.")
             raise RuntimeError
 
         # Load the halfcycles from data in the bytestreams buffer based on the type of instrument
         self._halfcycles = {}
         if self._instrument == Instrument.GAMRY:
-            for filename, bytestream in self._bytestreams.items():
+            for filename, bytestream in self.bytestreams.items():
 
                 if self.verbose:
                     print(f"-> Parsing: {filename}")
@@ -356,7 +356,7 @@ class FileManager:
 
         elif self._instrument == Instrument.BIOLOGIC:
 
-            for filename, bytestream in self._bytestreams.items():
+            for filename, bytestream in self.bytestreams.items():
 
                 if self.verbose:
                     print(f"-> Parsing: {filename}")
