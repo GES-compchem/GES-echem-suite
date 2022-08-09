@@ -1,6 +1,6 @@
 jupyter-book
+myst-parser
 sphinx
 matplotlib
 numpy
 ghp-import
-sphinx-rtd-theme
