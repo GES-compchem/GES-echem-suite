@@ -10,8 +10,8 @@ The `echemsuite.cellcycling.cycles` module
 .. automodule:: echemsuite.cellcycling.cycles
     :members:
 
-.. The `echemsuite.cellcycling.read_input` module
-.. ----------------------------------------------
+The `echemsuite.cellcycling.read_input` module
+----------------------------------------------
 
-.. .. automodule:: echemsuite.cellcycling.read_input
-..     :members:
+.. automodule:: echemsuite.cellcycling.read_input
+    :members:

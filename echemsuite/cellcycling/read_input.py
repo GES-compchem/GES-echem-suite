@@ -17,7 +17,14 @@ logger = logging.getLogger(__name__)
 
 class Instrument(Enum):
     """
-    Simple enumeration to easily reference instrument types
+    Simple enumeration class to easily reference instrument types.
+
+    Attributes
+    ----------
+    GAMRY
+        GAMRY instrument producing .DTA files (value [str]: "GAMRY")
+    BIOLOGIC
+        BIOLOGIC instrument producing .mpt files (value [str]: "BIOLOGIC")
     """
 
     GAMRY = "GAMRY"
@@ -26,39 +33,26 @@ class Instrument(Enum):
 
 class FileManager:
     """
-    Universal loader class for cellcycling files. The class provides a simple interface to
+    Universal loader class for cell-cycling files. The class provides a simple interface to
     load .dta and .mpt files from a user-specified path. The class stores the loaded files
-    in memory using an array of BytesIO objects. The class implements parse and sorting
+    in memory using a dictionary of BytesIO objects. The class implements parse and sorting
     functions that allow the user to read the halfcycles files, organize them based on their
     timestamp and join them in a specified order to build a list of complete cycles. The
     class also supports the joining of partial halfcycles files.
 
-        Constructor parameters
-        ----------------------
-        verbose : bool
-            if True, a progress report for the main functions will be reported on terminal
-
-        Class properties
-        ----------------
-        bytestreams : Dict[str, BytesIO]
-            dictionary containing the BytesIO content of a given file encoded by filename
-        halfcycles : Dict[str, HalfCycle]
-            dictionary containing the HalfCycles objects parsed from the bytestreams register
-            each object is associated with a key that coincides with the filename in the case
-            of .dta files or with a fictitious key (reporting type and cycle number o the
-            halfcycle) in case of the .mpt files.
-        instrument : str
-            name of the instrument brand used to acquire the data
+    Arguments
+    ---------
+    verbose : bool
+        if set to True, a progress report for the main functions will be reported on terminal
     """
 
     def __init__(self, verbose: bool = False) -> None:
 
         self.verbose: bool = verbose  # Enable output to the terminal
-        self._bytestreams: Dict[
-            str, BytesIO
-        ] = (
-            {}
-        )  # Dictionary for the BytesIO streams containing the datafiles ordered by a valid path string
+
+        # Dictionary for the BytesIO streams containing the datafiles ordered by a valid path string
+        self._bytestreams: Dict[str, BytesIO] = {}
+
         self._halfcycles: Dict[str, HalfCycle] = {}  # List of the loaded halfcycles
         self._instrument: Instrument = None  # Instrument from which the data are obtained
 
@@ -66,6 +60,10 @@ class FileManager:
     def bytestreams(self) -> Dict[str, BytesIO]:
         """
         Dictionary containing the BytesIO of the loaded files orderd by a filename sting key.
+
+        Returns
+        -------
+        Dict[str, BytesIO]
         """
         for stream in self._bytestreams.values():
             stream.seek(0)
@@ -95,8 +93,14 @@ class FileManager:
     @property
     def halfcycles(self) -> Dict[str, HalfCycle]:
         """
-        Dictionary containing the HalfCycle classes containing the charge/discharge
-        curves. Each entry is orderd by a filename sting key.
+        Dictionary containing the :py:class:`~echemsuite.cellcycling.cycles.HalfCycle`
+        objects parsed from the bytestreams register each object is associated with a key
+        that coincides with the filename in the case of .dta files or with a fictitious key
+        (reporting type and cycle number o the halfcycle) in case of the .mpt files.
+
+        Retuns
+        ------
+        Dict[str, :py:class:`~echemsuite.cellcycling.cycles.HalfCycle`]
         """
         return self._halfcycles
 
@@ -119,20 +123,35 @@ class FileManager:
     @property
     def instrument(self) -> str:
         """
-        Type of instrument used to acquire the loaded dataset.
+        Type of instrument used to acquire the loaded dataset. The strings are encoded as
+        key of the :py:class:`~echemsuite.cellcycling.read_input.Instrument` enumeration
+
+        Returns
+        -------
+        str
         """
         return self._instrument.name
 
     def fetch_files(self, filelist: List[str], autoparse: bool = True) -> None:
         """
-        Loads, as BytesIO streams, multiple files contained in a user defined filelist.
+        Loads, as ``BytesIO`` streams, multiple files contained in a user defined filelist.
 
-            Parameters
-            ----------
-                filelist : List[str]
-                    list containing the path to the files that needs to be loaded
-                autoparse : bool
-                    if set to True will automatically call the parse member function at the end of the fetching operation
+        Arguments
+        ---------
+        filelist : List[str]
+            list containing the path to the files that needs to be loaded
+        autoparse : bool
+            if set to True, will automatically call the
+            :py:func:`~echemsuite.cellcycling.read_input.FileManager.parse` member function
+            at the end of the fetching operation
+
+        Raises
+        ------
+        ValueError
+            if the extensions of the files in the provided file-list do not match
+        TypeError
+            if the extensions of the provided files does not match the supported types (.DTA
+            or .mpt)
         """
 
         # Convert all the given paths to absolute paths
@@ -195,14 +214,23 @@ class FileManager:
         """
         Loads, as BytesIO streams, multiple files from a folder filtering them by extension.
 
-            Parameters
-            ----------
-                folder : str
-                    string containing the path to the folder from which the files needs to be loaded
-                extension : str
-                    string containing the extension of the files to be loaded
-                autoparse : bool
-                    if set to True will automatically call the parse member function at the end of the fetching operation
+        Parameters
+        ----------
+        folder : str
+            string containing the path to the folder from which the files needs to be loaded
+        extension : str
+            string containing the extension of the files to be loaded
+        autoparse : bool
+            if set to True will automatically call the parse member function at the end of
+            the fetching operation
+
+        Raises
+        ------
+        ValueError
+            if the provided path does not correspond to a valid folder
+        TypeError
+            if the extensions of the provided files does not match the supported types (.DTA
+            or .mpt)
         """
 
         # Check if directory exists
@@ -228,7 +256,14 @@ class FileManager:
 
     def parse(self) -> None:
         """
-        Parse the BytesIO streams contained in the "bytestreams" buffer and update the "halfcycles" dictionary.
+        Parse the BytesIO streams contained in the "bytestreams" buffer and update the
+        "halfcycles" dictionary.
+
+        Raises
+        ------
+        RuntimeError
+            if the bytestream buffer is empty or if one of the required fields is not present
+            in one of the loaded files
         """
 
         # Check if the bytestreams buffer is empty
@@ -338,7 +373,7 @@ class FileManager:
 
                 if data.empty:
                     continue
-                
+
                 start_time = data["Time (s)"].iloc[0]
                 time = data["Time (s)"].subtract(start_time)
                 voltage = data["Voltage vs. Ref. (V)"]
@@ -486,7 +521,7 @@ class FileManager:
                         discharge_timestamp = timestamp + timedelta(
                             seconds=discharge_data["Time (s)"].tolist()[0]
                         )
-                        
+
                         start_time = discharge_data["Time (s)"].iloc[0]
                         shifted_timescale = discharge_data["Time (s)"].subtract(start_time)
 
@@ -525,14 +560,14 @@ class FileManager:
 
     def suggest_ordering(self) -> List[List[str]]:
         """
-        Examine the bytestreams buffer and suggests a possible file ordering and merging scheme based on
-        half-cycle type and timestamp.
+        Examine the bytestreams buffer and suggests a possible file ordering and merging
+        scheme based on half-cycle type and timestamp.
 
-            Returns
-            -------
-                order : List[List[str]]
-                    list of lists of filenames. Each list contains the halfcycles entries that must be
-                    merged in a single HalfCycle class.
+        Returns
+        -------
+        List[List[str]]
+            list of lists of filenames. Each list contains the halfcycles entries that must
+            be merged in a single HalfCycle class.
         """
         # Sort the halfcycles files accorging to their timestamp
         ordered_items = sorted(self._halfcycles.items(), key=lambda x: x[1].timestamp)
@@ -573,20 +608,21 @@ class FileManager:
         """
         Build the Cycles list from a given halfcycles order.
 
-            Parameters:
-            -----------
-                custom_order: List[str]
-                    list of lists of filenames. Each list contains the halfcycles entries that must be merged in
-                    a single HalfCycle class. If left empty the ordering generated by the suggest_ordering method
-                    will be used.
-                clean : bool
-                    if True, only displays cycles with physical meaning (efficiencies < 100% and both charge +
-                    discharge available). If False (default), load everything.
+        Parameters:
+        -----------
+        custom_order: List[str]
+            list of lists of filenames. Each list contains the half-cycles entries that must
+            be merged in a single HalfCycle object. If left empty the ordering generated by
+            the suggest_ordering method will be used.
+        clean : bool
+            if set to True, only displays cycles with physical meaning (efficiencies < 100%
+            and both charge + discharge available). If False (default), load everything.
 
-            Returns:
-            --------
-                cycles : List[Cycle]
-                    list containing the set of charge/discharge Cycles class created from the given dataset
+        Returns:
+        --------
+        List[:py:class:`~echemsuite.cellcycling.cycles.Cycle`]
+            list containing the set of charge/discharge Cycles objects created from the
+            given dataset
         """
 
         # If available use user ordering as order list else use the suggested one
@@ -653,43 +689,51 @@ class FileManager:
         """
         Build a CellCycling object from a given halfcycles order.
 
-            Parameters:
-            -----------
-                custom_order: List[str]
-                    list of lists of filenames. Each list contains the halfcycles entries that must be merged in
-                    a single HalfCycle class. If left empty the ordering generated by the suggest_ordering method
-                    will be used.
-                clean : bool
-                    if True, only displays cycles with physical meaning (efficiencies < 100% and both charge +
-                    discharge available). If False (default), load everything.
+        Parameters:
+        -----------
+        custom_order: List[str]
+            list of lists of filenames. Each list contains the half-cycles entries that must
+            be merged in a single HalfCycle object. If left empty the ordering generated by
+            the suggest_ordering method will be used.
+        clean : bool
+            if set to True, only displays cycles with physical meaning (efficiencies < 100%
+            and both charge + discharge available). If False (default), load everything.
 
-            Returns:
-            --------
-                obj : CellCycling
-                    CellCycling object containing all the charge/discharge Cycles classes.
+        Returns:
+        --------
+        :py:class:`~echemsuite.cellcycling.cycles.CellCycling`
+            CellCycling instance containing all the charge/discharge Cycles objects.
         """
 
         cycles = self.get_cycles(custom_order=custom_order, clean=clean)
         return CellCycling(cycles)
 
 
+# LEGACY FUNCTIONS
+
+
 def build_DTA_cycles(
     filelist: List[str], clean: bool, verbose: bool = False
 ) -> List[Cycle]:
-    """builds a list of cycles from a list containing charge/discharge file paths from
+    """
+    .. deprecated:: 0.2.0a
+        Should be substituted by the direct call to the
+        :py:class:`~echemsuite.cellcycling.read_input.FileManager` class structure
+
+    Builds a list of cycles from a list containing charge/discharge file paths
 
     Parameters
     ----------
-    filelist : list
-        file list containing .DTA file paths.
+    filelist : List[str]
+        file list containing the .DTA file paths.
     clean : bool
-        if True, only displays cycles with physical meaning (efficiencies < 100% and both charge +
-        discharge available). If False (default), load everything.
+        if set to True, only displays cycles with physical meaning (efficiencies < 100% and
+        both charge + discharge available). If False (default), load everything.
 
     Returns
     -------
-    cycles : list
-        list containing various Cycles objects built according to the given list pairs
+    List[:py:class:`~echemsuite.cellcycling.cycles.Cycle`]
+        list containing various cycles objects built according to the given list pairs
     """
     deprecation_warning("build_DTA_cycles", "FileManager")
 
@@ -701,21 +745,25 @@ def build_DTA_cycles(
 
 
 def read_mpt_cycles(filelist: List[str], clean: bool, verbose: bool = False):
-    """reads a list of cycles from a list containing cell cycling file paths from BIOLOGIC
-    instruments (.mpt files)
+    """
+    .. deprecated:: 0.2.0a
+        Should be substituted by the direct call to the
+        :py:class:`~echemsuite.cellcycling.read_input.FileManager` class structure
 
+    Reads a list of cycles from a list containing cell cycling file paths from BIOLOGIC
+    instruments (.mpt files)
 
     Parameters
     ----------
-    filelist : list
+    filelist : List[str]
         file list containing .mpt file paths.
     clean : bool
-        if True, only displays cycles with physical meaning (efficiencies < 100% and both charge +
-        discharge available). If False (default), load everything.
+        if True, only displays cycles with physical meaning (efficiencies < 100% and both
+        charge + discharge available). If False (default), load everything.
 
     Returns
     -------
-    cycles : list
+    List[:py:class:`~echemsuite.cellcycling.cycles.Cycle`]
         list containing various Cycles objects built according to the given list pairs
     """
     deprecation_warning("read_mpt_cycles", "FileManager")
@@ -728,6 +776,27 @@ def read_mpt_cycles(filelist: List[str], clean: bool, verbose: bool = False):
 
 
 def read_cycles(filelist, clean=False):
+    """
+    .. deprecated:: 0.2.0a
+        Should be substituted by the direct call to the
+        :py:class:`~echemsuite.cellcycling.read_input.FileManager` class structure
+
+    Reads a list of cycles from a list containing cell cycling file paths from BIOLOGIC
+    instruments (.mpt files)
+
+    Parameters
+    ----------
+    filelist : List[str]
+        file list containing .mpt file paths.
+    clean : bool
+        if True, only displays cycles with physical meaning (efficiencies < 100% and both
+        charge + discharge available). If False (default), load everything.
+
+    Returns
+    -------
+    :py:class:`~echemsuite.cellcycling.cycles.CellCycling`
+            CellCycling instance containing all the charge/discharge Cycles objects.
+    """
 
     deprecation_warning("read_cycles", "FileManager")
 
@@ -740,6 +809,26 @@ def read_cycles(filelist, clean=False):
 
 
 def build_cycles(filelist, clean=False):
+    """
+    .. deprecated:: 0.2.0a
+        Should be substituted by the direct call to the
+        :py:class:`~echemsuite.cellcycling.read_input.FileManager` class structure
+
+    Builds a list of cycles from a list containing charge/discharge file paths
+
+    Parameters
+    ----------
+    filelist : List[str]
+        file list containing the .DTA file paths.
+    clean : bool
+        if set to True, only displays cycles with physical meaning (efficiencies < 100% and
+        both charge + discharge available). If False (default), load everything.
+
+    Returns
+    -------
+    :py:class:`~echemsuite.cellcycling.cycles.CellCycling`
+            CellCycling instance containing all the charge/discharge Cycles objects.
+    """
 
     deprecation_warning("build_cycles", "FileManager")
 
