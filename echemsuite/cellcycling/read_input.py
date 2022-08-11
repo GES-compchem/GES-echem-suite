@@ -288,9 +288,13 @@ class FileManager:
 
                 data = pd.DataFrame()  # Empty pandas dataframe to store data
 
+                # Flag to check the format of the numbers used in the file
+                US_number_format: bool = True
+
                 # Parsing the file
                 textStream = TextIOWrapper(bytestream, encoding="utf-8")
-                for line_num, line in enumerate(textStream.readlines()):
+                textStream_lines = textStream.readlines()
+                for line_num, line in enumerate(textStream_lines):
 
                     line = line.strip("\n")
 
@@ -312,13 +316,17 @@ class FileManager:
                         beginning = line_num + 2
                         npoints = int(line.split()[-1])
 
+                        # Check if the first number of the data line contains ","
+                        if "," in textStream_lines[beginning + 1].split()[3]:
+                            US_number_format = False  # If yes switch to european format
+
                         # Rewind the pointer to the beginning of the stream
                         textStream.seek(0)
                         data = pd.read_table(
                             textStream,
                             delimiter="\t",
                             skiprows=beginning,
-                            decimal=".",
+                            decimal="." if US_number_format else ",",
                             nrows=npoints,
                             encoding_errors="ignore",
                         )
@@ -333,7 +341,13 @@ class FileManager:
 
                 # Build the timestamp object
                 if date_str is not None and time_str is not None:
-                    month, day, year = date_str.split("/")
+
+                    # Custom time format switch based on the number format used in the file
+                    if US_number_format:
+                        month, day, year = date_str.split("/")
+                    else:
+                        day, month, year = date_str.split("/")
+
                     hours, minutes, seconds = time_str.split(":")
                     timestamp = datetime(
                         int(year),
