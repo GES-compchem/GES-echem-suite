@@ -21,7 +21,7 @@ repository:
 
 # Add GitHub buttons to your book
 html:
-  use_issues_button: true
+  use_issues_button: false
   use_repository_button: true
 
 # Add sphinx configurations to load autodoc and to load numpy docstring support
