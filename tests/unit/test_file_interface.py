@@ -218,7 +218,7 @@ def test_FileManager_parse_function(folder_with_minimal_dta_files):
         assert halfcycle._halfcycle_type == data[key][1]
         assert halfcycle._timestamp.strftime("%m/%d/%Y") == "12/25/2022"
         assert halfcycle._timestamp.strftime("%H:%M:%S") == data[key][2]
-        assert_array_almost_equal(halfcycle._time.tolist(), [1.0, 2.0, 3.0], decimal=4)
+        assert_array_almost_equal(halfcycle._time.tolist(), [0., 1., 2.], decimal=4)
         assert_array_almost_equal(halfcycle._voltage.tolist(), [1.1, 1.2, 1.3], decimal=4)
 
         if halfcycle._halfcycle_type == "charge":
@@ -294,7 +294,7 @@ def test_FileManager_get_cycles_function_partial(folder_with_partial_dta_files):
     assert cycles[0].charge == manager._halfcycles["charge_1.DTA"]
 
     assert_array_almost_equal(
-        cycles[0].discharge.time, [1.0, 2.0, 3.0, 4.0, 5.0, 6.0], decimal=4
+        cycles[0].discharge.time, [0.0, 1.0, 2.0, 3.0, 4.0, 5.0], decimal=4
     )
     assert_array_almost_equal(
         cycles[0].discharge.voltage, [1.1, 1.2, 1.3, 1.1, 1.2, 1.3], decimal=4
@@ -498,6 +498,10 @@ def test_FileManager_parse_function_biologic(folder_with_regular_mpt_file):
     for key, halfcycle in manager._halfcycles.items():
         skey = key.split("_")
 
+        assert_array_almost_equal(
+            halfcycle._time.tolist(), [0, 1, 2], decimal=4
+        )
+
         if skey[0] == "charge":
             assert halfcycle._halfcycle_type == "charge"
             assert_array_almost_equal(
@@ -505,13 +509,7 @@ def test_FileManager_parse_function_biologic(folder_with_regular_mpt_file):
             )
             assert_array_almost_equal(
                 halfcycle._current.tolist(), [0.8, 0.8, 0.8], decimal=4
-            )
-
-            # Check the proper time offset
-            t0 = 100 + 6 * int(skey[1])
-            assert_array_almost_equal(
-                halfcycle._time.tolist(), [t0, t0 + 1, t0 + 2], decimal=4
-            )
+            )           
 
         else:
             assert halfcycle._halfcycle_type == "discharge"
@@ -520,12 +518,6 @@ def test_FileManager_parse_function_biologic(folder_with_regular_mpt_file):
             )
             assert_array_almost_equal(
                 halfcycle._current.tolist(), [-0.8, -0.8, -0.8], decimal=4
-            )
-
-            # Check the proper time offset
-            t0 = 103 + 6 * int(skey[1])
-            assert_array_almost_equal(
-                halfcycle._time.tolist(), [t0, t0 + 1, t0 + 2], decimal=4
             )
 
 

@@ -101,6 +101,17 @@ def test_HalfCycle___init__() -> None:
     else:
         assert True
 
+# Test the rejection of random strings from the halfcycle_type field
+def test_HalfCycle_check_type___init__() -> None:
+    time, voltage, current, timestamp = get_dataset_const()
+
+    try:
+        HalfCycle(time, voltage, current, "wrong", timestamp)
+    except Exception as exc:
+        assert True
+    else:
+        assert False, f"An exception was expected from the HalfCycle object constructor\n"
+
 
 # Test to check the correct assignment of class properties
 def test_HalfCycle_properties(halfcycle_obj_const):
@@ -162,11 +173,12 @@ def test_join_HalfCycles_function(halfcycle_obj_const):
     # Prepare expected series for time, voltage and current
     time, voltage, current, timestamp = get_dataset_const()
 
-    shifted_time = [t + 4.0 for t in time.tolist()]
+    shifted_time = [t + 5.0 for t in time.tolist()]
     new_time = pd.Series([*time.tolist(), *shifted_time])
     new_voltage = pd.concat([voltage, voltage], ignore_index=True)
     new_current = pd.concat([current, current], ignore_index=True)
 
+    assert len(new_halfcycle.time) == len(first.time) + len(second.time)
     assert new_halfcycle._timestamp == first._timestamp
     assert new_halfcycle._timestamp == timestamp
     assert_array_almost_equal(new_halfcycle.time, new_time, decimal=6)
