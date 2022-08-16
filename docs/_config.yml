@@ -1,0 +1,34 @@
+# Book settings
+title                       : GES-echem-suite Documentation 
+author                      : GES-ppravatto
+copyright                   : "2022"
+#logo                        : logo.png
+
+# Force re-execution of notebooks on each build.
+execute:
+  execute_notebooks: force
+
+# Define the name of the latex output file for PDF builds
+latex:
+  latex_documents:
+    targetname: book.tex
+
+# Information about where the book exists on the web
+repository:
+  url: https://github.com/GES-ppravatto/GES-echem-suite
+  path_to_book: docs
+  branch: main
+
+# Add GitHub buttons to your book
+html:
+  use_issues_button: false
+  use_repository_button: true
+
+# Add sphinx configurations to load autodoc and to load numpy docstring support
+sphinx:
+  extra_extensions:
+    - 'sphinx.ext.autodoc'
+    - 'sphinx.ext.napoleon'
+  # config:
+  #   html_theme: 'sphinx_rtd_theme'
+    
