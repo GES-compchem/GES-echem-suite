@@ -622,7 +622,7 @@ class FileManager:
         """
         Build the Cycles list from a given halfcycles order.
 
-        Parameters:
+        Parameters
         -----------
         custom_order: List[str]
             list of lists of filenames. Each list contains the half-cycles entries that must
@@ -632,7 +632,7 @@ class FileManager:
             if set to True, only displays cycles with physical meaning (efficiencies < 100%
             and both charge + discharge available). If False (default), load everything.
 
-        Returns:
+        Returns
         --------
         List[:py:class:`~echemsuite.cellcycling.cycles.Cycle`]
             list containing the set of charge/discharge Cycles objects created from the
@@ -703,7 +703,7 @@ class FileManager:
         """
         Build a CellCycling object from a given halfcycles order.
 
-        Parameters:
+        Parameters
         -----------
         custom_order: List[str]
             list of lists of filenames. Each list contains the half-cycles entries that must
@@ -713,7 +713,7 @@ class FileManager:
             if set to True, only displays cycles with physical meaning (efficiencies < 100%
             and both charge + discharge available). If False (default), load everything.
 
-        Returns:
+        Returns
         --------
         :py:class:`~echemsuite.cellcycling.cycles.CellCycling`
             CellCycling instance containing all the charge/discharge Cycles objects.
