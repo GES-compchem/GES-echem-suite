@@ -3,10 +3,13 @@
 format: jb-book
 root: intro
 chapters:
-- file: cellcycling-module
+- file: getting-started
+- file: user-guide
   sections:
-    - file: Tutorials/loading-files
-    - file: Tutorials/computing-properties
+    - file: Guide/cell-cycling
+      sections:
+        - file: Guide/CellCycling/loading-files
+        - file: Guide/CellCycling/accessing-data
 - file: api
   sections:
     - file: API/api_cellcycling_cycles
