@@ -1,8 +1,8 @@
 # Getting started
 
-The library can be installed using [anaconda](https://www.anaconda.com/products/distribution) either via the terminal or via the Anaconda Navigator.
+The library can be installed using [anaconda](https://www.anaconda.com/products/distribution) either via the terminal or via the Anaconda Navigator application.
 
-### From terminal
+### From the terminal
 To install the package on an existing conda environment load the environment with:
 
 ```
