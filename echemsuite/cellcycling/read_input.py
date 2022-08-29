@@ -512,30 +512,22 @@ class FileManager:
                 # Check if the loop section has been found and the delims value saved, if not
                 # check the ox/red column to generate the delims from scratch
                 if delims == []:
+
                     logger.warning(
                         "Failed to locate the loop section, generating delimiters from ox/red value"
                     )
-                    ox_red = data["ox/red"].to_list()  # Transform the ox/red colunm to list
+                    
+                    # Define a list to hold all the delimiters of the halfcyles
+                    cycle, start = 0, 0
+                    ox_red_diff = data['ox/red'].diff().to_list()
+                    switch_points = [idx for idx, value in enumerate(ox_red_diff) if value == 1]
 
-                    # Define the current cycle, the last boundary encountered and the value
-                    # of the ox/red flag associated to the cycle under exam
-                    cycle, boundary, last_value = 0, 0, ox_red[0]
-
-                    # Cycle over all the entries
-                    for row, value in enumerate(ox_red):
-                        if row == 0:
-                            continue
-
-                        # If the ox/red value is different from the last one add a new entry
-                        # to delims and update the loop boundary and values
-                        if value != last_value:
-                            delims.append([cycle, boundary, row - 1])
-                            last_value = value
-                            boundary = row
-                            cycle += 1
-
-                    # Append the last cycle based on the length of the ox_red list
-                    delims.append([cycle, boundary, len(ox_red)])
+                    for index in switch_points:
+                        delims.append([cycle, start, index-1])
+                        start = index
+                        cycle += 1
+                    
+                    delims.append([cycle, start, len(ox_red_diff)])
 
                 # renaming columns to standard format
                 data.rename(
