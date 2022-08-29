@@ -446,10 +446,6 @@ class FileManager:
                     elif "mode\t" in line:
                         beginning = line_num
 
-                        # if no cycles are found, default to "read everything"
-                        if len(delims) == 0:
-                            delims = [[0, 0, -2]]  # -2 will be converted to -1 later
-
                         # Check if the first number of the data line contains ","
                         if "," in textStream_lines[beginning + 1].split()[4]:
                             US_number_format = False  # If yes switch to european format
@@ -485,6 +481,21 @@ class FileManager:
                         day, month, year = date_str.split("/")
 
                     hours, minutes, seconds = time_str.split(":")
+
+                    # Check if the seconds field contains a decimal part and discard it
+                    if "." in seconds:
+                        seconds = seconds.split(".")[0]
+
+                    # TO BE CHANGED AS SOON AS MORE INFO ABOUT .mpt FILES ARE AVAILABLE
+                    # TEMPORARY FIX to solve the issue of US date format with european
+                    if int(month) > 12:
+                        logger.warning(
+                            "Unexpected date format, reversing day and month ordering"
+                        )
+                        tmp = month
+                        month = day
+                        day = tmp
+
                     timestamp = datetime(
                         int(year),
                         int(month),
@@ -493,9 +504,38 @@ class FileManager:
                         int(minutes),
                         int(seconds),
                     )
+
                 else:
                     logger.error("Failed to build file timestamp.")
                     raise RuntimeError
+
+                # Check if the loop section has been found and the delims value saved, if not
+                # check the ox/red column to generate the delims from scratch
+                if delims == []:
+                    logger.warning(
+                        "Failed to locate the loop section, generating delimiters from ox/red value"
+                    )
+                    ox_red = data["ox/red"].to_list()  # Transform the ox/red colunm to list
+
+                    # Define the current cycle, the last boundary encountered and the value
+                    # of the ox/red flag associated to the cycle under exam
+                    cycle, boundary, last_value = 0, 0, ox_red[0]
+
+                    # Cycle over all the entries
+                    for row, value in enumerate(ox_red):
+                        if row == 0:
+                            continue
+
+                        # If the ox/red value is different from the last one add a new entry
+                        # to delims and update the loop boundary and values
+                        if value != last_value:
+                            delims.append([cycle, boundary, row - 1])
+                            last_value = value
+                            boundary = row
+                            cycle += 1
+
+                    # Append the last cycle based on the length of the ox_red list
+                    delims.append([cycle, boundary, len(ox_red)])
 
                 # renaming columns to standard format
                 data.rename(
