@@ -540,6 +540,7 @@ class FileManager:
                     # Close the iteration by generating the last cycle (the only one not followed
                     # by a switch point)
                     delims.append([cycle, start, len(ox_red_diff)])
+                    ncycles = len(delims)
 
                 # renaming columns to standard format
                 data.rename(
