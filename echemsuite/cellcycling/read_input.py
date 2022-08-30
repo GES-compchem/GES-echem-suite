@@ -516,17 +516,29 @@ class FileManager:
                     logger.warning(
                         "Failed to locate the loop section, generating delimiters from ox/red value"
                     )
-                    
-                    # Define a list to hold all the delimiters of the halfcyles
-                    cycle, start = 0, 0
-                    ox_red_diff = data['ox/red'].diff().to_list()
-                    switch_points = [idx for idx, value in enumerate(ox_red_diff) if value == 1]
 
+                    # Set the current cycle number and the start line to zero
+                    cycle, start = 0, 0
+
+                    # Compute the difference between adjacent ox/red values and search for 1 values
+                    # (A cycle is intended as charge followed by a discharge, passing from charge
+                    # to a discharge will generate a difference of -1 while passing from a discharge
+                    # to a new charge-discharge cycle will generate a difference of 1)
+                    ox_red_diff = data["ox/red"].diff().to_list()
+
+                    # Get the index of all the 1 in the ox_red_diff list
+                    switch_points = [
+                        idx for idx, value in enumerate(ox_red_diff) if value == 1
+                    ]
+
+                    # Iterate over the switch points to generate the cycle delims list
                     for index in switch_points:
-                        delims.append([cycle, start, index-1])
+                        delims.append([cycle, start, index - 1])
                         start = index
                         cycle += 1
-                    
+
+                    # Close the iteration by generating the last cycle (the only one not followed
+                    # by a switch point)
                     delims.append([cycle, start, len(ox_red_diff)])
 
                 # renaming columns to standard format
