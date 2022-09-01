@@ -14,3 +14,5 @@ chapters:
   sections:
     - file: API/api_cellcycling_cycles
     - file: API/api_cellcycling_read_input
+- file: contributor-guide
+- file: release-notes

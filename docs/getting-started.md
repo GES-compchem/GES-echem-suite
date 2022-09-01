@@ -3,26 +3,13 @@
 The library can be installed using [anaconda](https://www.anaconda.com/products/distribution) either via the terminal or via the Anaconda Navigator application.
 
 ### From the terminal
-To install the package on an existing conda environment load the environment with:
+To install the package using the anaconda virtual environemnt, run the following command:
 
-```
-conda activate <ENV_NAME>
-```
-and then run the command:
 ```
 conda install -c greenenergystorage GES-echem-suite
 ```
 
-### With Anaconda Navigator
-
-To install the package you must follow these steps:
-- Open `Anaconda Navigator`
-- Select `Environments` and then your personal virtual environment (e.g. "data_analysis")
-- Click the `Update Index` button
-- Search for `GES-echem-suite` in the top right search box
-- Select the `GES-echem-suite` from the list
-- Click `apply` on the bottom right and accept all the prompts
-
+to have more information about the operation of anaconda please refer to the [official documentation](https://docs.anaconda.com/anacondaorg/).
 
 ## Using the library
 
@@ -36,3 +23,20 @@ or alternatively you can import specific objects with the syntax:
 from echemsuite.cellcycling.cycles import Cycle
 ```
 
+Once loaded, all the functions of the library can be accessed following the proper path to each module. A complete description of all the available functions can be found in the [API reference](API_Reference) page. A simple example of the typical structure of a script using the library is reported in what follows:
+
+```
+from typing import List
+from echemsuite.cellcycling.read_input import FileManager
+from echemsuite.cellcycling.cycles import Cycle
+
+# Load and parse the .DTA files contained in the "my_folder" directory
+manager = FileManager()
+manager.fetch_from_folder("./my_folder", ".DTA")
+
+# Obtain the list of charge/discharge cycles
+cycles: List[Cycle] = manager.get_cycles()
+
+# Do something with the loaded data
+print(f"Hurray, you have loaded {len(cycles)} charge/discharge cycles!")
+```
