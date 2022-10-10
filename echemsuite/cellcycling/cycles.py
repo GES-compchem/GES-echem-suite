@@ -57,6 +57,16 @@ class CellCycling:
     def __len__(self):
         return len([cycle for cycle in self])
 
+    def __repr__(self):
+        return f"""
+<echemsuite.cellcycling.cycles.CellCycling at {hex(id(self))}>
+    ├─ total number of cycles:    {len(self._cycles)}
+    ├─ number of visible cycles:  {len(self)}
+    └─ reference cycle:           {self.reference}"""
+    
+    def __str__(self) -> str:
+        return repr(self)
+
     def get_numbers(self) -> None:
         self._numbers = [cycle.number for cycle in self]
 
@@ -300,6 +310,9 @@ class Cycle:
 
         if discharge and discharge._halfcycle_type != "discharge":
             raise TypeError
+        
+        if not charge and not discharge:
+            raise RuntimeError
 
         self._hidden: bool = False
 
@@ -308,6 +321,23 @@ class Cycle:
             self._energy_efficiency,
             self._voltage_efficiency,
         ) = self.calculate_efficiencies()
+    
+    def __repr__(self):
+        if self._charge and self._discharge:
+            status = "Both charge and discharge"
+        elif self._charge:
+            status = "Charge only"
+        elif self._discharge:
+            status = "Discharge only"
+
+        return f"""
+<echemsuite.cellcycling.cycles.Cycle at {hex(id(self))}>
+    ├─ number:     {self.number}
+    ├─ halfcycles: {status}
+    └─ hidden:     {self._hidden}"""
+    
+    def __str__(self) -> str:
+        return repr(self)
 
     # CYCLE NUMBER
     @property
@@ -808,6 +838,16 @@ class HalfCycle:
 
         self._Q, self._capacity = self.calculate_Q()
         self._power, self._energy, self._total_energy = self.calculate_energy()
+    
+    def __repr__(self):
+        return f"""
+<echemsuite.cellcycling.cycles.HalfCycle at {hex(id(self))}>
+    ├─ timestamp: {self.timestamp}
+    ├─ type:      {self.halfcycle_type}
+    └─ points:    {len(self.time)}"""
+    
+    def __str__(self) -> str:
+        return repr(self)
 
     def calculate_Q(self) -> Tuple[pd.Series, float]:
         """

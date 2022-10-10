@@ -51,7 +51,7 @@ def halfcycle_obj_const() -> HalfCycle:
 @pytest.fixture
 def cycle_obj_const() -> Cycle:
     """
-    Generates a Cycle with a charge and discharge halfcycles. Each halfcycle is generated with a constant 
+    Generates a Cycle with a charge and discharge halfcycles. Each halfcycle is generated with a constant
     voltage of 1.2V and current of 0.8A for 4.0s with a timestep of 1.0s
     """
     time, voltage, current, timestamp = get_dataset_const()
@@ -101,6 +101,7 @@ def test_HalfCycle___init__() -> None:
     else:
         assert True
 
+
 # Test the rejection of random strings from the halfcycle_type field
 def test_HalfCycle_check_type___init__() -> None:
     time, voltage, current, timestamp = get_dataset_const()
@@ -139,7 +140,9 @@ def test_HalfCycle_calculate_Q_function(halfcycle_obj_const, expected_values_con
 
     assert len(halfcycle._Q) == len(halfcycle._time)
     assert_array_almost_equal(
-        halfcycle._Q, Q_exp, decimal=6,
+        halfcycle._Q,
+        Q_exp,
+        decimal=6,
     )
     assert halfcycle._Q.iloc[-1] == halfcycle._capacity
     assert_almost_equal(halfcycle.capacity, tQ_exp, decimal=6)
@@ -208,12 +211,17 @@ def test_join_HalfCycles_function_different_type_error(halfcycle_obj_const):
 
 
 # Test function to check for exceptions raised during Cycle object construction
-def test_Cycle___init__():
+def test_Cycle___init__(halfcycle_obj_const):
 
     cycle_number = 0
 
+    charge: HalfCycle = halfcycle_obj_const
+
+    discharge: HalfCycle = deepcopy(charge)
+    discharge._halfcycle_type = "discharge"
+
     try:
-        cycle = Cycle(cycle_number)
+        cycle = Cycle(cycle_number, charge=charge, discharge=discharge)
     except Exception as exc:
         assert False, f"An exception occurred on Cycle object construction:\n\n{exc}\n"
     else:
@@ -221,6 +229,19 @@ def test_Cycle___init__():
 
     assert cycle._number == cycle_number
     assert cycle._hidden == False
+
+
+# Test function to check for exceptions raised during Cycle object construction
+def test_empty_Cycle___init___failure():
+
+    cycle_number = 0
+
+    try:
+        cycle = Cycle(cycle_number)
+    except Exception as exc:
+        assert True
+    else:
+        assert False, f"An exception was expected on Cycle object construction"
 
 
 # Test function to trigger exception when wrong type of halfcycles are used as arguments
@@ -359,7 +380,7 @@ def test_CellCycling_with_hide__len__(cycles_objs_const):
     cellcycling = CellCycling(cycles)
     cellcycling.hide([0])
 
-    assert len(cellcycling) == len(cellcycling._cycles)-1
+    assert len(cellcycling) == len(cellcycling._cycles) - 1
 
 
 # Test the __getitem__ member function
@@ -504,7 +525,7 @@ def test_CellCycling_fit_retention_function_linear_fade(cycles_objs_const):
 
     assert_almost_equal(regression_data.slope, -10.0, decimal=6)
     assert_almost_equal(regression_data.intercept, 100.0, decimal=6)
-    assert_almost_equal(regression_data.rvalue ** 2, 1.0, decimal=6)
+    assert_almost_equal(regression_data.rvalue**2, 1.0, decimal=6)
 
     assert_almost_equal(cellcycling._capacity_fade, 10.0, decimal=6)
 
@@ -597,4 +618,3 @@ def test_time_adjust_function_different(cycle_obj_const):
 
     assert_array_almost_equal(charge_time, [0.0, 1.0, 2.0, 3.0, 4.0])
     assert_array_almost_equal(discharge_time, [-4.0, -3.0, -2.0, -1.0, 0.0])
-
