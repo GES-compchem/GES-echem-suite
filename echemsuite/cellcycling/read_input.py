@@ -446,10 +446,6 @@ class FileManager:
                     elif "mode\t" in line:
                         beginning = line_num
 
-                        # if no cycles are found, default to "read everything"
-                        if len(delims) == 0:
-                            delims = [[0, 0, -2]]  # -2 will be converted to -1 later
-
                         # Check if the first number of the data line contains ","
                         if "," in textStream_lines[beginning + 1].split()[4]:
                             US_number_format = False  # If yes switch to european format
@@ -485,6 +481,21 @@ class FileManager:
                         day, month, year = date_str.split("/")
 
                     hours, minutes, seconds = time_str.split(":")
+
+                    # Check if the seconds field contains a decimal part and discard it
+                    if "." in seconds:
+                        seconds = seconds.split(".")[0]
+
+                    # TO BE CHANGED AS SOON AS MORE INFO ABOUT .mpt FILES ARE AVAILABLE
+                    # TEMPORARY FIX to solve the issue of US date format with european
+                    if int(month) > 12:
+                        logger.warning(
+                            "Unexpected date format, reversing day and month ordering"
+                        )
+                        tmp = month
+                        month = day
+                        day = tmp
+
                     timestamp = datetime(
                         int(year),
                         int(month),
@@ -493,9 +504,43 @@ class FileManager:
                         int(minutes),
                         int(seconds),
                     )
+
                 else:
                     logger.error("Failed to build file timestamp.")
                     raise RuntimeError
+
+                # Check if the loop section has been found and the delims value saved, if not
+                # check the ox/red column to generate the delims from scratch
+                if delims == []:
+
+                    logger.warning(
+                        "Failed to locate the loop section, generating delimiters from ox/red value"
+                    )
+
+                    # Set the current cycle number and the start line to zero
+                    cycle, start = 0, 0
+
+                    # Compute the difference between adjacent ox/red values and search for 1 values
+                    # (A cycle is intended as charge followed by a discharge, passing from charge
+                    # to a discharge will generate a difference of -1 while passing from a discharge
+                    # to a new charge-discharge cycle will generate a difference of 1)
+                    ox_red_diff = data["ox/red"].diff().to_list()
+
+                    # Get the index of all the 1 in the ox_red_diff list
+                    switch_points = [
+                        idx for idx, value in enumerate(ox_red_diff) if value == 1
+                    ]
+
+                    # Iterate over the switch points to generate the cycle delims list
+                    for index in switch_points:
+                        delims.append([cycle, start, index - 1])
+                        start = index
+                        cycle += 1
+
+                    # Close the iteration by generating the last cycle (the only one not followed
+                    # by a switch point)
+                    delims.append([cycle, start, len(ox_red_diff)])
+                    ncycles = len(delims)
 
                 # renaming columns to standard format
                 data.rename(
