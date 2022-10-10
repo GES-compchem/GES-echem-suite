@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>API Documentation &#8212; GES-echem-suite Documentation</title>
+    <title>Getting started &#8212; GES-echem-suite Documentation</title>
     
   <!-- Loaded before other Sphinx assets -->
   <link href="_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -51,8 +51,8 @@ const thebe_selector_output = ".output, .cell_output"
     <script async="async" src="_static/sphinx-thebe.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="The echemsuite.cellcycling.cycles sub-module" href="API/api_cellcycling_cycles.html" />
-    <link rel="prev" title="Accessing and computing properities" href="Guide/CellCycling/accessing-data.html" />
+    <link rel="next" title="User guide" href="user-guide.html" />
+    <link rel="prev" title="GES-echem-suite Documentation" href="intro.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="None">
     
@@ -87,8 +87,8 @@ const thebe_selector_output = ".output, .cell_output"
       
       <div class="navbar-center-item">
         <ul id="navbar-main-elements" class="navbar-nav">
-    <li class="toctree-l1 nav-item">
- <a class="reference internal nav-link" href="getting-started.html">
+    <li class="toctree-l1 current active nav-item">
+ <a class="current reference internal nav-link" href="#">
   Getting started
  </a>
 </li>
@@ -99,8 +99,8 @@ const thebe_selector_output = ".output, .cell_output"
  </a>
 </li>
 
-<li class="toctree-l1 current active nav-item">
- <a class="current reference internal nav-link" href="#">
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="api.html">
   API Documentation
  </a>
 </li>
@@ -147,31 +147,7 @@ const thebe_selector_output = ".output, .cell_output"
   <input type="search" class="form-control" name="q" id="search-input" placeholder="Search this book..." aria-label="Search this book..." autocomplete="off" >
 </form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
   <div class="bd-toc-item active">
-    <ul class="nav bd-sidenav">
- <li class="toctree-l1">
-  <a class="reference internal" href="API/api_cellcycling_cycles.html">
-   The
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     echemsuite.cellcycling.cycles
-    </span>
-   </code>
-   sub-module
-  </a>
- </li>
- <li class="toctree-l1">
-  <a class="reference internal" href="API/api_cellcycling_read_input.html">
-   The
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     echemsuite.cellcycling.read_input
-    </span>
-   </code>
-   sub-module
-  </a>
- </li>
-</ul>
-
+    
   </div>
 </nav>
               </div>
@@ -187,9 +163,24 @@ const thebe_selector_output = ".output, .cell_output"
               
               <div class="toc-item">
                 
+<div class="tocsection onthispage mt-5 pt-1 pb-3">
+    <i class="fas fa-list"></i> On this page
+</div>
 
 <nav id="bd-toc-nav">
-    
+    <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#from-the-terminal">
+   From the terminal
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#using-the-library">
+   Using the library
+  </a>
+ </li>
+</ul>
+
 </nav>
               </div>
               
@@ -209,16 +200,44 @@ const thebe_selector_output = ".output, .cell_output"
               
               <div>
                 
-  <section class="tex2jax_ignore mathjax_ignore" id="api-documentation">
-<span id="api-reference"></span><h1>API Documentation<a class="headerlink" href="#api-documentation" title="Permalink to this headline">#</a></h1>
-<p>The API documentation represents an object-level description of the package content.
-This API reference is divided into the following submodules, matching the structure of the library:</p>
-<ul class="simple">
-<li><p><a class="reference internal" href="API/api_cellcycling_cycles.html#api-cellcycling-cycles"><span class="std std-ref"><code class="docutils literal notranslate"><span class="pre">echemsuite.cellcycling.cycles</span></code></span></a></p></li>
-<li><p><a class="reference internal" href="API/api_cellcycling_read_input.html#api-cellcycling-read-input"><span class="std std-ref"><code class="docutils literal notranslate"><span class="pre">echemsuite.cellcycling.read_input</span></code></span></a></p></li>
-</ul>
-<div class="toctree-wrapper compound">
+  <section class="tex2jax_ignore mathjax_ignore" id="getting-started">
+<h1>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline">#</a></h1>
+<p>The library can be installed using <a class="reference external" href="https://www.anaconda.com/products/distribution">anaconda</a> either via the terminal or via the Anaconda Navigator application.</p>
+<section id="from-the-terminal">
+<h2>From the terminal<a class="headerlink" href="#from-the-terminal" title="Permalink to this headline">#</a></h2>
+<p>To install the package using the anaconda virtual environemnt, run the following command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">install</span> <span class="o">-</span><span class="n">c</span> <span class="n">greenenergystorage</span> <span class="n">GES</span><span class="o">-</span><span class="n">echem</span><span class="o">-</span><span class="n">suite</span>
+</pre></div>
 </div>
+<p>to have more information about the operation of anaconda please refer to the <a class="reference external" href="https://docs.anaconda.com/anacondaorg/">official documentation</a>.</p>
+</section>
+<section id="using-the-library">
+<h2>Using the library<a class="headerlink" href="#using-the-library" title="Permalink to this headline">#</a></h2>
+<p>You can import the whole library in your python code using:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">echemsuite</span>
+</pre></div>
+</div>
+<p>or alternatively you can import specific objects with the syntax:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">echemsuite.cellcycling.cycles</span> <span class="kn">import</span> <span class="n">Cycle</span>
+</pre></div>
+</div>
+<p>Once loaded, all the functions of the library can be accessed following the proper path to each module. A complete description of all the available functions can be found in the <a class="reference internal" href="api.html#api-reference"><span class="std std-ref">API reference</span></a> page. A simple example of the typical structure of a script using the library is reported in what follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">echemsuite.cellcycling.read_input</span> <span class="kn">import</span> <span class="n">FileManager</span>
+<span class="kn">from</span> <span class="nn">echemsuite.cellcycling.cycles</span> <span class="kn">import</span> <span class="n">Cycle</span>
+
+<span class="c1"># Load and parse the .DTA files contained in the &quot;my_folder&quot; directory</span>
+<span class="n">manager</span> <span class="o">=</span> <span class="n">FileManager</span><span class="p">()</span>
+<span class="n">manager</span><span class="o">.</span><span class="n">fetch_from_folder</span><span class="p">(</span><span class="s2">&quot;./my_folder&quot;</span><span class="p">,</span> <span class="s2">&quot;.DTA&quot;</span><span class="p">)</span>
+
+<span class="c1"># Obtain the list of charge/discharge cycles</span>
+<span class="n">cycles</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Cycle</span><span class="p">]</span> <span class="o">=</span> <span class="n">manager</span><span class="o">.</span><span class="n">get_cycles</span><span class="p">()</span>
+
+<span class="c1"># Do something with the loaded data</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Hurray, you have loaded </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">cycles</span><span class="p">)</span><span class="si">}</span><span class="s2"> charge/discharge cycles!&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
 </section>
 
     <script type="text/x-thebe-config">
@@ -246,17 +265,17 @@ This API reference is divided into the following submodules, matching the struct
               
               <!-- Previous / next buttons -->
 <div class='prev-next-area'>
-    <a class='left-prev' id="prev-link" href="Guide/CellCycling/accessing-data.html" title="previous page">
+    <a class='left-prev' id="prev-link" href="intro.html" title="previous page">
         <i class="fas fa-angle-left"></i>
         <div class="prev-next-info">
             <p class="prev-next-subtitle">previous</p>
-            <p class="prev-next-title">Accessing and computing properities</p>
+            <p class="prev-next-title">GES-echem-suite Documentation</p>
         </div>
     </a>
-    <a class='right-next' id="next-link" href="API/api_cellcycling_cycles.html" title="next page">
+    <a class='right-next' id="next-link" href="user-guide.html" title="next page">
     <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">The <code class="docutils literal notranslate"><span class="pre">echemsuite.cellcycling.cycles</span></code> sub-module</p>
+        <p class="prev-next-title">User guide</p>
     </div>
     <i class="fas fa-angle-right"></i>
     </a>

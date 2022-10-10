@@ -4,8 +4,9 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Search &#8212; GES-echem-suite Documentation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>User guide &#8212; GES-echem-suite Documentation</title>
     
   <!-- Loaded before other Sphinx assets -->
   <link href="_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -29,7 +30,6 @@
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
 
-    
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
@@ -49,19 +49,16 @@ const thebe_selector_input = "pre"
 const thebe_selector_output = ".output, .cell_output"
 </script>
     <script async="async" src="_static/sphinx-thebe.js"></script>
-    <script src="_static/searchtools.js"></script>
-    <script src="_static/language_data.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="#" />
-  <script src="searchindex.js" defer></script>
-  
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="The cellcycling module" href="Guide/cell-cycling.html" />
+    <link rel="prev" title="Getting started" href="getting-started.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="None">
     
 
     <!-- Google Analytics -->
     
-
   </head>
   <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
     
@@ -96,8 +93,8 @@ const thebe_selector_output = ".output, .cell_output"
  </a>
 </li>
 
-<li class="toctree-l1 nav-item">
- <a class="reference internal nav-link" href="user-guide.html">
+<li class="toctree-l1 current active nav-item">
+ <a class="current reference internal nav-link" href="#">
   User guide
  </a>
 </li>
@@ -145,12 +142,42 @@ const thebe_selector_output = ".output, .cell_output"
             
             <!-- Only show if we have sidebars configured, else just a small margin  -->
             <div class="col-12 col-md-3 bd-sidebar">
-              <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="#" method="get">
+              <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="search.html" method="get">
   <i class="icon fas fa-search"></i>
   <input type="search" class="form-control" name="q" id="search-input" placeholder="Search this book..." aria-label="Search this book..." autocomplete="off" >
 </form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
   <div class="bd-toc-item active">
-    
+    <ul class="nav bd-sidenav">
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="Guide/cell-cycling.html">
+   The
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     cellcycling
+    </span>
+   </code>
+   module
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="Guide/CellCycling/loading-files.html">
+     Basic file loading operations
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="Guide/CellCycling/accessing-data.html">
+     Accessing and computing properities
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
   </div>
 </nav>
               </div>
@@ -163,6 +190,20 @@ const thebe_selector_output = ".output, .cell_output"
           
           <div class="d-none d-xl-block col-xl-2 bd-toc">
             
+              
+              <div class="toc-item">
+                
+
+<nav id="bd-toc-nav">
+    
+</nav>
+              </div>
+              
+              <div class="toc-item">
+                
+              </div>
+              
+            
           </div>
           
 
@@ -174,42 +215,62 @@ const thebe_selector_output = ".output, .cell_output"
               
               <div>
                 
-  <h1 id="search-documentation">Search</h1>
-  
-  <noscript>
-  <div class="admonition warning">
-  <p>
-    Please activate JavaScript to enable the search
-    functionality.
-  </p>
-  </div>
-  </noscript>
-  
-  
-  <p>
-    Searching for multiple words only shows matches that contain
-    all words.
-  </p>
-  
-  
-  <form action="" method="get">
-    <input type="text" name="q" aria-labelledby="search-documentation" value="" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
-    <input type="submit" value="search" />
-    <span id="search-progress" style="padding-left: 10px"></span>
-  </form>
-  
-  
-  
-  <div id="search-results">
-  
-  </div>
-  
+  <section class="tex2jax_ignore mathjax_ignore" id="user-guide">
+<h1>User guide<a class="headerlink" href="#user-guide" title="Permalink to this headline">#</a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">GES-echem-suite</span></code> library is articulated in two submodules: <code class="docutils literal notranslate"><span class="pre">echemsuite.cellcycling</span></code>, for the analysis of cell-cycling experiments, and <code class="docutils literal notranslate"><span class="pre">echemsuite.cyclicvoltammetry</span></code>, for the analysis of cyclic voltammetry experiments.</p>
+<p>This guide will walk the user through the basic operations required to load an experimental file, access the data within, and compute the main derived quantities. The guide is organized as follows:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="Guide/cell-cycling.html#cellcyclingmodule"><span class="std std-ref">Structure of the <code class="docutils literal notranslate"><span class="pre">echemsuite.cellcycling</span></code> module</span></a></p>
+<ul>
+<li><p><a class="reference internal" href="Guide/CellCycling/loading-files.html#cellcycling-loading"><span class="std std-ref">Loading a cycling experimental file</span></a></p></li>
+<li><p><a class="reference internal" href="Guide/CellCycling/accessing-data.html#cellcycling-accessingdata"><span class="std std-ref">Acessing the experimental data and derived quantities</span></a></p></li>
+</ul>
+</li>
+<li><p>Structure of the <code class="docutils literal notranslate"><span class="pre">echemsuite.cyclicvoltammetry</span></code> module</p></li>
+</ul>
+<div class="toctree-wrapper compound">
+</div>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            kernelName: "python3",
+            path: "./."
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
 
               </div>
               
               
               <!-- Previous / next buttons -->
 <div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="getting-started.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Getting started</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="Guide/cell-cycling.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">The <code class="docutils literal notranslate"><span class="pre">cellcycling</span></code> module</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
 </div>
               
           </main>

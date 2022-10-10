@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>echemsuite.cellcycling.read_input &#8212; GES-echem-suite Documentation</title>
+    <title>The echemsuite.cellcycling.read_input sub-module &#8212; GES-echem-suite Documentation</title>
     
   <!-- Loaded before other Sphinx assets -->
   <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -21,7 +21,6 @@
     href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css?digest=5115cc725059bd94278eecd172e13a965bf8f5a9" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.css" />
@@ -52,7 +51,8 @@ const thebe_selector_output = ".output, .cell_output"
     <script async="async" src="../_static/sphinx-thebe.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="prev" title="echemsuite.cellcycling.cycles" href="api_cellcycling_cycles.html" />
+    <link rel="next" title="Contributor’s guide" href="../contributor-guide.html" />
+    <link rel="prev" title="The echemsuite.cellcycling.cycles sub-module" href="api_cellcycling_cycles.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="None">
     
@@ -61,263 +61,261 @@ const thebe_selector_output = ".output, .cell_output"
     
   </head>
   <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
-<!-- Checkboxes to toggle the left sidebar -->
-<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
-<label class="overlay overlay-navbar" for="__navigation">
-    <div class="visually-hidden">Toggle navigation sidebar</div>
-</label>
-<!-- Checkboxes to toggle the in-page toc -->
-<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
-<label class="overlay overlay-pagetoc" for="__page-toc">
-    <div class="visually-hidden">Toggle in-page Table of Contents</div>
-</label>
-<!-- Headers at the top -->
-<div class="announcement header-item noprint"></div>
-<div class="header header-item noprint"></div>
-
     
     <div class="container-fluid" id="banner"></div>
 
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
+
+  <div id="navbar-start">
+    
+    
+<a class="navbar-brand" href="../intro.html">
+<p class="title">Python</p>
+</a>
+
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../getting-started.html">
+  Getting started
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../user-guide.html">
+  User guide
+ </a>
+</li>
+
+<li class="toctree-l1 current active nav-item">
+ <a class="reference internal nav-link" href="../api.html">
+  API Documentation
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../contributor-guide.html">
+  Contributor’s guide
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../release-notes.html">
+  Release notes
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
     
 
     <div class="container-xl">
       <div class="row">
           
-<!-- Sidebar -->
-<div class="bd-sidebar noprint" id="site-navigation">
-    <div class="bd-sidebar__content">
-        <div class="bd-sidebar__top"><div class="navbar-brand-box">
-    <a class="navbar-brand text-wrap" href="../index.html">
-      
-      
-      
-      <h1 class="site-logo" id="site-title">GES-echem-suite Documentation</h1>
-      
-    </a>
-</div><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+            
+            <!-- Only show if we have sidebars configured, else just a small margin  -->
+            <div class="col-12 col-md-3 bd-sidebar">
+              <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
   <i class="icon fas fa-search"></i>
   <input type="search" class="form-control" name="q" id="search-input" placeholder="Search this book..." aria-label="Search this book..." autocomplete="off" >
-</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
-    <div class="bd-toc-item active">
-        
-        <ul class="nav bd-sidenav bd-sidenav__home-link">
-            <li class="toctree-l1">
-                <a class="reference internal" href="../intro.html">
-                    Introduction
-                </a>
-            </li>
-        </ul>
-        <ul class="current nav bd-sidenav">
- <li class="toctree-l1 has-children">
-  <a class="reference internal" href="../cellcycling-module.html">
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    <ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="api_cellcycling_cycles.html">
    The
    <code class="docutils literal notranslate">
     <span class="pre">
-     cellcycling
+     echemsuite.cellcycling.cycles
     </span>
    </code>
-   module
+   sub-module
   </a>
-  <input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
-  <label for="toctree-checkbox-1">
-   <i class="fas fa-chevron-down">
-   </i>
-  </label>
-  <ul>
-   <li class="toctree-l2">
-    <a class="reference internal" href="../Tutorials/loading-files.html">
-     Basic file loading operations
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="../Tutorials/computing-properties.html">
-     Computing properities
-    </a>
-   </li>
-  </ul>
  </li>
- <li class="toctree-l1 current active has-children">
-  <a class="reference internal" href="../api.html">
-   API Documentation
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   The
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     echemsuite.cellcycling.read_input
+    </span>
+   </code>
+   sub-module
   </a>
-  <input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
-  <label for="toctree-checkbox-2">
-   <i class="fas fa-chevron-down">
-   </i>
-  </label>
-  <ul class="current">
-   <li class="toctree-l2">
-    <a class="reference internal" href="api_cellcycling_cycles.html">
+ </li>
+</ul>
+
+  </div>
+</nav>
+              </div>
+              <div class="sidebar-end-items">
+              </div>
+            </div>
+            
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+            
+              
+              <div class="toc-item">
+                
+<div class="tocsection onthispage mt-5 pt-1 pb-3">
+    <i class="fas fa-list"></i> On this page
+</div>
+
+<nav id="bd-toc-nav">
+    <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#the-instrument-enumeration">
+   The
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     Instrument
+    </span>
+   </code>
+   enumeration
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#the-filemanager-class">
+   The
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     FileManager
+    </span>
+   </code>
+   class
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#legacy-functions">
+   Legacy functions
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#the-build-dta-cycles-function">
+     The
      <code class="docutils literal notranslate">
       <span class="pre">
-       echemsuite.cellcycling.cycles
+       build_DTA_cycles
       </span>
      </code>
+     function
     </a>
    </li>
-   <li class="toctree-l2 current active">
-    <a class="current reference internal" href="#">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#the-build-cycles-function">
+     The
      <code class="docutils literal notranslate">
       <span class="pre">
-       echemsuite.cellcycling.read_input
+       build_cycles
       </span>
      </code>
+     function
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#the-read-cycles-function">
+     The
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       read_cycles
+      </span>
+     </code>
+     function
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#the-read-mpt-cycles-function">
+     The
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       read_mpt_cycles
+      </span>
+     </code>
+     function
     </a>
    </li>
   </ul>
  </li>
 </ul>
 
-    </div>
-</nav></div>
-        <div class="bd-sidebar__bottom">
-             <!-- To handle the deprecated key -->
-            
-            <div class="navbar_extra_footer">
-            Powered by <a href="https://jupyterbook.org">Jupyter Book</a>
-            </div>
-            
-        </div>
-    </div>
-    <div id="rtd-footer-container"></div>
-</div>
-
-
-          
-
-
-          
-<!-- A tiny helper pixel to detect if we've scrolled -->
-<div class="sbt-scroll-pixel-helper"></div>
-<!-- Main content -->
-<div class="col py-0 content-container">
-    
-    <div class="header-article row sticky-top noprint">
-        
-
-
-
-<div class="col py-1 d-flex header-article-main">
-    <div class="header-article__left">
-        
-        <label for="__navigation"
-  class="headerbtn"
-  data-toggle="tooltip"
-data-placement="right"
-title="Toggle navigation"
->
-  
-
-<span class="headerbtn__icon-container">
-  <i class="fas fa-bars"></i>
-  </span>
-
-</label>
-
-        
-    </div>
-    <div class="header-article__right">
-<button onclick="toggleFullScreen()"
-  class="headerbtn"
-  data-toggle="tooltip"
-data-placement="bottom"
-title="Fullscreen mode"
->
-  
-
-<span class="headerbtn__icon-container">
-  <i class="fas fa-expand"></i>
-  </span>
-
-</button>
-<a href="https://github.com/GES-ppravatto/GES-echem-suite"
-   class="headerbtn"
-   data-toggle="tooltip"
-data-placement="bottom"
-title="Source repository"
->
-  
-
-<span class="headerbtn__icon-container">
-  <i class="fab fa-github"></i>
-  </span>
-
-</a>
-
-<div class="menu-dropdown menu-dropdown-download-buttons">
-  <button class="headerbtn menu-dropdown__trigger"
-      aria-label="Download this page">
-      <i class="fas fa-download"></i>
-  </button>
-  <div class="menu-dropdown__content">
-    <ul>
-      <li>
-        <a href="../_sources/API/api_cellcycling_read_input.md"
-   class="headerbtn"
-   data-toggle="tooltip"
-data-placement="left"
-title="Download source file"
->
-  
-
-<span class="headerbtn__icon-container">
-  <i class="fas fa-file"></i>
-  </span>
-<span class="headerbtn__text-container">.md</span>
-</a>
-
-      </li>
-      
-      <li>
-        
-<button onclick="printPdf(this)"
-  class="headerbtn"
-  data-toggle="tooltip"
-data-placement="left"
-title="Print to PDF"
->
-  
-
-<span class="headerbtn__icon-container">
-  <i class="fas fa-file-pdf"></i>
-  </span>
-<span class="headerbtn__text-container">.pdf</span>
-</button>
-
-      </li>
-      
-    </ul>
-  </div>
-</div>
-
-    </div>
-</div>
-
-<!-- Table of contents -->
-<div class="col-md-3 bd-toc show noprint">
-</div>
-    </div>
-    <div class="article row">
-        <div class="col pl-md-3 pl-lg-5 content-container">
-            <!-- Table of contents that is only displayed when printing the page -->
-            <div id="jb-print-docs-body" class="onlyprint">
-                <h1>echemsuite.cellcycling.read_input</h1>
-                <!-- Table of contents -->
-                <div id="print-main-content">
-                    <div id="jb-print-toc">
-                        
-                    </div>
-                </div>
-            </div>
-            <main id="main-content" role="main">
+</nav>
+              </div>
+              
+              <div class="toc-item">
                 
+              </div>
+              
+            
+          </div>
+          
+
+          
+          
+            
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
               <div>
                 
-  <section class="tex2jax_ignore mathjax_ignore" id="module-echemsuite.cellcycling.read_input">
-<span id="echemsuite-cellcycling-read-input"></span><span id="api-cellcycling-read-input"></span><h1><code class="docutils literal notranslate"><span class="pre">echemsuite.cellcycling.read_input</span></code><a class="headerlink" href="#module-echemsuite.cellcycling.read_input" title="Permalink to this headline">#</a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="the-echemsuite-cellcycling-read-input-sub-module">
+<span id="api-cellcycling-read-input"></span><h1>The <code class="docutils literal notranslate"><span class="pre">echemsuite.cellcycling.read_input</span></code> sub-module<a class="headerlink" href="#the-echemsuite-cellcycling-read-input-sub-module" title="Permalink to this headline">#</a></h1>
+<section id="the-instrument-enumeration">
+<h2>The <code class="docutils literal notranslate"><span class="pre">Instrument</span></code> enumeration<a class="headerlink" href="#the-instrument-enumeration" title="Permalink to this headline">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="echemsuite.cellcycling.read_input.Instrument">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">echemsuite.cellcycling.read_input.</span></span><span class="sig-name descname"><span class="pre">Instrument</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#echemsuite.cellcycling.read_input.Instrument" title="Permalink to this definition">#</a></dt>
+<dd><p>Simple enumeration class to easily reference instrument types.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="echemsuite.cellcycling.read_input.Instrument.GAMRY">
+<span class="sig-name descname"><span class="pre">GAMRY</span></span><a class="headerlink" href="#echemsuite.cellcycling.read_input.Instrument.GAMRY" title="Permalink to this definition">#</a></dt>
+<dd><p>GAMRY instrument producing .DTA files (value [str]: “GAMRY”)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="echemsuite.cellcycling.read_input.Instrument.BIOLOGIC">
+<span class="sig-name descname"><span class="pre">BIOLOGIC</span></span><a class="headerlink" href="#echemsuite.cellcycling.read_input.Instrument.BIOLOGIC" title="Permalink to this definition">#</a></dt>
+<dd><p>BIOLOGIC instrument producing .mpt files (value [str]: “BIOLOGIC”)</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<hr class="docutils" />
+<section id="the-filemanager-class">
+<h2>The <code class="docutils literal notranslate"><span class="pre">FileManager</span></code> class<a class="headerlink" href="#the-filemanager-class" title="Permalink to this headline">#</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="echemsuite.cellcycling.read_input.FileManager">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">echemsuite.cellcycling.read_input.</span></span><span class="sig-name descname"><span class="pre">FileManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#echemsuite.cellcycling.read_input.FileManager" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">echemsuite.cellcycling.read_input.</span></span><span class="sig-name descname"><span class="pre">FileManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#echemsuite.cellcycling.read_input.FileManager" title="Permalink to this definition">#</a></dt>
 <dd><p>Universal loader class for cell-cycling files. The class provides a simple interface to
 load .dta and .mpt files from a user-specified path. The class stores the loaded files
 in memory using a dictionary of BytesIO objects. The class implements parse and sorting
@@ -327,6 +325,9 @@ class also supports the joining of partial halfcycles files.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>verbose</strong> (<em>bool</em>) – if set to True, a progress report for the main functions will be reported on terminal</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None</p>
 </dd>
 </dl>
 <dl class="py property">
@@ -342,7 +343,7 @@ class also supports the joining of partial halfcycles files.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="echemsuite.cellcycling.read_input.FileManager.fetch_files">
-<span class="sig-name descname"><span class="pre">fetch_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filelist</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">autoparse</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#echemsuite.cellcycling.read_input.FileManager.fetch_files" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">fetch_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filelist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">autoparse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#echemsuite.cellcycling.read_input.FileManager.fetch_files" title="Permalink to this definition">#</a></dt>
 <dd><p>Loads, as <code class="docutils literal notranslate"><span class="pre">BytesIO</span></code> streams, multiple files contained in a user defined filelist.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -360,12 +361,15 @@ at the end of the fetching operation</p></li>
     or .mpt)</p></li>
 </ul>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="echemsuite.cellcycling.read_input.FileManager.fetch_from_folder">
-<span class="sig-name descname"><span class="pre">fetch_from_folder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extension</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">autoparse</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#echemsuite.cellcycling.read_input.FileManager.fetch_from_folder" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">fetch_from_folder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extension</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">autoparse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#echemsuite.cellcycling.read_input.FileManager.fetch_from_folder" title="Permalink to this definition">#</a></dt>
 <dd><p>Loads, as BytesIO streams, multiple files from a folder filtering them by extension.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -383,44 +387,55 @@ the fetching operation</p></li>
     or .mpt)</p></li>
 </ul>
 </dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>None</p>
+</dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="echemsuite.cellcycling.read_input.FileManager.get_cellcycling">
-<span class="sig-name descname"><span class="pre">get_cellcycling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">custom_order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="api_cellcycling_cycles.html#echemsuite.cellcycling.cycles.CellCycling" title="echemsuite.cellcycling.cycles.CellCycling"><span class="pre">echemsuite.cellcycling.cycles.CellCycling</span></a></span></span><a class="headerlink" href="#echemsuite.cellcycling.read_input.FileManager.get_cellcycling" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_cellcycling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">custom_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#echemsuite.cellcycling.read_input.FileManager.get_cellcycling" title="Permalink to this definition">#</a></dt>
 <dd><p>Build a CellCycling object from a given halfcycles order.</p>
-<dl class="simple">
-<dt>custom_order: List[str]</dt><dd><p>list of lists of filenames. Each list contains the half-cycles entries that must
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>custom_order</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – list of lists of filenames. Each list contains the half-cycles entries that must
 be merged in a single HalfCycle object. If left empty the ordering generated by
-the suggest_ordering method will be used.</p>
+the suggest_ordering method will be used.</p></li>
+<li><p><strong>clean</strong> (<em>bool</em>) – if set to True, only displays cycles with physical meaning (efficiencies &lt; 100%
+and both charge + discharge available). If False (default), load everything.</p></li>
+</ul>
 </dd>
-<dt>clean<span class="classifier">bool</span></dt><dd><p>if set to True, only displays cycles with physical meaning (efficiencies &lt; 100%
-and both charge + discharge available). If False (default), load everything.</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>CellCycling instance containing all the charge/discharge Cycles objects.</p>
 </dd>
-</dl>
-<dl class="simple">
-<dt><a class="reference internal" href="api_cellcycling_cycles.html#echemsuite.cellcycling.cycles.CellCycling" title="echemsuite.cellcycling.cycles.CellCycling"><code class="xref py py-class docutils literal notranslate"><span class="pre">CellCycling</span></code></a></dt><dd><p>CellCycling instance containing all the charge/discharge Cycles objects.</p>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="api_cellcycling_cycles.html#echemsuite.cellcycling.cycles.CellCycling" title="echemsuite.cellcycling.cycles.CellCycling"><code class="xref py py-class docutils literal notranslate"><span class="pre">CellCycling</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="echemsuite.cellcycling.read_input.FileManager.get_cycles">
-<span class="sig-name descname"><span class="pre">get_cycles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">custom_order</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="api_cellcycling_cycles.html#echemsuite.cellcycling.cycles.Cycle" title="echemsuite.cellcycling.cycles.Cycle"><span class="pre">echemsuite.cellcycling.cycles.Cycle</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#echemsuite.cellcycling.read_input.FileManager.get_cycles" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_cycles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">custom_order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#echemsuite.cellcycling.read_input.FileManager.get_cycles" title="Permalink to this definition">#</a></dt>
 <dd><p>Build the Cycles list from a given halfcycles order.</p>
-<dl class="simple">
-<dt>custom_order: List[str]</dt><dd><p>list of lists of filenames. Each list contains the half-cycles entries that must
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>custom_order</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – list of lists of filenames. Each list contains the half-cycles entries that must
 be merged in a single HalfCycle object. If left empty the ordering generated by
-the suggest_ordering method will be used.</p>
+the suggest_ordering method will be used.</p></li>
+<li><p><strong>clean</strong> (<em>bool</em>) – if set to True, only displays cycles with physical meaning (efficiencies &lt; 100%
+and both charge + discharge available). If False (default), load everything.</p></li>
+</ul>
 </dd>
-<dt>clean<span class="classifier">bool</span></dt><dd><p>if set to True, only displays cycles with physical meaning (efficiencies &lt; 100%
-and both charge + discharge available). If False (default), load everything.</p>
-</dd>
-</dl>
-<dl class="simple">
-<dt>List[<a class="reference internal" href="api_cellcycling_cycles.html#echemsuite.cellcycling.cycles.Cycle" title="echemsuite.cellcycling.cycles.Cycle"><code class="xref py py-class docutils literal notranslate"><span class="pre">Cycle</span></code></a>]</dt><dd><p>list containing the set of charge/discharge Cycles objects created from the
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list containing the set of charge/discharge Cycles objects created from the
 given dataset</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>List[<a class="reference internal" href="api_cellcycling_cycles.html#echemsuite.cellcycling.cycles.Cycle" title="echemsuite.cellcycling.cycles.Cycle"><code class="xref py py-class docutils literal notranslate"><span class="pre">Cycle</span></code></a>]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -449,7 +464,7 @@ key of the <a class="reference internal" href="#echemsuite.cellcycling.read_inpu
 
 <dl class="py method">
 <dt class="sig sig-object py" id="echemsuite.cellcycling.read_input.FileManager.parse">
-<span class="sig-name descname"><span class="pre">parse</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#echemsuite.cellcycling.read_input.FileManager.parse" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">parse</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#echemsuite.cellcycling.read_input.FileManager.parse" title="Permalink to this definition">#</a></dt>
 <dd><p>Parse the BytesIO streams contained in the “bytestreams” buffer and update the
 “halfcycles” dictionary.</p>
 <dl class="field-list simple">
@@ -457,12 +472,15 @@ key of the <a class="reference internal" href="#echemsuite.cellcycling.read_inpu
 <dd class="field-odd"><p><strong>RuntimeError</strong> – if the bytestream buffer is empty or if one of the required fields is not present
     in one of the loaded files</p>
 </dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>None</p>
+</dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="echemsuite.cellcycling.read_input.FileManager.suggest_ordering">
-<span class="sig-name descname"><span class="pre">suggest_ordering</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#echemsuite.cellcycling.read_input.FileManager.suggest_ordering" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">suggest_ordering</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#echemsuite.cellcycling.read_input.FileManager.suggest_ordering" title="Permalink to this definition">#</a></dt>
 <dd><p>Examine the bytestreams buffer and suggests a possible file ordering and merging
 scheme based on half-cycle type and timestamp.</p>
 <dl class="field-list simple">
@@ -478,27 +496,27 @@ be merged in a single HalfCycle class.</p>
 
 </dd></dl>
 
-<dl class="py class">
-<dt class="sig sig-object py" id="echemsuite.cellcycling.read_input.Instrument">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">echemsuite.cellcycling.read_input.</span></span><span class="sig-name descname"><span class="pre">Instrument</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#echemsuite.cellcycling.read_input.Instrument" title="Permalink to this definition">#</a></dt>
-<dd><p>Simple enumeration class to easily reference instrument types.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="echemsuite.cellcycling.read_input.Instrument.GAMRY">
-<span class="sig-name descname"><span class="pre">GAMRY</span></span><a class="headerlink" href="#echemsuite.cellcycling.read_input.Instrument.GAMRY" title="Permalink to this definition">#</a></dt>
-<dd><p>GAMRY instrument producing .DTA files (value [str]: “GAMRY”)</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="echemsuite.cellcycling.read_input.Instrument.BIOLOGIC">
-<span class="sig-name descname"><span class="pre">BIOLOGIC</span></span><a class="headerlink" href="#echemsuite.cellcycling.read_input.Instrument.BIOLOGIC" title="Permalink to this definition">#</a></dt>
-<dd><p>BIOLOGIC instrument producing .mpt files (value [str]: “BIOLOGIC”)</p>
-</dd></dl>
-
-</dd></dl>
-
+</section>
+<hr class="docutils" />
+<section id="legacy-functions">
+<h2>Legacy functions<a class="headerlink" href="#legacy-functions" title="Permalink to this headline">#</a></h2>
+<div class="warning admonition">
+<p class="admonition-title">Legacy warning</p>
+<p>All the functions listed in this sections, namely:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">build_DTA_cycles</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">build_cycles</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">read_cycles</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">read_mpt_cycles</span></code></p></li>
+</ul>
+<p>are considered deprecated since version 0.2.0a and should be substituted by a direct call to
+the <code class="docutils literal notranslate"><span class="pre">FileManager</span></code> class.</p>
+</div>
+<section id="the-build-dta-cycles-function">
+<h3>The <code class="docutils literal notranslate"><span class="pre">build_DTA_cycles</span></code> function<a class="headerlink" href="#the-build-dta-cycles-function" title="Permalink to this headline">#</a></h3>
 <dl class="py function">
 <dt class="sig sig-object py" id="echemsuite.cellcycling.read_input.build_DTA_cycles">
-<span class="sig-prename descclassname"><span class="pre">echemsuite.cellcycling.read_input.</span></span><span class="sig-name descname"><span class="pre">build_DTA_cycles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filelist</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="api_cellcycling_cycles.html#echemsuite.cellcycling.cycles.Cycle" title="echemsuite.cellcycling.cycles.Cycle"><span class="pre">echemsuite.cellcycling.cycles.Cycle</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#echemsuite.cellcycling.read_input.build_DTA_cycles" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">echemsuite.cellcycling.read_input.</span></span><span class="sig-name descname"><span class="pre">build_DTA_cycles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filelist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#echemsuite.cellcycling.read_input.build_DTA_cycles" title="Permalink to this definition">#</a></dt>
 <dd><div class="deprecated">
 <p><span class="versionmodified deprecated">Deprecated since version 0.2.0a: </span>Should be substituted by the direct call to the
 <a class="reference internal" href="#echemsuite.cellcycling.read_input.FileManager" title="echemsuite.cellcycling.read_input.FileManager"><code class="xref py py-class docutils literal notranslate"><span class="pre">FileManager</span></code></a> class structure</p>
@@ -510,6 +528,7 @@ be merged in a single HalfCycle class.</p>
 <li><p><strong>filelist</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – file list containing the .DTA file paths.</p></li>
 <li><p><strong>clean</strong> (<em>bool</em>) – if set to True, only displays cycles with physical meaning (efficiencies &lt; 100% and
 both charge + discharge available). If False (default), load everything.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -521,6 +540,10 @@ both charge + discharge available). If False (default), load everything.</p></li
 </dl>
 </dd></dl>
 
+</section>
+<hr class="docutils" />
+<section id="the-build-cycles-function">
+<h3>The <code class="docutils literal notranslate"><span class="pre">build_cycles</span></code> function<a class="headerlink" href="#the-build-cycles-function" title="Permalink to this headline">#</a></h3>
 <dl class="py function">
 <dt class="sig sig-object py" id="echemsuite.cellcycling.read_input.build_cycles">
 <span class="sig-prename descclassname"><span class="pre">echemsuite.cellcycling.read_input.</span></span><span class="sig-name descname"><span class="pre">build_cycles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filelist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#echemsuite.cellcycling.read_input.build_cycles" title="Permalink to this definition">#</a></dt>
@@ -546,6 +569,10 @@ both charge + discharge available). If False (default), load everything.</p></li
 </dl>
 </dd></dl>
 
+</section>
+<hr class="docutils" />
+<section id="the-read-cycles-function">
+<h3>The <code class="docutils literal notranslate"><span class="pre">read_cycles</span></code> function<a class="headerlink" href="#the-read-cycles-function" title="Permalink to this headline">#</a></h3>
 <dl class="py function">
 <dt class="sig sig-object py" id="echemsuite.cellcycling.read_input.read_cycles">
 <span class="sig-prename descclassname"><span class="pre">echemsuite.cellcycling.read_input.</span></span><span class="sig-name descname"><span class="pre">read_cycles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filelist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#echemsuite.cellcycling.read_input.read_cycles" title="Permalink to this definition">#</a></dt>
@@ -572,9 +599,13 @@ charge + discharge available). If False (default), load everything.</p></li>
 </dl>
 </dd></dl>
 
+</section>
+<hr class="docutils" />
+<section id="the-read-mpt-cycles-function">
+<h3>The <code class="docutils literal notranslate"><span class="pre">read_mpt_cycles</span></code> function<a class="headerlink" href="#the-read-mpt-cycles-function" title="Permalink to this headline">#</a></h3>
 <dl class="py function">
 <dt class="sig sig-object py" id="echemsuite.cellcycling.read_input.read_mpt_cycles">
-<span class="sig-prename descclassname"><span class="pre">echemsuite.cellcycling.read_input.</span></span><span class="sig-name descname"><span class="pre">read_mpt_cycles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filelist</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#echemsuite.cellcycling.read_input.read_mpt_cycles" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">echemsuite.cellcycling.read_input.</span></span><span class="sig-name descname"><span class="pre">read_mpt_cycles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filelist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#echemsuite.cellcycling.read_input.read_mpt_cycles" title="Permalink to this definition">#</a></dt>
 <dd><div class="deprecated">
 <p><span class="versionmodified deprecated">Deprecated since version 0.2.0a: </span>Should be substituted by the direct call to the
 <a class="reference internal" href="#echemsuite.cellcycling.read_input.FileManager" title="echemsuite.cellcycling.read_input.FileManager"><code class="xref py py-class docutils literal notranslate"><span class="pre">FileManager</span></code></a> class structure</p>
@@ -587,6 +618,7 @@ instruments (.mpt files)</p>
 <li><p><strong>filelist</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – file list containing .mpt file paths.</p></li>
 <li><p><strong>clean</strong> (<em>bool</em>) – if True, only displays cycles with physical meaning (efficiencies &lt; 100% and both
 charge + discharge available). If False (default), load everything.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em>) – </p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -598,6 +630,8 @@ charge + discharge available). If False (default), load everything.</p></li>
 </dl>
 </dd></dl>
 
+</section>
+</section>
 </section>
 
     <script type="text/x-thebe-config">
@@ -622,41 +656,49 @@ charge + discharge available). If False (default), load everything.</p></li>
 
               </div>
               
-            </main>
-            <footer class="footer-article noprint">
-                
-    <!-- Previous / next buttons -->
+              
+              <!-- Previous / next buttons -->
 <div class='prev-next-area'>
     <a class='left-prev' id="prev-link" href="api_cellcycling_cycles.html" title="previous page">
         <i class="fas fa-angle-left"></i>
         <div class="prev-next-info">
             <p class="prev-next-subtitle">previous</p>
-            <p class="prev-next-title"><code class="docutils literal notranslate"><span class="pre">echemsuite.cellcycling.cycles</span></code></p>
+            <p class="prev-next-title">The <code class="docutils literal notranslate"><span class="pre">echemsuite.cellcycling.cycles</span></code> sub-module</p>
         </div>
     </a>
-</div>
-            </footer>
-        </div>
+    <a class='right-next' id="next-link" href="../contributor-guide.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Contributor’s guide</p>
     </div>
-    <div class="footer-content row">
-        <footer class="col footer"><p>
-  
-    By GES-ppravatto<br/>
-  
-      &copy; Copyright 2022.<br/>
-</p>
-        </footer>
-    </div>
-    
+    <i class="fas fa-angle-right"></i>
+    </a>
 </div>
-
+              
+          </main>
+          
 
       </div>
     </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
   <script src="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
-
-
+<footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    
+    <div class="footer-item">
+      <p class="copyright">
+    &copy; Copyright 2022.<br>
+</p>
+    </div>
+    
+    <div class="footer-item">
+      <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.5.0.<br>
+</p>
+    </div>
+    
+  </div>
+</footer>
   </body>
 </html>

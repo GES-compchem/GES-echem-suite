@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>API Documentation &#8212; GES-echem-suite Documentation</title>
+    <title>Contributor’s guide &#8212; GES-echem-suite Documentation</title>
     
   <!-- Loaded before other Sphinx assets -->
   <link href="_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -51,8 +51,8 @@ const thebe_selector_output = ".output, .cell_output"
     <script async="async" src="_static/sphinx-thebe.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="The echemsuite.cellcycling.cycles sub-module" href="API/api_cellcycling_cycles.html" />
-    <link rel="prev" title="Accessing and computing properities" href="Guide/CellCycling/accessing-data.html" />
+    <link rel="next" title="Release notes" href="release-notes.html" />
+    <link rel="prev" title="The echemsuite.cellcycling.read_input sub-module" href="API/api_cellcycling_read_input.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="None">
     
@@ -99,14 +99,14 @@ const thebe_selector_output = ".output, .cell_output"
  </a>
 </li>
 
-<li class="toctree-l1 current active nav-item">
- <a class="current reference internal nav-link" href="#">
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="api.html">
   API Documentation
  </a>
 </li>
 
-<li class="toctree-l1 nav-item">
- <a class="reference internal nav-link" href="contributor-guide.html">
+<li class="toctree-l1 current active nav-item">
+ <a class="current reference internal nav-link" href="#">
   Contributor’s guide
  </a>
 </li>
@@ -147,31 +147,7 @@ const thebe_selector_output = ".output, .cell_output"
   <input type="search" class="form-control" name="q" id="search-input" placeholder="Search this book..." aria-label="Search this book..." autocomplete="off" >
 </form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
   <div class="bd-toc-item active">
-    <ul class="nav bd-sidenav">
- <li class="toctree-l1">
-  <a class="reference internal" href="API/api_cellcycling_cycles.html">
-   The
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     echemsuite.cellcycling.cycles
-    </span>
-   </code>
-   sub-module
-  </a>
- </li>
- <li class="toctree-l1">
-  <a class="reference internal" href="API/api_cellcycling_read_input.html">
-   The
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     echemsuite.cellcycling.read_input
-    </span>
-   </code>
-   sub-module
-  </a>
- </li>
-</ul>
-
+    
   </div>
 </nav>
               </div>
@@ -187,9 +163,19 @@ const thebe_selector_output = ".output, .cell_output"
               
               <div class="toc-item">
                 
+<div class="tocsection onthispage mt-5 pt-1 pb-3">
+    <i class="fas fa-list"></i> On this page
+</div>
 
 <nav id="bd-toc-nav">
-    
+    <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#general-development-process">
+   General development process
+  </a>
+ </li>
+</ul>
+
 </nav>
               </div>
               
@@ -209,16 +195,68 @@ const thebe_selector_output = ".output, .cell_output"
               
               <div>
                 
-  <section class="tex2jax_ignore mathjax_ignore" id="api-documentation">
-<span id="api-reference"></span><h1>API Documentation<a class="headerlink" href="#api-documentation" title="Permalink to this headline">#</a></h1>
-<p>The API documentation represents an object-level description of the package content.
-This API reference is divided into the following submodules, matching the structure of the library:</p>
-<ul class="simple">
-<li><p><a class="reference internal" href="API/api_cellcycling_cycles.html#api-cellcycling-cycles"><span class="std std-ref"><code class="docutils literal notranslate"><span class="pre">echemsuite.cellcycling.cycles</span></code></span></a></p></li>
-<li><p><a class="reference internal" href="API/api_cellcycling_read_input.html#api-cellcycling-read-input"><span class="std std-ref"><code class="docutils literal notranslate"><span class="pre">echemsuite.cellcycling.read_input</span></code></span></a></p></li>
-</ul>
-<div class="toctree-wrapper compound">
+  <section class="tex2jax_ignore mathjax_ignore" id="contributor-s-guide">
+<h1>Contributor’s guide<a class="headerlink" href="#contributor-s-guide" title="Permalink to this headline">#</a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">GES-echem-suite</span></code> is an open source project and, as such, all the contributions are well accepted. If you want to contribute to the library, a simple guide on how to interface with the GitHub repository is provided in what follows.</p>
+<section id="general-development-process">
+<h2>General development process<a class="headerlink" href="#general-development-process" title="Permalink to this headline">#</a></h2>
+<ul>
+<li><p>If you are a first-time contributor:</p>
+<ul>
+<li><p>Go to <a class="reference external" href="https://github.com/GES-compchem/GES-echem-suite">https://github.com/GES-compchem/GES-echem-suite</a> and click the “fork” button to create your own copy of the project repository.</p></li>
+<li><p>Clone the project to your local computer using the command (where <code class="docutils literal notranslate"><span class="pre">&lt;YOUR_USERNAME&gt;</span></code> represent your personal GitHub username):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/&lt;</span><span class="n">YOUR_USERNAME</span><span class="o">&gt;/</span><span class="n">GES</span><span class="o">-</span><span class="n">echem</span><span class="o">-</span><span class="n">suite</span>
+</pre></div>
 </div>
+</li>
+<li><p>Enter the reposiotry directory using the command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">GES</span><span class="o">-</span><span class="n">echem</span><span class="o">-</span><span class="n">suite</span>
+</pre></div>
+</div>
+</li>
+<li><p>Add the upstream repository using the command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">remote</span> <span class="n">add</span> <span class="n">upstream</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">GES</span><span class="o">-</span><span class="n">compchem</span><span class="o">/</span><span class="n">GES</span><span class="o">-</span><span class="n">echem</span><span class="o">-</span><span class="n">suite</span><span class="o">.</span><span class="n">git</span>
+</pre></div>
+</div>
+</li>
+<li><p>Now, when running the <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">remote</span> <span class="pre">-v</span></code> command, the following reposiotries shold be visible:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">upstream</span></code>, which refers to the GES-compchem repository</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">origin</span></code>, which refers to your personal fork</p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>Developing your contributions:</p>
+<ul>
+<li><p>Pull the latest changes from upstream:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">checkout</span> <span class="n">main</span>
+<span class="n">git</span> <span class="n">pull</span> <span class="n">upstream</span> <span class="n">main</span>
+</pre></div>
+</div>
+</li>
+<li><p>Create a branch for the feature you want to work on. Since the branch name will appear in the merge message, use a sensible name.:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">checkout</span> <span class="o">-</span><span class="n">b</span> <span class="n">the_name_of_the_branch</span>
+</pre></div>
+</div>
+</li>
+<li><p>Commit locally as you progress (<code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">add</span></code> and <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">commit</span></code>) Use a properly formatted commit message. If possible, write tests that fail before your change and pass afterward, run all the tests locally (use <code class="docutils literal notranslate"><span class="pre">tox</span></code> to verify the compatibility with all the supported version of python). Be sure to document any changed behavior in docstrings, keeping to the <a class="reference external" href="https://numpydoc.readthedocs.io/en/latest/format.html">NumPy docstring standard</a>. Sphinx annotation are very welcome. If brand new functionality are added to the package make sure to update the documentation as well.</p></li>
+</ul>
+</li>
+<li><p>To submit your contribution:</p>
+<ul>
+<li><p>Push your changes back to your fork on GitHub:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">push</span> <span class="n">origin</span> <span class="n">the_name_of_the_branch</span>
+</pre></div>
+</div>
+</li>
+<li><p>Follow the GitHub authentication process.</p></li>
+<li><p>Go to GitHub. The new branch will show up with a green Pull Request button. Make sure the title and message are clear, concise, and self- explanatory. Then click the button to submit it.</p></li>
+<li><p>Ask for review from the development team.</p></li>
+</ul>
+</li>
+</ul>
+</section>
 </section>
 
     <script type="text/x-thebe-config">
@@ -246,17 +284,17 @@ This API reference is divided into the following submodules, matching the struct
               
               <!-- Previous / next buttons -->
 <div class='prev-next-area'>
-    <a class='left-prev' id="prev-link" href="Guide/CellCycling/accessing-data.html" title="previous page">
+    <a class='left-prev' id="prev-link" href="API/api_cellcycling_read_input.html" title="previous page">
         <i class="fas fa-angle-left"></i>
         <div class="prev-next-info">
             <p class="prev-next-subtitle">previous</p>
-            <p class="prev-next-title">Accessing and computing properities</p>
+            <p class="prev-next-title">The <code class="docutils literal notranslate"><span class="pre">echemsuite.cellcycling.read_input</span></code> sub-module</p>
         </div>
     </a>
-    <a class='right-next' id="next-link" href="API/api_cellcycling_cycles.html" title="next page">
+    <a class='right-next' id="next-link" href="release-notes.html" title="next page">
     <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">The <code class="docutils literal notranslate"><span class="pre">echemsuite.cellcycling.cycles</span></code> sub-module</p>
+        <p class="prev-next-title">Release notes</p>
     </div>
     <i class="fas fa-angle-right"></i>
     </a>
