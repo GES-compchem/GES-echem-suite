@@ -4,4 +4,5 @@ sphinx
 matplotlib
 numpy
 ghp-import
+sphinx-rtd-theme
 # myst-parser will be installed directly in the workflow as a temporary fix

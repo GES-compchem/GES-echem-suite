@@ -10,9 +10,11 @@ chapters:
       sections:
         - file: Guide/CellCycling/loading-files
         - file: Guide/CellCycling/accessing-data
+    - file: Guide/cyclic-voltammetry
 - file: api
   sections:
     - file: API/api_cellcycling_cycles
     - file: API/api_cellcycling_read_input
+    - file: API/api_cyclicvoltammetry_read_input
 - file: contributor-guide
 - file: release-notes

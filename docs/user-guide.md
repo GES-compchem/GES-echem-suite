@@ -8,5 +8,5 @@ This guide will walk the user through the basic operations required to load an e
   * [Loading a cycling experimental file](CellCycling_Loading)
   * [Acessing the experimental data and derived quantities](CellCycling_AccessingData)
 
-* Structure of the `echemsuite.cyclicvoltammetry` module
+* [Structure of the `echemsuite.cyclicvoltammetry` module](CyclicVoltammetryModule)
 
