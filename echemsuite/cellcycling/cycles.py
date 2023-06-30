@@ -548,249 +548,7 @@ class Cycle:
         float
         """
         return self._voltage_efficiency
-
-    # LEGACY PROPERTIES
-
-    @property
-    def time_charge(self) -> pd.Series:
-        """
-        .. deprecated:: 0.1.17a
-            Should be substituted by the direct call to the halfcycle property ``Cycle.charge.time``.
-
-        Returns the time data points (in s) for the charge half-cycle
-
-        Returns
-        -------
-        ``pandas.core.series.Series``
-        """
-        deprecation_warning("Cycle.time_charge", "Cycle.charge.time")
-        return self.charge.time
-
-    @property
-    def time_discharge(self) -> pd.Series:
-        """
-        .. deprecated:: 0.1.17a
-            Should be substituted by the direct call to the halfcycle property ``Cycle.discharge.time``.
-
-        Returns the time data points (in s) for the discharge half-cycle
-
-        Returns
-        -------
-        ``pandas.core.series.Series``
-        """
-        deprecation_warning("Cycle.time_disharge", "Cycle.discharge.time")
-        return self.discharge.time
-
-    @property
-    def voltage_charge(self) -> pd.Series:
-        """
-        .. deprecated:: 0.1.17a
-            Should be substituted by the direct call to the halfcycle property ``Cycle.charge.voltage``.
-
-        Returns the voltage data points (in V) for the charge half-cycle
-
-        Returns
-        -------
-        ``pandas.core.series.Series``
-        """
-        deprecation_warning("Cycle.voltage_charge", "Cycle.charge.voltage")
-        return self.charge.voltage
-
-    @property
-    def voltage_discharge(self) -> pd.Series:
-        """
-        .. deprecated:: 0.1.17a
-            Should be substituted by the direct call to the halfcycle property ``Cycle.discharge.voltage``.
-
-        Returns the voltage data points (in V) for the discharge half-cycle
-
-        Returns
-        -------
-        ``pandas.core.series.Series``
-        """
-        deprecation_warning("Cycle.voltage_discharge", "Cycle.discharge.voltage")
-        return self.discharge.voltage
-
-    @property
-    def current_charge(self) -> pd.Series:
-        """
-        .. deprecated:: 0.1.17a
-            Should be substituted by the direct call to the halfcycle property ``Cycle.charge.current``.
-
-        Returns the current data points (in A) for the charge half-cycle
-
-        Returns
-        -------
-        ``pandas.core.series.Series``
-        """
-        deprecation_warning("Cycle.current_charge", "Cycle.charge.current")
-        return self.charge.current
-
-    @property
-    def current_discharge(self) -> pd.Series:
-        """
-        .. deprecated:: 0.1.17a
-            Should be substituted by the direct call to the halfcycle property ``Cycle.discharge.current``.
-
-        Returns the current data points (in A) for the discharge half-cycle
-
-        Returns
-        -------
-        ``pandas.core.series.Series``
-        """
-        deprecation_warning("Cycle.current_discharge", "Cycle.discharge.current")
-        return self.discharge.current
-
-    @property
-    def power_charge(self) -> pd.Series:
-        """
-        .. deprecated:: 0.1.17a
-            Should be substituted by the direct call to the halfcycle property ``Cycle.charge.power``.
-
-        Returns the power data points (in W) for the charge half-cycle
-
-        Returns
-        -------
-        ``pandas.core.series.Series``
-        """
-        deprecation_warning("Cycle.power_charge", "Cycle.charge.power")
-        return self.charge.power
-
-    @property
-    def power_discharge(self) -> pd.Series:
-        """
-        .. deprecated:: 0.1.17a
-            Should be substituted by the direct call to the halfcycle property ``Cycle.discharge.power``.
-
-        Returns the power data points (in W) for the discharge half-cycle
-
-        Returns
-        -------
-        ``pandas.core.series.Series``
-        """
-        deprecation_warning("Cycle.power_discharge", "Cycle.discharge.power")
-        return self.discharge.power
-
-    @property
-    def energy_charge(self) -> pd.Series:
-        """
-        .. deprecated:: 0.1.17a
-            Should be substituted by the direct call to the halfcycle property ``Cycle.charge.energy``.
-
-        Returns the energy data points (in mWh) for the charge half-cycle
-
-        Returns
-        -------
-        ``pandas.core.series.Series``
-        """
-        deprecation_warning("Cycle.energy_charge", "Cycle.charge.energy")
-        return self.charge.energy
-
-    @property
-    def energy_discharge(self) -> pd.Series:
-        """
-        .. deprecated:: 0.1.17a
-            Should be substituted by the direct call to the halfcycle property ``Cycle.discharge.energy``.
-
-        Returns the energy data points (in mWh) for the discharge half-cycle
-
-        Returns
-        -------
-        ``pandas.core.series.Series``
-        """
-        deprecation_warning("Cycle.energy_discharge", "Cycle.discharge.energy")
-        return self.discharge.energy
-
-    @property
-    def capacity_charge(self) -> float:
-        """
-        .. deprecated:: 0.1.17a
-            Should be substituted by the direct call to the halfcycle property ``Cycle.charge.capacity``.
-
-        Returns the capacity data points (in mAh) for the charge half-cycle
-
-        Returns
-        -------
-        float
-        """
-        deprecation_warning("Cycle.capacity_charge", "Cycle.charge.capacity")
-        return self.charge.capacity
-
-    @property
-    def capacity_discharge(self) -> float:
-        """
-        .. deprecated:: 0.1.17a
-            Should be substituted by the direct call to the halfcycle property ``Cycle.discharge.capacity``.
-
-        Returns the capacity data points (in mAh) for the discharge half-cycle
-
-        Returns
-        -------
-        float
-        """
-        deprecation_warning("Cycle.capacity_discharge", "Cycle.discharge.capacity")
-        return self.discharge.capacity
-
-    @property
-    def Q_charge(self) -> pd.Series:
-        """
-        .. deprecated:: 0.1.17a
-            Should be substituted by the direct call to the halfcycle property ``Cycle.charge.Q``.
-
-        Returns the cumulative charge data points (in mAh) for the charge half-cycle
-
-        Returns
-        -------
-        ``pandas.core.series.Series``
-        """
-        deprecation_warning("Cycle.Q_charge", "Cycle.charge.Q")
-        return self.charge.Q
-
-    @property
-    def Q_discharge(self) -> pd.Series:
-        """
-        .. deprecated:: 0.1.17a
-            Should be substituted by the direct call to the halfcycle property ``Cycle.discharge.Q``.
-
-        Returns the cumulative charge data points (in mAh) for the discharge half-cycle
-
-        Returns
-        -------
-        ``pandas.core.series.Series``
-        """
-        deprecation_warning("Cycle.Q_discharge", "Cycle.discharge.Q")
-        return self.discharge.Q
-
-    @property
-    def total_energy_charge(self) -> float:
-        """
-        .. deprecated:: 0.1.17a
-            Should be substituted by the direct call to the halfcycle property ``Cycle.charge.total_energy``.
-
-        Returns the total energy (in mWh) for the charge half-cycle
-
-        Returns
-        -------
-        float
-        """
-        deprecation_warning("Cycle.total_energy_charge", "Cycle.charge.total_energy")
-        return self.charge.total_energy
-
-    @property
-    def total_energy_discharge(self) -> float:
-        """
-        .. deprecated:: 0.1.17a
-            Should be substituted by the direct call to the halfcycle property ``Cycle.discharge.total_energy``.
-
-        Returns the total energy (in mWh) for the discharge half-cycle
-
-        Returns
-        -------
-        float
-        """
-        deprecation_warning("Cycle.total_energy_discharge", "Cycle.discharge.total_energy")
-        return self.discharge.total_energy
-
+    
 
 class HalfCycle:
     """
@@ -1015,6 +773,19 @@ class HalfCycle:
             the instantaneous power for each time-step in (W)
         """
         return self._power
+    
+    @property
+    def average_power(self) -> float:
+        """
+        The Average power (in W) for the selected half-cycle.
+
+        Returns
+        -------
+        float
+            the average power value.
+        """
+        return self._power.mean()
+
 
     # ENERGY
     @property
