@@ -19,8 +19,6 @@ from numpy.testing import assert_array_almost_equal
 
 from echemsuite.cellcycling.cycles import HalfCycle
 from echemsuite.cellcycling.read_input import (
-    build_DTA_cycles,
-    read_mpt_cycles,
     FileManager,
     Instrument,
 )
@@ -543,64 +541,6 @@ def test_FileManager_get_cycles_function_biologic(folder_with_regular_mpt_file,)
     assert cycles[0].discharge == manager._halfcycles["discharge_0_myCellcycling.mpt"]
     assert cycles[1].charge == manager._halfcycles["charge_1_myCellcycling.mpt"]
     assert cycles[1].discharge == manager._halfcycles["discharge_1_myCellcycling.mpt"]
-
-    assert cycles[0]._hidden == False
-    assert cycles[1]._hidden == False
-
-
-# %% TEST OF THE LEGACY build_DTA_cycles FUNCTION
-
-# Test function to check the build_DTA_cycles function with with regular charge/discharge
-def test_build_DTA_cycles_function_regular(folder_with_minimal_dta_files):
-
-    folder, data = folder_with_minimal_dta_files
-
-    folder = abspath(folder)
-    filelist = [
-        join(folder, "charge_1.DTA"),
-        join(folder, "discharge_1.DTA"),
-        join(folder, "charge_2.DTA"),
-        join(folder, "discharge_2.DTA"),
-    ]
-    cycles = build_DTA_cycles(filelist, False)
-
-    assert len(cycles) == 2
-
-    assert cycles[0]._hidden == False
-    assert cycles[1]._hidden == False
-
-
-# Test function to check the build_DTA_cycles function with with regular charge/discharge and clean option
-def test_build_DTA_cycles_function_regular_with_clean(folder_with_minimal_dta_files):
-
-    folder, data = folder_with_minimal_dta_files
-
-    folder = abspath(folder)
-    filelist = [
-        join(folder, "charge_1.DTA"),
-        join(folder, "discharge_1.DTA"),
-        join(folder, "charge_2.DTA"),
-    ]
-    cycles = build_DTA_cycles(filelist, True)
-
-    assert len(cycles) == 2
-
-    assert cycles[0]._hidden == False
-    assert cycles[1]._hidden == True
-
-
-# %% TEST OF THE LEGACY read_mpt_cycles FUNCTION
-
-# Test function to check the read_mpt_cycles function
-def test_read_mpt_cycles_function_regular(folder_with_regular_mpt_file):
-
-    folder = folder_with_regular_mpt_file
-
-    folder = abspath(folder)
-    filelist = [join(folder, "myCellcycling.mpt")]
-    cycles = read_mpt_cycles(filelist, False)
-
-    assert len(cycles) == 2
 
     assert cycles[0]._hidden == False
     assert cycles[1]._hidden == False
