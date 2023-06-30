@@ -7,10 +7,9 @@ The `echemsuite.cellcycing` module is dedicated to the analysis of data deriving
 The module currently supports GAMRY `.DTA` single-halfcycle files and Biologic `.mpt` cell-cycling files. The US/European number format conversion is automatically done for all `.DTA` files.
 :::
 
-
 ## Structure of the module
 
-The `echemsuite.cellcycing` module is articulated in two sub-modules: `read_input`, which contains the tools required to load and parse experimental data files, and `cycles`, in which all the main code objects holding and structuring the experimental data are stored.
+The `echemsuite.cellcycing` module is articulated in three sub-modules: `read_input`, which contains the tools required to load and parse experimental data files, `cycles`, in which all the main code objects holding and structuring the experimental data are stored and `experiments` where a set of tools for the analysis of composite cell-cycling experiments are provided.
 
 Before moving on with the discussion on how to operate the library, let us discuss the organization of the data-structure implemented in the `echemsuite.cellcycing.cycles` sub-module. In general, a cell-cycling experiment consists of a series of charge and discharge operations intended to characterize the properties associated with a given electrochemical cell in terms of time/usage of the device. The `echemsuite.cellcycing` sub-module is organized with the same logic. The cell-cycling experiment is defined by a `CellCycling` class which internally carries a variable number of `Cycle` objects. Each `Cycle` object represents a complete charge/discharge battery cycle and, as such, it is composed by two `HalfCycles`, one for the charge and one for the discharge.
 
@@ -26,3 +25,4 @@ The list of available tutorials is as follows:
 
 * [Loading data from a cycling experimental file](CellCycling_Loading)
 * [Accessing the experimental data and derived quantities](CellCycling_AccessingData)
+* [Analyzing complex experiments](CellCycling_AnalyzingExperiment)

@@ -12,29 +12,15 @@ class RateExperiment:
     """
     The RateExperiment class provides a simple interface to charge rate experiments in which a cell is charged and
     discharged at different constant current values and the voltage and charge time are recorded and monitored. The
-    class can be constructed manually, using the __init__ method, providing the list of single current steps and the list
-    of cell-cycling experiments carried out at a given current. The class can also be constructed using the
-    `from_Biologic_battery_module` classmethod that is setup to be able to directly parse Biologic modules sequences.
-
-    Arguments
-    ---------
-    current_steps: List[float]
-        The list of float values encoding the current (in Ampéres) used on each cell-cycling step.
-    cellcycling_steps: List[CellCycling]
-        The list of CellCycling objects encoding the measurement done at a given current.
-
-    Raises
-    ------
-    RuntimeError
-        Exception raised if a mismatch in lenght is detected between the given lists.
+    class can be constructed manually, using the `from_user_data` classmethod, providing the list of single current 
+    steps and the list of cell-cycling experiments carried out at a given current. The class can also be constructed 
+    using the `from_Biologic_battery_module` classmethod that is setup to be able to directly parse Biologic modules
+    sequences.
     """
 
-    def __init__(self, current_steps: List[float] = [], cellcycling_steps: List[CellCycling] = []) -> None:
-        if len(current_steps) != len(cellcycling_steps):
-            raise RuntimeError("The current step list and the cellcycling one cannot have different lenght.")
-
-        self.__current_steps: List[float] = current_steps
-        self.__cellcycling_steps: List[CellCycling] = cellcycling_steps
+    def __init__(self) -> None:
+        self.__current_steps: List[float] = []
+        self.__cellcycling_steps: List[CellCycling] = []
         self.__reference: Tuple[int, int] = (0, 0)
 
     def __str__(self) -> str:
@@ -47,6 +33,11 @@ class RateExperiment:
 
     def __repr__(self) -> str:
         return str(self)
+    
+    def __iter__(self):
+        for cellcycling in self.__cellcycling_steps:
+            for cycle in cellcycling:
+                yield cycle
 
     @property
     def reference(self) -> Tuple[int, int]:
@@ -76,7 +67,38 @@ class RateExperiment:
         self.__reference = (cellcycling, step)
 
     @classmethod
-    def from_Biologic_battery_module(self, path: str) -> RateExperiment:
+    def from_user_data(cls, current_steps: List[float] = [], cellcycling_steps: List[CellCycling] = []) -> RateExperiment:
+        """
+        Classmethod dedicated to the construction of a RateExperiment object starting from a set of user provided data.
+
+        Arguments
+        ---------
+        current_steps: List[float]
+            The list of current steps associated to each cell-cycling sequence.
+        cellcycling_steps: List[CellCycling]
+            The list of cellcycling object encoding the electrochemical data collected at various current steps.
+        """
+        if len(current_steps) != len(cellcycling_steps):
+            raise RuntimeError("The current step list and the cellcycling one cannot have different lenght.")
+        
+        obj = cls()
+        obj.__current_steps = current_steps
+        obj.__cellcycling_steps = cellcycling_steps
+
+        return obj
+        
+
+    @classmethod
+    def from_Biologic_battery_module(cls, path: str) -> RateExperiment:
+        """
+        Classmethod dedicated to the construction of a RateExperiment object starting from a Biologic battery module 
+        file.
+
+        Arguments
+        ---------
+        path: str
+            The path to the Biologic battery module file.
+        """
         with open(path, "r", encoding="utf-8", errors="ignore") as file:
             # Define buffers for store the strings encoding date and time
             time_str, date_str = None, None
@@ -205,7 +227,7 @@ class RateExperiment:
             del voltage
 
             # Create an empty RateExperiment object to be filled with the desired data
-            obj = RateExperiment()
+            obj = cls()
 
             # Define a set of temporary variables to store data used during the CellCycing object construction
             cycles = []
@@ -241,6 +263,8 @@ class RateExperiment:
                     cycle = Cycle(number=len(cycles), charge=charge, discharge=discharge)
                     cycles.append(cycle)
                     charge, discharge = None, None
+                
+            del halfcycles
 
             # Manually trigger the creation of the cellcycling object for the last current step, append it to the
             # cellcycling list and clean the cycles buffer.
@@ -402,3 +426,15 @@ class RateExperiment:
                 average_power.append(cycle.discharge.average_power if cycle.discharge is not None else None)
 
         return average_power
+
+    @property
+    def numbers(self) -> List[int]:
+        """
+        Returns a simple array with a progressive number for all datapoints.
+
+        Returns
+        -------
+        List[int]
+            A simple array with a progressive number for all datapoints.
+        """
+        return [i+1 for i, _ in enumerate(self)]

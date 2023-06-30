@@ -6,3 +6,4 @@ This API reference is divided into the following submodules, matching the struct
 
 * [`echemsuite.cellcycling.cycles`](API-cellcycling-cycles)
 * [`echemsuite.cellcycling.read_input`](API-cellcycling-read_input)
+* [`echemsuite.cellcycling.experiments`](API-cellcycling-experiments)
