@@ -365,7 +365,7 @@ class RateExperiment:
         capacity = []
         for cellcycling in self.__cellcycling_steps:
             for cycle in cellcycling:
-                capacity.append(cycle.discharge.capacity)
+                capacity.append(cycle.discharge.capacity if cycle.discharge is not None else None)
 
         return capacity
 
@@ -382,7 +382,7 @@ class RateExperiment:
         total_energy = []
         for cellcycling in self.__cellcycling_steps:
             for cycle in cellcycling:
-                total_energy.append(cycle.discharge.total_energy)
+                total_energy.append(cycle.discharge.total_energy if cycle.discharge is not None else None)
 
         return total_energy
 
@@ -399,6 +399,6 @@ class RateExperiment:
         average_power = []
         for cellcycling in self.__cellcycling_steps:
             for cycle in cellcycling:
-                average_power.append(cycle.discharge.average_power)
+                average_power.append(cycle.discharge.average_power if cycle.discharge is not None else None)
 
         return average_power
