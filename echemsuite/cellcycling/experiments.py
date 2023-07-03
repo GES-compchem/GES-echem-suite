@@ -497,9 +497,3 @@ class RateExperiment:
                 sheet.append([float(x) if x != "" and x != "None" else x for x in row.split(",")])
         
         workbook.save(path)
-
-
-if __name__ == "__main__":
-
-    experiment = RateExperiment().from_Biologic_battery_module("/home/ppravatto/Dropbox/GES/Progetti/Experimental_data_analysis/GES-echem-suite/docs/Guide/CellCycling/example_Biologic_BatteryModule/example_BattModule.mpt")
-    experiment.dump_to_excel("./test.xlsx", 1.5, 25)
