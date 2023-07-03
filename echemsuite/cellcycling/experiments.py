@@ -1,6 +1,7 @@
 from __future__ import annotations
 from typing import List, Tuple, Dict
 from datetime import datetime, timedelta
+from copy import deepcopy
 
 import openpyxl
 import pandas as pd
@@ -13,15 +14,30 @@ class RateExperiment:
     """
     The RateExperiment class provides a simple interface to charge rate experiments in which a cell is charged and
     discharged at different constant current values and the voltage and charge time are recorded and monitored. The
-    class can be constructed manually, using the `from_user_data` classmethod, providing the list of single current 
+    class can be constructed manually, using the default __init__ method, providing the list of single current 
     steps and the list of cell-cycling experiments carried out at a given current. The class can also be constructed 
     using the `from_Biologic_battery_module` classmethod that is setup to be able to directly parse Biologic modules
     sequences.
+
+    Arguments
+    ---------
+    current_steps: List[float]
+        The list of current steps associated to each cell-cycling sequence.
+    cellcycling_steps: List[CellCycling]
+        The list of cellcycling object encoding the electrochemical data collected at various current steps.
+    
+    Raises
+    ------
+    RuntimeError
+        Exception raised if a mismatch between the length fo the two lists has been detected.
     """
 
-    def __init__(self) -> None:
-        self.__current_steps: List[float] = []
-        self.__cellcycling_steps: List[CellCycling] = []
+    def __init__(self, current_steps: List[float] = [], cellcycling_steps: List[CellCycling] = []) -> None:
+        if len(current_steps) != len(cellcycling_steps):
+            raise RuntimeError("The current step list and the cellcycling one cannot have different lenght.")
+        
+        self.__current_steps: List[float] = deepcopy(current_steps)
+        self.__cellcycling_steps: List[CellCycling] = deepcopy(cellcycling_steps)
         self.__reference: Tuple[int, int] = (0, 0)
 
     def __str__(self) -> str:
@@ -67,27 +83,6 @@ class RateExperiment:
 
         self.__reference = (cellcycling, step)
 
-    @classmethod
-    def from_user_data(cls, current_steps: List[float] = [], cellcycling_steps: List[CellCycling] = []) -> RateExperiment:
-        """
-        Classmethod dedicated to the construction of a RateExperiment object starting from a set of user provided data.
-
-        Arguments
-        ---------
-        current_steps: List[float]
-            The list of current steps associated to each cell-cycling sequence.
-        cellcycling_steps: List[CellCycling]
-            The list of cellcycling object encoding the electrochemical data collected at various current steps.
-        """
-        if len(current_steps) != len(cellcycling_steps):
-            raise RuntimeError("The current step list and the cellcycling one cannot have different lenght.")
-        
-        obj = cls()
-        obj.__current_steps = current_steps
-        obj.__cellcycling_steps = cellcycling_steps
-
-        return obj
-        
 
     @classmethod
     def from_Biologic_battery_module(cls, path: str) -> RateExperiment:
