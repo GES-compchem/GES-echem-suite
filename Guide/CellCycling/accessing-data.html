@@ -1,286 +1,112 @@
-
 <!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
-    <title>Accessing and computing properities &#8212; GES-echem-suite Documentation</title>
-    
-  <!-- Loaded before other Sphinx assets -->
-  <link href="../../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
-<link href="../../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
-
-    
-  <link rel="stylesheet"
-    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
-  <link rel="preload" as="font" type="font/woff2" crossorigin
-    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
-  <link rel="preload" as="font" type="font/woff2" crossorigin
-    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
-
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-thebe.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/design-style.b7bb847fb20b106c3d81b95245e65545.min.css" />
-    
-  <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
-
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/clipboard.min.js"></script>
-    <script src="../../_static/copybutton.js"></script>
-    <script src="../../_static/scripts/sphinx-book-theme.js?digest=9c920249402e914e316237a7dbc6769907cce411"></script>
-    <script>let toggleHintShow = 'Click to show';</script>
-    <script>let toggleHintHide = 'Click to hide';</script>
-    <script>let toggleOpenOnPrint = 'true';</script>
-    <script src="../../_static/togglebutton.js"></script>
-    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
-    <script src="../../_static/design-tabs.js"></script>
-    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Accessing and computing properities &mdash; GES-echem-suite Documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/togglebutton.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/sphinx-thebe.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/clipboard.min.js"></script>
+        <script src="../../_static/copybutton.js"></script>
+        <script src="../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+        <script>let toggleHintShow = 'Click to show';</script>
+        <script>let toggleHintHide = 'Click to hide';</script>
+        <script>let toggleOpenOnPrint = 'true';</script>
+        <script src="../../_static/togglebutton.js"></script>
+        <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+        <script src="../../_static/design-tabs.js"></script>
+        <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
 const thebe_selector = ".thebe,.cell"
 const thebe_selector_input = "pre"
 const thebe_selector_output = ".output, .cell_output"
 </script>
-    <script async="async" src="../../_static/sphinx-thebe.js"></script>
+        <script async="async" src="../../_static/sphinx-thebe.js"></script>
+    <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="API Documentation" href="../../api.html" />
-    <link rel="prev" title="Basic file loading operations" href="loading-files.html" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="docsearch:language" content="None">
-    
+    <link rel="next" title="Analyzing complex expriments" href="analyzing-experiments.html" />
+    <link rel="prev" title="Basic file loading operations" href="loading-files.html" /> 
+</head>
 
-    <!-- Google Analytics -->
-    
-  </head>
-  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
-    
-    <div class="container-fluid" id="banner"></div>
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
 
-    
-    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
-
-  <div id="navbar-start">
-    
-    
-<a class="navbar-brand" href="../../intro.html">
-<p class="title">Python</p>
-</a>
-
-    
-  </div>
-
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-
-  
-  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
-    <div id="navbar-center" class="mr-auto">
-      
-      <div class="navbar-center-item">
-        <ul id="navbar-main-elements" class="navbar-nav">
-    <li class="toctree-l1 nav-item">
- <a class="reference internal nav-link" href="../../getting-started.html">
-  Getting started
- </a>
-</li>
-
-<li class="toctree-l1 current active nav-item">
- <a class="reference internal nav-link" href="../../user-guide.html">
-  User guide
- </a>
-</li>
-
-<li class="toctree-l1 nav-item">
- <a class="reference internal nav-link" href="../../api.html">
-  API Documentation
- </a>
-</li>
-
-<li class="toctree-l1 nav-item">
- <a class="reference internal nav-link" href="../../contributor-guide.html">
-  Contributor’s guide
- </a>
-</li>
-
-<li class="toctree-l1 nav-item">
- <a class="reference internal nav-link" href="../../release-notes.html">
-  Release notes
- </a>
-</li>
-
-    
-</ul>
-      </div>
-      
-    </div>
-
-    <div id="navbar-end">
-      
-      <div class="navbar-end-item">
-        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
-      </ul>
-      </div>
-      
-    </div>
-  </div>
+          
+          
+          <a href="../../intro.html" class="icon icon-home">
+            Python
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
 </div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../getting-started.html">Getting started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../user-guide.html">User guide</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../cell-cycling.html">The <code class="docutils literal notranslate"><span class="pre">cellcycling</span></code> module</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="loading-files.html">Basic file loading operations</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Accessing and computing properities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="analyzing-experiments.html">Analyzing complex expriments</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../cyclic-voltammetry.html">The <code class="docutils literal notranslate"><span class="pre">echemsuite.cyclicvoltammetry</span></code> module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributor-guide.html">Contributor’s guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release-notes.html">Release notes</a></li>
+</ul>
+
+        </div>
+      </div>
     </nav>
-    
 
-    <div class="container-xl">
-      <div class="row">
-          
-            
-            <!-- Only show if we have sidebars configured, else just a small margin  -->
-            <div class="col-12 col-md-3 bd-sidebar">
-              <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
-  <i class="icon fas fa-search"></i>
-  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search this book..." aria-label="Search this book..." autocomplete="off" >
-</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
-  <div class="bd-toc-item active">
-    <ul class="current nav bd-sidenav">
- <li class="toctree-l1 current active has-children">
-  <a class="reference internal" href="../cell-cycling.html">
-   The
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     cellcycling
-    </span>
-   </code>
-   module
-  </a>
-  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
-  <label for="toctree-checkbox-1">
-   <i class="fas fa-chevron-down">
-   </i>
-  </label>
-  <ul class="current">
-   <li class="toctree-l2">
-    <a class="reference internal" href="loading-files.html">
-     Basic file loading operations
-    </a>
-   </li>
-   <li class="toctree-l2 current active">
-    <a class="current reference internal" href="#">
-     Accessing and computing properities
-    </a>
-   </li>
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../intro.html">Python</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../intro.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../user-guide.html">User guide</a></li>
+          <li class="breadcrumb-item"><a href="../cell-cycling.html">The <code class="docutils literal notranslate"><span class="pre">cellcycling</span></code> module</a></li>
+      <li class="breadcrumb-item active">Accessing and computing properities</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/Guide/CellCycling/accessing-data.ipynb" rel="nofollow"> View page source</a>
+      </li>
   </ul>
- </li>
-</ul>
-
-  </div>
-</nav>
-              </div>
-              <div class="sidebar-end-items">
-              </div>
-            </div>
-            
-          
-
-          
-          <div class="d-none d-xl-block col-xl-2 bd-toc">
-            
-              
-              <div class="toc-item">
-                
-<div class="tocsection onthispage mt-5 pt-1 pb-3">
-    <i class="fas fa-list"></i> On this page
+  <hr/>
 </div>
-
-<nav id="bd-toc-nav">
-    <ul class="visible nav section-nav flex-column">
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#introduction">
-   Introduction
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#hiding-unhiding-cycles">
-   Hiding/Unhiding cycles
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#accessing-a-cycle-and-its-halfcycles">
-   Accessing a
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     Cycle
-    </span>
-   </code>
-   and its
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     HalfCycles
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#the-halfcycle-properties">
-   The
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     HalfCycle
-    </span>
-   </code>
-   properties
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#the-cycle-properties">
-   The
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     Cycle
-    </span>
-   </code>
-   properties
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#the-cellcycling-properties">
-   The
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     CellCycling
-    </span>
-   </code>
-   properties
-  </a>
- </li>
-</ul>
-
-</nav>
-              </div>
-              
-              <div class="toc-item">
-                
-              </div>
-              
-            
-          </div>
-          
-
-          
-          
-            
-          
-          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
-              
-              <div>
-                
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
   <section class="tex2jax_ignore mathjax_ignore" id="accessing-and-computing-properities">
-<span id="cellcycling-accessingdata"></span><h1>Accessing and computing properities<a class="headerlink" href="#accessing-and-computing-properities" title="Permalink to this headline">#</a></h1>
+<span id="cellcycling-accessingdata"></span><h1>Accessing and computing properities<a class="headerlink" href="#accessing-and-computing-properities" title="Permalink to this heading"></a></h1>
 <p>In this page a general overview on how to access the loaded data is provided. The page covers the following topics:</p>
 <ul class="simple">
 <li><p><a class="reference internal" href="#ccad-introduction"><span class="std std-ref">Introduction on how to obtain the <code class="docutils literal notranslate"><span class="pre">CellCycling</span></code> object from a <code class="docutils literal notranslate"><span class="pre">FileManager</span></code> instance</span></a></p></li>
@@ -291,7 +117,7 @@ const thebe_selector_output = ".output, .cell_output"
 <li><p><a class="reference internal" href="#ccad-cellcycling-prop"><span class="std std-ref">Accessing the main attributes of the <code class="docutils literal notranslate"><span class="pre">CellCycling</span></code> class</span></a></p></li>
 </ul>
 <section id="introduction">
-<span id="ccad-introduction"></span><h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">#</a></h2>
+<span id="ccad-introduction"></span><h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this heading"></a></h2>
 <p>Once a <code class="docutils literal notranslate"><span class="pre">FileManager</span></code> instance has been created and the files have been parsed, all the experimental data can be extracted by directly invoking the generation of a <code class="docutils literal notranslate"><span class="pre">CellCycling</span></code> object by means of the <code class="docutils literal notranslate"><span class="pre">get_cellcycling</span></code> function. An exaple of a full workflows in reported in what follows:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -310,7 +136,7 @@ const thebe_selector_output = ".output, .cell_output"
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;echemsuite.cellcycling.cycles.CellCycling at 0x7f1bd33b2f10&gt;
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;echemsuite.cellcycling.cycles.CellCycling at 0x7fae70484400&gt;
     ├─ total number of cycles:    5
     ├─ number of visible cycles:  5
     └─ reference cycle:           0
@@ -329,7 +155,7 @@ const thebe_selector_output = ".output, .cell_output"
 </div>
 </section>
 <section id="hiding-unhiding-cycles">
-<span id="ccad-hide"></span><h2>Hiding/Unhiding cycles<a class="headerlink" href="#hiding-unhiding-cycles" title="Permalink to this headline">#</a></h2>
+<span id="ccad-hide"></span><h2>Hiding/Unhiding cycles<a class="headerlink" href="#hiding-unhiding-cycles" title="Permalink to this heading"></a></h2>
 <p>Each cycle in the <code class="docutils literal notranslate"><span class="pre">CellCycling</span></code> object can be hidden in order to prevent access to its properties and be ignored while iterating on a cellcycling instance. This can be achieved by using the function hide. Hidden status of a given cycle can be unset using the function unhide. An example snippet of code is available in what follows:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -384,7 +210,7 @@ Cycle number 4 is currently Visible
 </div>
 </section>
 <section id="accessing-a-cycle-and-its-halfcycles">
-<span id="ccad-cycles"></span><h2>Accessing a <code class="docutils literal notranslate"><span class="pre">Cycle</span></code> and its <code class="docutils literal notranslate"><span class="pre">HalfCycles</span></code><a class="headerlink" href="#accessing-a-cycle-and-its-halfcycles" title="Permalink to this headline">#</a></h2>
+<span id="ccad-cycles"></span><h2>Accessing a <code class="docutils literal notranslate"><span class="pre">Cycle</span></code> and its <code class="docutils literal notranslate"><span class="pre">HalfCycles</span></code><a class="headerlink" href="#accessing-a-cycle-and-its-halfcycles" title="Permalink to this heading"></a></h2>
 <p>As the name implies, the <code class="docutils literal notranslate"><span class="pre">CellCycling</span></code> object represents a collection of charge/discharge cycles. Each cycle is defined by a <code class="docutils literal notranslate"><span class="pre">Cycle</span></code> object that can be accessed either directly by index, leaving to the user the task of verifying its hidden status, or by using the built in <code class="docutils literal notranslate"><span class="pre">CellCycling</span></code> class iterator that will return sequentially all the non-hidden cycles.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -415,34 +241,34 @@ Cycle number 4 is currently Visible
 </div>
 <div class="cell_output docutils container">
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>*** Getting cycle at index 1: 
-&lt;echemsuite.cellcycling.cycles.Cycle at 0x7f1bd31b1e20&gt;
+&lt;echemsuite.cellcycling.cycles.Cycle at 0x7fae3b5f32b0&gt;
     ├─ number:     1
     ├─ halfcycles: Both charge and discharge
     └─ hidden:     False
 
 *** Accessing the cycles by iterator
 
-&lt;echemsuite.cellcycling.cycles.Cycle at 0x7f1bd33b2c10&gt;
+&lt;echemsuite.cellcycling.cycles.Cycle at 0x7fae70484a90&gt;
     ├─ number:     0
     ├─ halfcycles: Both charge and discharge
     └─ hidden:     False
 
-&lt;echemsuite.cellcycling.cycles.Cycle at 0x7f1bd31b1e20&gt;
+&lt;echemsuite.cellcycling.cycles.Cycle at 0x7fae3b5f32b0&gt;
     ├─ number:     1
     ├─ halfcycles: Both charge and discharge
     └─ hidden:     False
 
-&lt;echemsuite.cellcycling.cycles.Cycle at 0x7f1bd31b1c10&gt;
+&lt;echemsuite.cellcycling.cycles.Cycle at 0x7fae3b5f3d00&gt;
     ├─ number:     2
     ├─ halfcycles: Both charge and discharge
     └─ hidden:     False
 
-&lt;echemsuite.cellcycling.cycles.Cycle at 0x7f1c083c61c0&gt;
+&lt;echemsuite.cellcycling.cycles.Cycle at 0x7fae3b59ef70&gt;
     ├─ number:     3
     ├─ halfcycles: Both charge and discharge
     └─ hidden:     False
 
-&lt;echemsuite.cellcycling.cycles.Cycle at 0x7f1c083c62b0&gt;
+&lt;echemsuite.cellcycling.cycles.Cycle at 0x7fae3b59e340&gt;
     ├─ number:     4
     ├─ halfcycles: Both charge and discharge
     └─ hidden:     False
@@ -453,22 +279,22 @@ To reinstate it, use the unhide() function
 
 *** Accessing the cycles by iterator
 
-&lt;echemsuite.cellcycling.cycles.Cycle at 0x7f1bd33b2c10&gt;
+&lt;echemsuite.cellcycling.cycles.Cycle at 0x7fae70484a90&gt;
     ├─ number:     0
     ├─ halfcycles: Both charge and discharge
     └─ hidden:     False
 
-&lt;echemsuite.cellcycling.cycles.Cycle at 0x7f1bd31b1c10&gt;
+&lt;echemsuite.cellcycling.cycles.Cycle at 0x7fae3b5f3d00&gt;
     ├─ number:     2
     ├─ halfcycles: Both charge and discharge
     └─ hidden:     False
 
-&lt;echemsuite.cellcycling.cycles.Cycle at 0x7f1c083c61c0&gt;
+&lt;echemsuite.cellcycling.cycles.Cycle at 0x7fae3b59ef70&gt;
     ├─ number:     3
     ├─ halfcycles: Both charge and discharge
     └─ hidden:     False
 
-&lt;echemsuite.cellcycling.cycles.Cycle at 0x7f1c083c62b0&gt;
+&lt;echemsuite.cellcycling.cycles.Cycle at 0x7fae3b59e340&gt;
     ├─ number:     4
     ├─ halfcycles: Both charge and discharge
     └─ hidden:     False
@@ -487,12 +313,12 @@ To reinstate it, use the unhide() function
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;echemsuite.cellcycling.cycles.HalfCycle at 0x7f1bd33ce220&gt;
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;echemsuite.cellcycling.cycles.HalfCycle at 0x7fae3b5a0ca0&gt;
     ├─ timestamp: 2022-07-23 20:25:33
     ├─ type:      charge
     └─ points:    2850
 
-&lt;echemsuite.cellcycling.cycles.HalfCycle at 0x7f1bd31ed130&gt;
+&lt;echemsuite.cellcycling.cycles.HalfCycle at 0x7fae3b59e250&gt;
     ├─ timestamp: 2022-07-24 00:23:03
     ├─ type:      discharge
     └─ points:    2566
@@ -502,7 +328,7 @@ To reinstate it, use the unhide() function
 </div>
 </section>
 <section id="the-halfcycle-properties">
-<span id="ccad-halfcycles-prop"></span><h2>The <code class="docutils literal notranslate"><span class="pre">HalfCycle</span></code> properties<a class="headerlink" href="#the-halfcycle-properties" title="Permalink to this headline">#</a></h2>
+<span id="ccad-halfcycles-prop"></span><h2>The <code class="docutils literal notranslate"><span class="pre">HalfCycle</span></code> properties<a class="headerlink" href="#the-halfcycle-properties" title="Permalink to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">HalfCycle</span></code> object represents the base-building block of the <code class="docutils literal notranslate"><span class="pre">cellcycling.cycles</span></code> sub-module and, as discussed in more detail in the <a class="reference internal" href="../../API/api_cellcycling_cycles.html#api-cellcycling-cycles"><span class="std std-ref">API reference</span></a>, it holds all the experimental data of a charge/discharge process namely:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">time</span></code> (<code class="docutils literal notranslate"><span class="pre">pandas.core.series.Series</span></code>) time steps in seconds at which the experimental data have been collected</p></li>
@@ -547,12 +373,12 @@ To reinstate it, use the unhide() function
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../../_images/accessing-data_10_0.png" src="../../_images/accessing-data_10_0.png" />
+<img alt="../../_images/a4bf503722e387c6076166635dc811e2256d2497272c19423cbbc6b0d2ceef41.png" src="../../_images/a4bf503722e387c6076166635dc811e2256d2497272c19423cbbc6b0d2ceef41.png" />
 </div>
 </div>
 </section>
 <section id="the-cycle-properties">
-<span id="ccad-cycles-prop"></span><h2>The <code class="docutils literal notranslate"><span class="pre">Cycle</span></code> properties<a class="headerlink" href="#the-cycle-properties" title="Permalink to this headline">#</a></h2>
+<span id="ccad-cycles-prop"></span><h2>The <code class="docutils literal notranslate"><span class="pre">Cycle</span></code> properties<a class="headerlink" href="#the-cycle-properties" title="Permalink to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">Cycle</span></code> object wraps the charge and discharge <code class="docutils literal notranslate"><span class="pre">HalfCycles</span></code> exposing, as a unified time-series, all the experimental data previously discussed for the <code class="docutils literal notranslate"><span class="pre">HalfCycle</span></code> object. As such the following properties are available:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">time</span></code> (<code class="docutils literal notranslate"><span class="pre">pandas.core.series.Series</span></code>) time steps in seconds at which the experimental data have been collected</p></li>
@@ -605,7 +431,7 @@ Cycle: 4
 </div>
 </section>
 <section id="the-cellcycling-properties">
-<span id="ccad-cellcycling-prop"></span><h2>The <code class="docutils literal notranslate"><span class="pre">CellCycling</span></code> properties<a class="headerlink" href="#the-cellcycling-properties" title="Permalink to this headline">#</a></h2>
+<span id="ccad-cellcycling-prop"></span><h2>The <code class="docutils literal notranslate"><span class="pre">CellCycling</span></code> properties<a class="headerlink" href="#the-cellcycling-properties" title="Permalink to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">CellCycling</span></code> class exposes, as lists, all the properties related to its <code class="docutils literal notranslate"><span class="pre">Cycles</span></code> objects such as:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">coulomb_efficiencies</span></code> (<code class="docutils literal notranslate"><span class="pre">List[float]</span></code>) list of the <code class="docutils literal notranslate"><span class="pre">coulomb_efficiency</span></code> associated to each cycle</p></li>
@@ -698,7 +524,7 @@ INFO: R^2 = 0.9647304680876875
 Fitted capacity fade: 22.854027910716823 %/cycle
 </pre></div>
 </div>
-<img alt="../../_images/accessing-data_18_1.png" src="../../_images/accessing-data_18_1.png" />
+<img alt="../../_images/0dd55ccbac70f2090e55bd2005cc2c192dd6447ebf692b14cc381d748711c589.png" src="../../_images/0dd55ccbac70f2090e55bd2005cc2c192dd6447ebf692b14cc381d748711c589.png" />
 </div>
 </div>
 <p>Given the fitting data, the user can also predict, using the <code class="docutils literal notranslate"><span class="pre">predict_retention</span></code> function, the capacity retention expected at a given cycle number and estimate, by calling the <code class="docutils literal notranslate"><span class="pre">retention_threshold</span></code> function, the cycle number at which the degradation in capacity retention will exceed a given threshold. An example snippet of code is reported in what follows:</p>
@@ -707,7 +533,7 @@ Fitted capacity fade: 22.854027910716823 %/cycle
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Predicting the retention</span>
 <span class="n">cycle_number</span> <span class="o">=</span> <span class="mi">3</span>
 <span class="n">prediction</span> <span class="o">=</span> <span class="n">cellcycling</span><span class="o">.</span><span class="n">predict_retention</span><span class="p">([</span><span class="n">cycle_number</span><span class="p">])</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The predicted retention at cycle number </span><span class="si">{</span><span class="n">cycle_number</span><span class="si">}</span><span class="s2"> is </span><span class="si">{</span><span class="n">prediction</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The predicted retention at cycle number </span><span class="si">{</span><span class="n">cycle_number</span><span class="si">}</span><span class="s2"> is </span><span class="si">{</span><span class="n">prediction</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
 
 <span class="c1"># Predicting retention thresholds</span>
 <span class="n">threshold</span> <span class="o">=</span> <span class="mi">40</span>
@@ -738,7 +564,7 @@ The capacity retention will reach the 40% threshold after cycle 2
             mode: "python"
         },
         kernelOptions: {
-            kernelName: "python3",
+            name: "python3",
             path: "./Guide/CellCycling"
         },
         predefinedOutput: true
@@ -746,51 +572,34 @@ The capacity retention will reach the 40% threshold after cycle 2
     </script>
     <script>kernelName = 'python3'</script>
 
-              </div>
-              
-              
-              <!-- Previous / next buttons -->
-<div class='prev-next-area'>
-    <a class='left-prev' id="prev-link" href="loading-files.html" title="previous page">
-        <i class="fas fa-angle-left"></i>
-        <div class="prev-next-info">
-            <p class="prev-next-subtitle">previous</p>
-            <p class="prev-next-title">Basic file loading operations</p>
-        </div>
-    </a>
-    <a class='right-next' id="next-link" href="../../api.html" title="next page">
-    <div class="prev-next-info">
-        <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">API Documentation</p>
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="loading-files.html" class="btn btn-neutral float-left" title="Basic file loading operations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="analyzing-experiments.html" class="btn btn-neutral float-right" title="Analyzing complex expriments" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
-    <i class="fas fa-angle-right"></i>
-    </a>
-</div>
-              
-          </main>
-          
 
-      </div>
-    </div>
-  
-  <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
-<footer class="footer mt-5 mt-md-0">
-  <div class="container">
-    
-    <div class="footer-item">
-      <p class="copyright">
-    &copy; Copyright 2022.<br>
-</p>
-    </div>
-    
-    <div class="footer-item">
-      <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.5.0.<br>
-</p>
-    </div>
-    
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022.</p>
   </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
 </footer>
-  </body>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
 </html>

@@ -1,232 +1,112 @@
-
 <!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
-    <title>Basic file loading operations &#8212; GES-echem-suite Documentation</title>
-    
-  <!-- Loaded before other Sphinx assets -->
-  <link href="../../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
-<link href="../../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
-
-    
-  <link rel="stylesheet"
-    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
-  <link rel="preload" as="font" type="font/woff2" crossorigin
-    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
-  <link rel="preload" as="font" type="font/woff2" crossorigin
-    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
-
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-thebe.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/design-style.b7bb847fb20b106c3d81b95245e65545.min.css" />
-    
-  <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
-
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/clipboard.min.js"></script>
-    <script src="../../_static/copybutton.js"></script>
-    <script src="../../_static/scripts/sphinx-book-theme.js?digest=9c920249402e914e316237a7dbc6769907cce411"></script>
-    <script>let toggleHintShow = 'Click to show';</script>
-    <script>let toggleHintHide = 'Click to hide';</script>
-    <script>let toggleOpenOnPrint = 'true';</script>
-    <script src="../../_static/togglebutton.js"></script>
-    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown, .tag_hide_input div.cell_input, .tag_hide-input div.cell_input, .tag_hide_output div.cell_output, .tag_hide-output div.cell_output, .tag_hide_cell.cell, .tag_hide-cell.cell';</script>
-    <script src="../../_static/design-tabs.js"></script>
-    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Basic file loading operations &mdash; GES-echem-suite Documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/togglebutton.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/sphinx-thebe.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/clipboard.min.js"></script>
+        <script src="../../_static/copybutton.js"></script>
+        <script src="../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+        <script>let toggleHintShow = 'Click to show';</script>
+        <script>let toggleHintHide = 'Click to hide';</script>
+        <script>let toggleOpenOnPrint = 'true';</script>
+        <script src="../../_static/togglebutton.js"></script>
+        <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+        <script src="../../_static/design-tabs.js"></script>
+        <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
 const thebe_selector = ".thebe,.cell"
 const thebe_selector_input = "pre"
 const thebe_selector_output = ".output, .cell_output"
 </script>
-    <script async="async" src="../../_static/sphinx-thebe.js"></script>
+        <script async="async" src="../../_static/sphinx-thebe.js"></script>
+    <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Accessing and computing properities" href="accessing-data.html" />
-    <link rel="prev" title="The cellcycling module" href="../cell-cycling.html" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="docsearch:language" content="None">
-    
+    <link rel="prev" title="The cellcycling module" href="../cell-cycling.html" /> 
+</head>
 
-    <!-- Google Analytics -->
-    
-  </head>
-  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
-    
-    <div class="container-fluid" id="banner"></div>
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
 
-    
-    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
-
-  <div id="navbar-start">
-    
-    
-<a class="navbar-brand" href="../../intro.html">
-<p class="title">Python</p>
-</a>
-
-    
-  </div>
-
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-
-  
-  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
-    <div id="navbar-center" class="mr-auto">
-      
-      <div class="navbar-center-item">
-        <ul id="navbar-main-elements" class="navbar-nav">
-    <li class="toctree-l1 nav-item">
- <a class="reference internal nav-link" href="../../getting-started.html">
-  Getting started
- </a>
-</li>
-
-<li class="toctree-l1 current active nav-item">
- <a class="reference internal nav-link" href="../../user-guide.html">
-  User guide
- </a>
-</li>
-
-<li class="toctree-l1 nav-item">
- <a class="reference internal nav-link" href="../../api.html">
-  API Documentation
- </a>
-</li>
-
-<li class="toctree-l1 nav-item">
- <a class="reference internal nav-link" href="../../contributor-guide.html">
-  Contributor’s guide
- </a>
-</li>
-
-<li class="toctree-l1 nav-item">
- <a class="reference internal nav-link" href="../../release-notes.html">
-  Release notes
- </a>
-</li>
-
-    
-</ul>
-      </div>
-      
-    </div>
-
-    <div id="navbar-end">
-      
-      <div class="navbar-end-item">
-        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
-      </ul>
-      </div>
-      
-    </div>
-  </div>
+          
+          
+          <a href="../../intro.html" class="icon icon-home">
+            Python
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
 </div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../getting-started.html">Getting started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../user-guide.html">User guide</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../cell-cycling.html">The <code class="docutils literal notranslate"><span class="pre">cellcycling</span></code> module</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Basic file loading operations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="accessing-data.html">Accessing and computing properities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="analyzing-experiments.html">Analyzing complex expriments</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../cyclic-voltammetry.html">The <code class="docutils literal notranslate"><span class="pre">echemsuite.cyclicvoltammetry</span></code> module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributor-guide.html">Contributor’s guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release-notes.html">Release notes</a></li>
+</ul>
+
+        </div>
+      </div>
     </nav>
-    
 
-    <div class="container-xl">
-      <div class="row">
-          
-            
-            <!-- Only show if we have sidebars configured, else just a small margin  -->
-            <div class="col-12 col-md-3 bd-sidebar">
-              <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
-  <i class="icon fas fa-search"></i>
-  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search this book..." aria-label="Search this book..." autocomplete="off" >
-</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
-  <div class="bd-toc-item active">
-    <ul class="current nav bd-sidenav">
- <li class="toctree-l1 current active has-children">
-  <a class="reference internal" href="../cell-cycling.html">
-   The
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     cellcycling
-    </span>
-   </code>
-   module
-  </a>
-  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
-  <label for="toctree-checkbox-1">
-   <i class="fas fa-chevron-down">
-   </i>
-  </label>
-  <ul class="current">
-   <li class="toctree-l2 current active">
-    <a class="current reference internal" href="#">
-     Basic file loading operations
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="accessing-data.html">
-     Accessing and computing properities
-    </a>
-   </li>
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../intro.html">Python</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../intro.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../user-guide.html">User guide</a></li>
+          <li class="breadcrumb-item"><a href="../cell-cycling.html">The <code class="docutils literal notranslate"><span class="pre">cellcycling</span></code> module</a></li>
+      <li class="breadcrumb-item active">Basic file loading operations</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/Guide/CellCycling/loading-files.ipynb" rel="nofollow"> View page source</a>
+      </li>
   </ul>
- </li>
-</ul>
-
-  </div>
-</nav>
-              </div>
-              <div class="sidebar-end-items">
-              </div>
-            </div>
-            
-          
-
-          
-          <div class="d-none d-xl-block col-xl-2 bd-toc">
-            
-              
-              <div class="toc-item">
-                
-<div class="tocsection onthispage mt-5 pt-1 pb-3">
-    <i class="fas fa-list"></i> On this page
+  <hr/>
 </div>
-
-<nav id="bd-toc-nav">
-    <ul class="visible nav section-nav flex-column">
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#loading-data-from-a-bytesio-bytestream">
-   Loading data from a BytesIO bytestream
-  </a>
- </li>
-</ul>
-
-</nav>
-              </div>
-              
-              <div class="toc-item">
-                
-              </div>
-              
-            
-          </div>
-          
-
-          
-          
-            
-          
-          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
-              
-              <div>
-                
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
   <section class="tex2jax_ignore mathjax_ignore" id="basic-file-loading-operations">
-<span id="cellcycling-loading"></span><h1>Basic file loading operations<a class="headerlink" href="#basic-file-loading-operations" title="Permalink to this headline">#</a></h1>
+<span id="cellcycling-loading"></span><h1>Basic file loading operations<a class="headerlink" href="#basic-file-loading-operations" title="Permalink to this heading"></a></h1>
 <p>The core of all the data-loading operations is the <code class="docutils literal notranslate"><span class="pre">FileManager</span></code> class defined in the <code class="docutils literal notranslate"><span class="pre">read_input</span></code> submodule. The <code class="docutils literal notranslate"><span class="pre">FileManager</span></code> class can load both <code class="docutils literal notranslate"><span class="pre">.DTA</span></code> and <code class="docutils literal notranslate"><span class="pre">.mpt</span></code> files generated respectively by the GAMRY and BIOLOGIC potentiostats. The class provides a simple interface to automatically parse all the loaded data and hold them in memory in the form of bytestreams. To show how this object can be operated let us consider the case of a <code class="docutils literal notranslate"><span class="pre">.mpt</span></code> file that, for the purposes of this example, is provided in the documentation folder. Let us look at the content of such file:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -301,12 +181,12 @@ mode	ox/red	error	control changes	time/s	control/V/mA	Ewe/V	I/mA	dq/mA.h	(Q-Qo)/
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;echemsuite.cellcycling.cycles.CellCycling at 0x7f2b749efe50&gt;
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;echemsuite.cellcycling.cycles.CellCycling at 0x7f83a2005dc0&gt;
     ├─ total number of cycles:    2
     ├─ number of visible cycles:  2
     └─ reference cycle:           0
 
-&lt;echemsuite.cellcycling.cycles.Cycle at 0x7f2b749eff70&gt;
+&lt;echemsuite.cellcycling.cycles.Cycle at 0x7f83d8f36760&gt;
     ├─ number:     0
     ├─ halfcycles: Both charge and discharge
     └─ hidden:     False
@@ -331,7 +211,7 @@ mode	ox/red	error	control changes	time/s	control/V/mA	Ewe/V	I/mA	dq/mA.h	(Q-Qo)/
 <span class="n">folder</span> <span class="o">=</span> <span class="s2">&quot;./example_partial_DTA&quot;</span>
 
 <span class="c1"># Print a list of the available files</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Available files: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">folder</span><span class="p">)])</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Available files: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">f</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">f</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">folder</span><span class="p">)])</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
 
 <span class="c1"># Load and parse the .DTA files contained in the &quot;my_folder&quot; directory</span>
 <span class="n">manager</span> <span class="o">=</span> <span class="n">FileManager</span><span class="p">()</span>
@@ -377,14 +257,14 @@ Ordering suggested by the FileManager object:
 [[&#39;charge_1.DTA&#39;, &#39;charge_1b.DTA&#39;], [&#39;discharge_1.DTA&#39;]]
 </pre></div>
 </div>
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.legend.Legend at 0x7f2b3db54760&gt;
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.legend.Legend at 0x7f83a02d9850&gt;
 </pre></div>
 </div>
-<img alt="../../_images/loading-files_7_2.png" src="../../_images/loading-files_7_2.png" />
+<img alt="../../_images/7fa8f2c8087d6c630c76dba0907951109899c9f35e4c14da9a02b3a7d7fa987e.png" src="../../_images/7fa8f2c8087d6c630c76dba0907951109899c9f35e4c14da9a02b3a7d7fa987e.png" />
 </div>
 </div>
 <section id="loading-data-from-a-bytesio-bytestream">
-<h2>Loading data from a BytesIO bytestream<a class="headerlink" href="#loading-data-from-a-bytesio-bytestream" title="Permalink to this headline">#</a></h2>
+<h2>Loading data from a BytesIO bytestream<a class="headerlink" href="#loading-data-from-a-bytesio-bytestream" title="Permalink to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">read_input</span></code> sub-module has been developed to also operate in a web-application environment minimizing the I/O calls done on local copies of the loaded files. For this reason, all the loaded files are immediately converted into binary bytestreams and saved in a <code class="docutils literal notranslate"><span class="pre">bytestrem</span></code> dictionary saved in memory. By taking advantage of this behavior, a parametrized <code class="docutils literal notranslate"><span class="pre">FileManager</span></code> object can also be generated by directly setting the <code class="docutils literal notranslate"><span class="pre">bytestream</span></code> buffer via the provided setter.</p>
 <p>To show how this can be done let us, first of all, define a <code class="docutils literal notranslate"><span class="pre">BytesIO</span></code> version of the <code class="docutils literal notranslate"><span class="pre">.mpt</span></code> file considered before. This can easily be done with few lines of code:</p>
 <div class="cell docutils container">
@@ -434,7 +314,7 @@ Ordering suggested by the FileManager object:
             mode: "python"
         },
         kernelOptions: {
-            kernelName: "python3",
+            name: "python3",
             path: "./Guide/CellCycling"
         },
         predefinedOutput: true
@@ -442,51 +322,34 @@ Ordering suggested by the FileManager object:
     </script>
     <script>kernelName = 'python3'</script>
 
-              </div>
-              
-              
-              <!-- Previous / next buttons -->
-<div class='prev-next-area'>
-    <a class='left-prev' id="prev-link" href="../cell-cycling.html" title="previous page">
-        <i class="fas fa-angle-left"></i>
-        <div class="prev-next-info">
-            <p class="prev-next-subtitle">previous</p>
-            <p class="prev-next-title">The <code class="docutils literal notranslate"><span class="pre">cellcycling</span></code> module</p>
-        </div>
-    </a>
-    <a class='right-next' id="next-link" href="accessing-data.html" title="next page">
-    <div class="prev-next-info">
-        <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Accessing and computing properities</p>
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../cell-cycling.html" class="btn btn-neutral float-left" title="The cellcycling module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="accessing-data.html" class="btn btn-neutral float-right" title="Accessing and computing properities" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
-    <i class="fas fa-angle-right"></i>
-    </a>
-</div>
-              
-          </main>
-          
 
-      </div>
-    </div>
-  
-  <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
-<footer class="footer mt-5 mt-md-0">
-  <div class="container">
-    
-    <div class="footer-item">
-      <p class="copyright">
-    &copy; Copyright 2022.<br>
-</p>
-    </div>
-    
-    <div class="footer-item">
-      <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.5.0.<br>
-</p>
-    </div>
-    
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022.</p>
   </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
 </footer>
-  </body>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
 </html>

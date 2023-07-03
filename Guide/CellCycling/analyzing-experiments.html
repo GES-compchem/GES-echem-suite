@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Analyzing complex expriments &mdash; GES-echem-suite Documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/togglebutton.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/sphinx-thebe.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/clipboard.min.js"></script>
+        <script src="../../_static/copybutton.js"></script>
+        <script src="../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+        <script>let toggleHintShow = 'Click to show';</script>
+        <script>let toggleHintHide = 'Click to hide';</script>
+        <script>let toggleOpenOnPrint = 'true';</script>
+        <script src="../../_static/togglebutton.js"></script>
+        <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+        <script src="../../_static/design-tabs.js"></script>
+        <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
+const thebe_selector = ".thebe,.cell"
+const thebe_selector_input = "pre"
+const thebe_selector_output = ".output, .cell_output"
+</script>
+        <script async="async" src="../../_static/sphinx-thebe.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="The echemsuite.cyclicvoltammetry module" href="../cyclic-voltammetry.html" />
+    <link rel="prev" title="Accessing and computing properities" href="accessing-data.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../intro.html" class="icon icon-home">
+            Python
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../getting-started.html">Getting started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../user-guide.html">User guide</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../cell-cycling.html">The <code class="docutils literal notranslate"><span class="pre">cellcycling</span></code> module</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="loading-files.html">Basic file loading operations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="accessing-data.html">Accessing and computing properities</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Analyzing complex expriments</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../cyclic-voltammetry.html">The <code class="docutils literal notranslate"><span class="pre">echemsuite.cyclicvoltammetry</span></code> module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributor-guide.html">Contributor’s guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release-notes.html">Release notes</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../intro.html">Python</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../intro.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../user-guide.html">User guide</a></li>
+          <li class="breadcrumb-item"><a href="../cell-cycling.html">The <code class="docutils literal notranslate"><span class="pre">cellcycling</span></code> module</a></li>
+      <li class="breadcrumb-item active">Analyzing complex expriments</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/Guide/CellCycling/analyzing-experiments.ipynb" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="analyzing-complex-expriments">
+<span id="cellcycling-analyzingexperiment"></span><h1>Analyzing complex expriments<a class="headerlink" href="#analyzing-complex-expriments" title="Permalink to this heading"></a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">GES-echem-suite</span></code> library provides some custom made experiment class explicitly designed to facilitate the analysis of composite experiments. At this time the following experiment types are supported:</p>
+<ul class="simple">
+<li><p>Rate analysis: Analysis of more than one cell-cycling experiment carried out at a different value of constant-current</p></li>
+</ul>
+<section id="the-analysis-of-charge-dischage-rate-experiments">
+<h2>The analysis of charge/dischage rate experiments<a class="headerlink" href="#the-analysis-of-charge-dischage-rate-experiments" title="Permalink to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">RateExperiment</span></code> class can be used to analyze more than one cell-cycling experiment carried out at a different value of constant-current. A <code class="docutils literal notranslate"><span class="pre">RateExperiment</span></code> object can be created in different ways:</p>
+<ul class="simple">
+<li><p>Directly constructued by the user, by providing a list of current values and a list of the corresponding <code class="docutils literal notranslate"><span class="pre">CellCycling</span></code> objects</p></li>
+<li><p>Constructed from a Bilogic Battery module file using the <code class="docutils literal notranslate"><span class="pre">from_Biologic_battery_module</span></code> classmethod.</p></li>
+</ul>
+<p>An example of the latter option is provided in what follows:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">echemsuite.cellcycling.experiments</span> <span class="kn">import</span> <span class="n">RateExperiment</span>
+
+<span class="c1"># Create a RateExperiment from a Biologic Battery Module file</span>
+<span class="n">experiment</span> <span class="o">=</span> <span class="n">RateExperiment</span><span class="p">()</span><span class="o">.</span><span class="n">from_Biologic_battery_module</span><span class="p">(</span><span class="s2">&quot;./example_Biologic_BatteryModule/example_BattModule.mpt&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">experiment</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Rate Experiment
+----------------------------------------
+0.5A : 1 cycles
+1.0A : 5 cycles
+1.5A : 5 cycles
+2.0A : 5 cycles
+2.5A : 5 cycles
+3.0A : 5 cycles
+3.5A : 5 cycles
+4.0A : 5 cycles
+4.5A : 5 cycles
+5.0A : 5 cycles
+----------------------------------------
+</pre></div>
+</div>
+</div>
+</div>
+<p>Now that the <code class="docutils literal notranslate"><span class="pre">RateExperiment</span></code> object representing the experiment has been obtained all the experimental data and derived quantities can be accessed using the built-in class methods and properties. The following script shows how the data can be accessed and graphically represented:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">echemsuite.cellcycling.experiments</span> <span class="kn">import</span> <span class="n">RateExperiment</span>
+
+<span class="c1"># Create a RateExperiment from a Biologic Battery Module file</span>
+<span class="n">experiment</span> <span class="o">=</span> <span class="n">RateExperiment</span><span class="o">.</span><span class="n">from_Biologic_battery_module</span><span class="p">(</span><span class="s2">&quot;./example_Biologic_BatteryModule/example_BattModule.mpt&quot;</span><span class="p">)</span>
+
+<span class="c1"># Select the values to plot in the graph</span>
+<span class="n">N</span> <span class="o">=</span> <span class="n">experiment</span><span class="o">.</span><span class="n">numbers</span>
+<span class="n">AP</span> <span class="o">=</span> <span class="n">experiment</span><span class="o">.</span><span class="n">average_power</span>
+<span class="n">CR</span> <span class="o">=</span> <span class="n">experiment</span><span class="o">.</span><span class="n">capacity_retention</span>
+
+<span class="c1"># Plotting the data </span>
+<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;font.size&#39;</span><span class="p">:</span> <span class="mi">18</span><span class="p">})</span> 
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span> 
+
+<span class="n">color_ax1</span> <span class="o">=</span> <span class="s2">&quot;blue&quot;</span> 
+<span class="n">ax1</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">AP</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">color_ax1</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;s&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">45</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span> 
+<span class="n">ax1</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">labelcolor</span><span class="o">=</span><span class="n">color_ax1</span><span class="p">)</span> 
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Cycle number&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span> 
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;■ Average power (W)&quot;</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">color_ax1</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">((</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">12</span><span class="p">))</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">which</span><span class="o">=</span><span class="s2">&quot;major&quot;</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s2">&quot;#DDDDDD&quot;</span><span class="p">)</span> 
+<span class="n">ax1</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">which</span><span class="o">=</span><span class="s2">&quot;minor&quot;</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s2">&quot;#EEEEEE&quot;</span><span class="p">)</span> 
+
+<span class="n">ax2</span> <span class="o">=</span> <span class="n">ax1</span><span class="o">.</span><span class="n">twinx</span><span class="p">()</span> 
+<span class="n">color_ax2</span> <span class="o">=</span> <span class="s2">&quot;red&quot;</span> 
+<span class="n">ax2</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">CR</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">color_ax2</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;o&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">45</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> 
+<span class="n">ax2</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">labelcolor</span><span class="o">=</span><span class="n">color_ax2</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">((</span><span class="o">-</span><span class="mi">45</span><span class="p">,</span> <span class="mi">105</span><span class="p">))</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;● Capacity retention (%)&quot;</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">color_ax2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>  
+
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span> 
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../../_images/31a25767bea9ad124c0814128ea3e98f138f2d5ab6d9aed02c290414a1a766d2.png" src="../../_images/31a25767bea9ad124c0814128ea3e98f138f2d5ab6d9aed02c290414a1a766d2.png" />
+</div>
+</div>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./Guide/CellCycling"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="accessing-data.html" class="btn btn-neutral float-left" title="Accessing and computing properities" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../cyclic-voltammetry.html" class="btn btn-neutral float-right" title="The echemsuite.cyclicvoltammetry module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
