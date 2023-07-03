@@ -2,6 +2,7 @@ from __future__ import annotations
 from typing import List, Tuple, Dict
 from datetime import datetime, timedelta
 
+import openpyxl
 import pandas as pd
 import numpy as np
 
@@ -438,3 +439,67 @@ class RateExperiment:
             A simple array with a progressive number for all datapoints.
         """
         return [i+1 for i, _ in enumerate(self)]
+
+    @property
+    def current_steps(self) -> List[int]:
+        """
+        Returns an array containing the current values associated with each cycle in the experiment
+
+        Returns
+        -------
+        List[int]
+            A simple array with a progressive number for all datapoints.
+        """
+        current_steps = []
+        for current, cellcycling in zip(self.__current_steps, self.__cellcycling_steps):
+            for _ in cellcycling:
+                current_steps.append(current)
+
+        return current_steps
+        
+    
+    def dump_to_excel(self, path: str, volume: float, area: float) -> None:
+        """
+        Dump an excel report containing all the information associated with the experiment.
+
+        Arguments
+        ---------
+        path: str
+            The path in which the .xlsx file will be saved.
+        volume: float
+            The electrolyte volume to be used in computing the volumetric densities.
+        area: float
+            The electrode area to be used in the calculatrion of densities values.
+        """
+        csv = "N°,C.D,A.P.D.,C,E,C.R.,CE,VE,EE,V.C,E.D\n"
+        csv += "N°,mA/cm2,mW/cm2,mAh,mWh,%,%,%,%,Ah/L,Wh/L\n"
+        
+        for i, N in enumerate(self.numbers):
+            CD = 1000*self.current_steps[i]/area
+            APD = 1000*self.average_power[i]/area
+            C = self.capacity[i]
+            E = self.total_energy[i]
+            CR = self.capacity_retention[i]
+            CE = self.coulomb_efficiencies[i]
+            VE = self.voltage_efficiency[i]
+            EE = self.energy_efficiencies[i]
+            VC = self.capacity[i]/volume
+            ED = self.total_energy[i]/volume
+            csv += f"{N},{CD},{APD},{C},{E},{CR},{CE},{VE},{EE},{VC},{ED}\n"
+
+        # Convert the csv file into xlsx format
+        workbook = openpyxl.Workbook()
+        sheet = workbook.active
+        for r, row in enumerate(csv.split("\n")):
+            if r < 2:
+                sheet.append(row.split(","))
+            else:
+                sheet.append([float(x) if x != "" and x != "None" else x for x in row.split(",")])
+        
+        workbook.save(path)
+
+
+if __name__ == "__main__":
+
+    experiment = RateExperiment().from_Biologic_battery_module("/home/ppravatto/Dropbox/GES/Progetti/Experimental_data_analysis/GES-echem-suite/docs/Guide/CellCycling/example_Biologic_BatteryModule/example_BattModule.mpt")
+    experiment.dump_to_excel("./test.xlsx", 1.5, 25)
