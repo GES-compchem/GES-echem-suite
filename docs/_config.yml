@@ -30,6 +30,6 @@ sphinx:
     - 'sphinx.ext.autodoc'
     - 'sphinx.ext.napoleon'
   config:
-     html_theme: 'pydata_sphinx_theme'
+     html_theme: sphinx_rtd_theme
      autodoc_typehints: "description"
     

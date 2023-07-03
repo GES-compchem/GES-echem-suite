@@ -1,6 +1,6 @@
 # GES-echem-suite Documentation
 
-Version: [0.2.0a](ReleaseNotes)
+Version: [0.2.1a](ReleaseNotes)
 
 The `GES-echem-suite` library is a small collection of tools for the manipulation and analysis of electrochemical data. The library allows to load, organize, and process the data-files collected during electrochemical experiments such as battery cycling and cyclic voltammetries.
 

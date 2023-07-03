@@ -1,15 +1,12 @@
 # Getting started
 
-The library can be installed using [anaconda](https://www.anaconda.com/products/distribution) either via the terminal or via the Anaconda Navigator application.
-
-### From the terminal
-To install the package using the anaconda virtual environemnt, run the following command:
+The latest version of the library can be downloaded directly from [our GitHub page](https://github.com/GES-compchem/GES-echem-suite) and then installed using pip. To do so, you can run the following commands:
 
 ```
-conda install -c greenenergystorage GES-echem-suite
+git clone https://github.com/GES-compchem/GES-echem-suite
+cd GES-echem-suite
+pip install .
 ```
-
-to have more information about the operation of anaconda please refer to the [official documentation](https://docs.anaconda.com/anacondaorg/).
 
 ## Using the library
 

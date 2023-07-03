@@ -322,31 +322,6 @@ def test_Cycle_calculate_efficiencies_sentinel_value_feature(halfcycle_obj_const
     assert_almost_equal(cycle.voltage_efficiency, 101, decimal=6)
 
 
-# Cumulative test to verify the functions marked as legacy
-def test_Cycle_legacy_functions(cycle_obj_const):
-
-    cycle = cycle_obj_const
-
-    assert_array_almost_equal(cycle.time_charge, cycle.charge.time, decimal=6)
-    assert_array_almost_equal(cycle.time_discharge, cycle.discharge.time, decimal=6)
-    assert_array_almost_equal(cycle.voltage_charge, cycle.charge.voltage, decimal=6)
-    assert_array_almost_equal(cycle.voltage_discharge, cycle.discharge.voltage, decimal=6)
-    assert_array_almost_equal(cycle.current_charge, cycle.charge.current, decimal=6)
-    assert_array_almost_equal(cycle.current_discharge, cycle.discharge.current, decimal=6)
-    assert_array_almost_equal(cycle.power_charge, cycle.charge.power, decimal=6)
-    assert_array_almost_equal(cycle.power_discharge, cycle.discharge.power, decimal=6)
-    assert_array_almost_equal(cycle.energy_charge, cycle.charge.energy, decimal=6)
-    assert_array_almost_equal(cycle.energy_discharge, cycle.discharge.energy, decimal=6)
-    assert_array_almost_equal(cycle.Q_charge, cycle.charge.Q, decimal=6)
-    assert_array_almost_equal(cycle.Q_discharge, cycle.discharge.Q, decimal=6)
-
-    assert_almost_equal(cycle.capacity_charge, cycle.charge.capacity, decimal=6)
-    assert_almost_equal(cycle.capacity_discharge, cycle.discharge.capacity, decimal=6)
-    assert_almost_equal(cycle.total_energy_charge, cycle.charge.total_energy, decimal=6)
-    assert_almost_equal(
-        cycle.total_energy_discharge, cycle.discharge.total_energy, decimal=6
-    )
-
 
 # %% TEST FUNCTIONS FOR THE CELLCYCLING CLASS USING THE CONSTANT DATASET
 
