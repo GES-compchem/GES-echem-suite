@@ -1,18 +1,6 @@
-# %% ADD MODULE TO SYSPATH
-import os
-import sys
-from pathlib import Path
-
-current_path = os.path.realpath(__file__)
-
-path = Path(current_path)
-parent_path = str(path.parents[2].absolute())
-sys.path.insert(0, parent_path)
-
-# %% IMPORTS
 import pytest
 import pandas as pd
-from os.path import abspath, join
+
 from datetime import datetime
 from io import TextIOWrapper, BytesIO
 from numpy.testing import assert_array_almost_equal
@@ -24,9 +12,7 @@ from echemsuite.cellcycling.read_input import (
 )
 
 
-# %% DEFINE FILE EMULATION FIXTURES FOR GAMRY .DTA FILES
-
-
+# DEFINE FILE EMULATION FIXTURES FOR GAMRY .DTA FILES
 def generate_minimal_dta_file_content(charge: bool, time: str) -> str:
 
     sign = "" if charge else "-"
@@ -95,7 +81,7 @@ def folder_with_partial_dta_files(tmp_path_factory):
     return folder
 
 
-# %% DEFINE FILE EMULATION FIXTURES FOR BIOLOGIC .MPT FILES
+# DEFINE FILE EMULATION FIXTURES FOR BIOLOGIC .MPT FILES
 
 
 def generate_regular_mpt_file_content() -> str:
