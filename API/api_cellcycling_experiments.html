@@ -191,14 +191,28 @@ contained in all the cell-cycling experiments. Coulombic efficiency of the cycle
 
 <dl class="py property">
 <dt class="sig sig-object py" id="echemsuite.cellcycling.experiments.RateExperiment.current_steps">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">current_steps</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#echemsuite.cellcycling.experiments.RateExperiment.current_steps" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">current_steps</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#echemsuite.cellcycling.experiments.RateExperiment.current_steps" title="Permalink to this definition"></a></dt>
 <dd><p>Returns an array containing the current values associated with each cycle in the experiment</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A simple array with a progressive number for all datapoints.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>List[int]</p>
+<dd class="field-even"><p>List[float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="echemsuite.cellcycling.experiments.RateExperiment.cycles">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cycles</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="api_cellcycling_cycles.html#echemsuite.cellcycling.cycles.Cycle" title="echemsuite.cellcycling.cycles.Cycle"><span class="pre">Cycle</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#echemsuite.cellcycling.experiments.RateExperiment.cycles" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the array containing all the cycles object associated to each current step</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A simple array containing the sequece of Cycle objects associated to each explored current value</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>List[<a class="reference internal" href="api_cellcycling_cycles.html#echemsuite.cellcycling.cycles.Cycle" title="echemsuite.cellcycling.cycles.Cycle">Cycle</a>]</p>
 </dd>
 </dl>
 </dd></dl>
