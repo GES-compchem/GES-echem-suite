@@ -56,6 +56,7 @@ class RateExperiment:
             for cycle in cellcycling:
                 yield cycle
 
+
     @property
     def reference(self) -> Tuple[int, int]:
         """
@@ -70,7 +71,9 @@ class RateExperiment:
         return self.__reference
 
     @reference.setter
-    def reference(self, cellcycling: int, step: int) -> None:
+    def reference(self, input: Tuple[int, int]) -> None:
+        
+        cellcycling, step = input
         if cellcycling < 0 or cellcycling >= len(self.__cellcycling_steps):
             raise ValueError(
                 f"Cannot use the cellcycling {cellcycling} as reference. Only {len(self.__cellcycling_steps)} are available."
@@ -436,13 +439,13 @@ class RateExperiment:
         return [i+1 for i, _ in enumerate(self)]
 
     @property
-    def current_steps(self) -> List[int]:
+    def current_steps(self) -> List[float]:
         """
         Returns an array containing the current values associated with each cycle in the experiment
 
         Returns
         -------
-        List[int]
+        List[float]
             A simple array with a progressive number for all datapoints.
         """
         current_steps = []
@@ -451,6 +454,23 @@ class RateExperiment:
                 current_steps.append(current)
 
         return current_steps
+
+    @property
+    def cycles(self) -> List[Cycle]:
+        """
+        Returns the array containing all the cycles object associated to each current step
+
+        Returns
+        -------
+        List[Cycle]
+            A simple array containing the sequece of Cycle objects associated to each explored current value
+        """
+        cycles = []
+        for cellcycling in self.__cellcycling_steps:
+            for cycle in cellcycling:
+                cycles.append(cycle)
+
+        return cycles
         
     
     def dump_to_excel(self, path: str, volume: float, area: float) -> None:

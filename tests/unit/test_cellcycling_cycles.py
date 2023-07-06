@@ -1,15 +1,3 @@
-# %% ADD MODULE TO SYSPATH
-import os
-import sys
-from pathlib import Path
-
-current_path = os.path.realpath(__file__)
-
-path = Path(current_path)
-parent_path = str(path.parents[2].absolute())
-sys.path.insert(0, parent_path)
-
-# %% IMPORTS
 import pytest
 import pandas as pd
 import numpy as np
@@ -28,9 +16,7 @@ from echemsuite.cellcycling.cycles import (
 )
 
 
-# %% DEFINE CONSTANT DATASET TO BE USED IN TESTING
-
-
+# DEFINE CONSTANT DATASET TO BE USED IN TESTING
 def get_dataset_const() -> Tuple[pd.Series, pd.Series, pd.Series, datetime]:
     time = pd.Series([0.0, 1.0, 2.0, 3.0, 4.0])
     voltage = pd.Series([1.2, 1.2, 1.2, 1.2, 1.2])
@@ -87,8 +73,7 @@ def expected_values_const() -> Tuple[pd.Series, float, pd.Series, pd.Series, flo
     return pd.Series(Q), total_capacity, pd.Series(power), pd.Series(energy), total_energy
 
 
-# %% TEST FUNCTIONS FOR THE HALFCYCLE CLASS USING THE CONSTANT DATASET
-
+# TEST FUNCTIONS FOR THE HALFCYCLE CLASS USING THE CONSTANT DATASET
 # Test function to check for exceptions raised during HalfCycle object construction
 def test_HalfCycle___init__() -> None:
 
@@ -161,8 +146,7 @@ def test_HalfCycle_calculate_energy_function(halfcycle_obj_const, expected_value
     assert_almost_equal(halfcycle._total_energy, tE_exp, decimal=6)
 
 
-# %% TEST FUNCTIONS FOR THE JOIN HALFCYCLE FUNCTION USING THE CONSTANT DATASET
-
+# TEST FUNCTIONS FOR THE JOIN HALFCYCLE FUNCTION USING THE CONSTANT DATASET
 # Test regular operation of the join_HalfCycles function
 def test_join_HalfCycles_function(halfcycle_obj_const):
 
@@ -207,9 +191,7 @@ def test_join_HalfCycles_function_different_type_error(halfcycle_obj_const):
         assert False
 
 
-# %% TEST FUNCTIONS FOR THE CYCLE CLASS USING THE CONSTANT DATASET
-
-
+# TEST FUNCTIONS FOR THE CYCLE CLASS USING THE CONSTANT DATASET
 # Test function to check for exceptions raised during Cycle object construction
 def test_Cycle___init__(halfcycle_obj_const):
 
@@ -323,9 +305,7 @@ def test_Cycle_calculate_efficiencies_sentinel_value_feature(halfcycle_obj_const
 
 
 
-# %% TEST FUNCTIONS FOR THE CELLCYCLING CLASS USING THE CONSTANT DATASET
-
-
+# TEST FUNCTIONS FOR THE CELLCYCLING CLASS USING THE CONSTANT DATASET
 # Test function to check for exceptions raised during CellCycling object construction
 def test_CellCycling___init__(cycles_objs_const):
 
@@ -560,9 +540,7 @@ def test_CellCycling_properties(cycles_objs_const):
     assert cellcycling.numbers == [0, 1, 2, 3, 4]
 
 
-# %% TEST FOR THE time_adjust FUNCTION
-
-
+# TEST FOR THE time_adjust FUNCTION
 # Test the time_adjust_function no reverse equal time-series
 def test_time_adjust_function_equal(cycle_obj_const):
     cycle = cycle_obj_const
