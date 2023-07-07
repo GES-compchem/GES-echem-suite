@@ -23,7 +23,7 @@
         git remote add upstream https://github.com/GES-compchem/GES-echem-suite.git
         ```
 
-    * Now, when running the `git remote -v` command, the following reposiotries shold be visible:
+    * Now, when running the `git remote -v` command, the following reposiotries should be visible:
         * `upstream`, which refers to the GES-compchem repository
         * `origin`, which refers to your personal fork
 
