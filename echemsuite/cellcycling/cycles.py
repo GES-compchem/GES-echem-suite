@@ -33,9 +33,7 @@ class CellCycling:
 
         self._numbers: list = None  # initialized by get_numbers()
 
-        self._capacity_retention: list = (
-            None  # initialized in capacity_retention() property
-        )
+        self._capacity_retention: list = None  # initialized in capacity_retention() property
         self.reference: int = 0  # used for calculating retentions
 
         self._retention_fit_parameters = None  # initialized by fit_retention()
@@ -63,7 +61,7 @@ class CellCycling:
     ├─ total number of cycles:    {len(self._cycles)}
     ├─ number of visible cycles:  {len(self)}
     └─ reference cycle:           {self.reference}"""
-    
+
     def __str__(self) -> str:
         return repr(self)
 
@@ -116,9 +114,7 @@ class CellCycling:
 
         for cycle in self:
             if cycle.discharge:
-                self._capacity_retention.append(
-                    cycle.discharge.capacity / initial_capacity * 100
-                )
+                self._capacity_retention.append(cycle.discharge.capacity / initial_capacity * 100)
             else:
                 self._capacity_retention.append(None)
 
@@ -198,10 +194,7 @@ class CellCycling:
 
         predicted_retentions = []
         for cycle_number in cycle_numbers:
-            retention = (
-                self._retention_fit_parameters.slope * cycle_number
-                + self._retention_fit_parameters.intercept
-            )
+            retention = self._retention_fit_parameters.slope * cycle_number + self._retention_fit_parameters.intercept
             predicted_retentions.append(retention)
 
         return predicted_retentions
@@ -225,11 +218,7 @@ class CellCycling:
         predicted_cycle_numbers = []
         for retention in thresholds:
             cycle_number = int(
-                (
-                    (retention - self._retention_fit_parameters.intercept)
-                    / self._retention_fit_parameters.slope
-                )
-                // 1
+                ((retention - self._retention_fit_parameters.intercept) / self._retention_fit_parameters.slope) // 1
             )
             predicted_cycle_numbers.append(cycle_number)
 
@@ -296,23 +285,20 @@ class Cycle:
         if either one of the given charge/discharge half-cycles are of the wrong type
     """
 
-    def __init__(
-        self, number: int, charge: HalfCycle = None, discharge: HalfCycle = None
-    ) -> None:
-
+    def __init__(self, number: int, charge: HalfCycle = None, discharge: HalfCycle = None) -> None:
         self._number = number
 
         self._charge: HalfCycle = charge
         self._discharge: HalfCycle = discharge
 
         if charge and charge._halfcycle_type != "charge":
-            raise TypeError
+            raise TypeError(f"Half-cycle type is {charge._halfcycle_type}. Must be 'charge'.")
 
         if discharge and discharge._halfcycle_type != "discharge":
-            raise TypeError
-        
+            raise TypeError(f"Half-cycle type is {discharge._halfcycle_type}. Must be 'discharge'.")
+
         if not charge and not discharge:
-            raise RuntimeError
+            raise RuntimeError("No charge/discharge data found.")
 
         self._hidden: bool = False
 
@@ -321,7 +307,7 @@ class Cycle:
             self._energy_efficiency,
             self._voltage_efficiency,
         ) = self.calculate_efficiencies()
-    
+
     def __repr__(self):
         if self._charge and self._discharge:
             status = "Both charge and discharge"
@@ -335,7 +321,7 @@ class Cycle:
     ├─ number:     {self.number}
     ├─ halfcycles: {status}
     └─ hidden:     {self._hidden}"""
-    
+
     def __str__(self) -> str:
         return repr(self)
 
@@ -484,22 +470,15 @@ class Cycle:
         """
 
         if self.charge and self.discharge:
-
             if self.charge.capacity <= 0 or self.charge.total_energy <= 0:
                 # 101 is a sentinel value
                 self._coulomb_efficiency = 101
                 self._energy_efficiency = 101
                 self._voltage_efficiency = 101
             else:
-                self._coulomb_efficiency = (
-                    self.discharge.capacity / self.charge.capacity * 100
-                )
-                self._energy_efficiency = (
-                    self.discharge.total_energy / self.charge.total_energy * 100
-                )
-                self._voltage_efficiency = (
-                    self._energy_efficiency / self._coulomb_efficiency * 100
-                )
+                self._coulomb_efficiency = self.discharge.capacity / self.charge.capacity * 100
+                self._energy_efficiency = self.discharge.total_energy / self.charge.total_energy * 100
+                self._voltage_efficiency = self._energy_efficiency / self._coulomb_efficiency * 100
 
             return (
                 self._coulomb_efficiency,
@@ -548,7 +527,7 @@ class Cycle:
         float
         """
         return self._voltage_efficiency
-    
+
 
 class HalfCycle:
     """
@@ -584,9 +563,8 @@ class HalfCycle:
         halfcycle_type: str,
         timestamp: datetime,
     ) -> None:
-
         if halfcycle_type != "discharge" and halfcycle_type != "charge":
-            raise ValueError
+            raise ValueError(f"Half-cycle type is {halfcycle_type}. Must either be 'charge' or 'discharge'.")
 
         self._timestamp = timestamp
         self._time = time
@@ -596,14 +574,14 @@ class HalfCycle:
 
         self._Q, self._capacity = self.calculate_Q()
         self._power, self._energy, self._total_energy = self.calculate_energy()
-    
+
     def __repr__(self):
         return f"""
 <echemsuite.cellcycling.cycles.HalfCycle at {hex(id(self))}>
     ├─ timestamp: {self.timestamp}
     ├─ type:      {self.halfcycle_type}
     └─ points:    {len(self.time)}"""
-    
+
     def __str__(self) -> str:
         return repr(self)
 
@@ -677,7 +655,7 @@ class HalfCycle:
     @timestamp.setter
     def timestamp(self, value: datetime) -> None:
         if type(value) != datetime:
-            raise TypeError
+            raise TypeError(f"Provided timestamp is of type {type(value)}. Must be `datetime`.")
         self._timestamp = value
 
     # HALFCYCLE TYPE (charge/discharge)
@@ -773,7 +751,7 @@ class HalfCycle:
             the instantaneous power for each time-step in (W)
         """
         return self._power
-    
+
     @property
     def average_power(self) -> float:
         """
@@ -785,7 +763,6 @@ class HalfCycle:
             the average power value.
         """
         return self._power.mean()
-
 
     # ENERGY
     @property
@@ -848,9 +825,11 @@ def join_HalfCycles(join_list: List[HalfCycle]) -> HalfCycle:
     halfcycle_type = join_list[0]._halfcycle_type
 
     # Do a sanity check on the halfcycle_type associated to the given objects
-    for obj in join_list:
+    for idx, obj in enumerate(join_list):
         if obj._halfcycle_type != halfcycle_type:
-            raise RuntimeError
+            raise RuntimeError(
+                f"HalfCycle {idx} is of type {obj._halfcycle_type}. Must be {halfcycle_type}. Cannot join HalfCycles."
+            )
 
     # Concatenate the data series for voltage and current
     voltage = pd.concat([obj._voltage for obj in join_list], ignore_index=True)
@@ -883,7 +862,7 @@ def time_adjust(cycle: Cycle, reverse: bool = False) -> Tuple[pd.Series, pd.Seri
         the cycle to which the charge/discharge half-cycles belong to
     reverse : bool
         if True apply the time reversal to the discharge halfcycle
-    
+
     Returns
     -------
     Tuple[``pandas.core.series.Series``, ``pandas.core.series.Series``]
