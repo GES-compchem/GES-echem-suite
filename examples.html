@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Release notes &mdash; GES-echem-suite Documentation</title>
+  <title>Examples &mdash; GES-echem-suite Documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/togglebutton.css" type="text/css" />
@@ -39,7 +39,8 @@ const thebe_selector_output = ".output, .cell_output"
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="Contributor’s guide" href="contributor-guide.html" /> 
+    <link rel="next" title="Plotting cycles" href="Examples/plot-cycles.html" />
+    <link rel="prev" title="Using the graphicaltools module" href="Guide/graphicaltools.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -64,10 +65,15 @@ const thebe_selector_output = ".output, .cell_output"
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="getting-started.html">Getting started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="user-guide.html">User guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Examples/plot-cycles.html">Plotting cycles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Examples/plot-rate-experiments.html">Plotting rate experiments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Examples/plot-cyclicvoltammetry.html">Plotting cyclic voltammetry experiments</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="contributor-guide.html">Contributor’s guide</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Release notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="release-notes.html">Release notes</a></li>
 </ul>
 
         </div>
@@ -84,9 +90,9 @@ const thebe_selector_output = ".output, .cell_output"
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="intro.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Release notes</li>
+      <li class="breadcrumb-item active">Examples</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="_sources/release-notes.md" rel="nofollow"> View page source</a>
+            <a href="_sources/examples.md" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -94,55 +100,17 @@ const thebe_selector_output = ".output, .cell_output"
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section class="tex2jax_ignore mathjax_ignore" id="release-notes">
-<span id="releasenotes"></span><h1>Release notes<a class="headerlink" href="#release-notes" title="Permalink to this heading"></a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="examples">
+<span id="examples-main"></span><h1>Examples<a class="headerlink" href="#examples" title="Permalink to this heading"></a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">GES-echem-suite</span></code> library is shipped with a small set of example scripts that cover the main data-analysis tasks. The main idea around these scripts is to provide a well formatted starting point for all the users that want to develop their own data-analysis routines to respond to well defined research interests.</p>
+<p>The following examples are provided:</p>
 <ul class="simple">
-<li><p>Version 0.2.1b</p>
-<ul>
-<li><p>Added a graphicaltools module to help the user in the creation of graphs and plots</p>
-<ul>
-<li><p>Defined a simple <code class="docutils literal notranslate"><span class="pre">Color</span></code> class to hold, manipulate and carry around RGB color values.</p></li>
-<li><p>Defined a <code class="docutils literal notranslate"><span class="pre">ColorShader</span></code> class to generate multiple shades of a given color (e.g. to be used when plotting capacity/voltage curves of the same cell during multiple cycles)</p></li>
-<li><p>Defined a <code class="docutils literal notranslate"><span class="pre">Palette</span></code> class to handle generic color palettes to be used in plotting different experiments.</p></li>
+<li><p><a class="reference internal" href="Examples/plot-cycles.html#examples-plot-cycles"><span class="std std-ref">Plotting the charge and discharge cycles from <code class="docutils literal notranslate"><span class="pre">.mpt</span></code> or <code class="docutils literal notranslate"><span class="pre">.DTA</span></code> files</span></a></p></li>
+<li><p><a class="reference internal" href="Examples/plot-rate-experiments.html#examples-plot-rate-experiments"><span class="std std-ref">Plotting rate experiments manually and from a Biologic battery module file</span></a></p></li>
+<li><p><a class="reference internal" href="Examples/plot-cyclicvoltammetry.html#examples-plot-cyclicvoltammetry"><span class="std std-ref">Plotting cyclic voltammetry experiments</span></a></p></li>
 </ul>
-</li>
-<li><p>Created an early version of the documentation of the module with examples.</p></li>
-</ul>
-</li>
-<li><p>Version 0.2.1a</p>
-<ul>
-<li><p>Refactoring of the <code class="docutils literal notranslate"><span class="pre">cyclicvoltammetry</span></code> module:</p>
-<ul>
-<li><p>Easier access to the current and voltage data of each cycle.</p></li>
-<li><p>Implemented early version of the documentation with examples.</p></li>
-</ul>
-</li>
-<li><p>Added <code class="docutils literal notranslate"><span class="pre">experiments</span></code> submodule to the <code class="docutils literal notranslate"><span class="pre">cellcycling</span></code> module:</p>
-<ul>
-<li><p>Introduced the <code class="docutils literal notranslate"><span class="pre">RateExperiment</span></code> class to handle multiple cellcycling experiments at different currents.</p></li>
-<li><p>Updated the documentation with the new features.</p></li>
-<li><p>Dropped support for old legacy functions.</p></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p>Version 0.2.0a:</p>
-<ul>
-<li><p>Refacoring of the <code class="docutils literal notranslate"><span class="pre">cellcycling</span></code> module: Separated the file loader module (<code class="docutils literal notranslate"><span class="pre">echemsuite.cellcycling.read_input</span></code>) from the analysis one (<code class="docutils literal notranslate"><span class="pre">echemsuite.cellcycling.cycles</span></code>).</p></li>
-<li><p>Added <code class="docutils literal notranslate"><span class="pre">FileManager</span></code> class to handle the loading and manipulation of <code class="docutils literal notranslate"><span class="pre">.DTA</span></code> and <code class="docutils literal notranslate"><span class="pre">.mpt</span></code> files</p></li>
-<li><p>Refactoring of the code and set to deprecated the functions:</p>
-<ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">build_DTA_cycles</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">read_mpt_cycles</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">read_cycles</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">build_cycles</span></code></p></li>
-</ul>
-</li>
-<li><p>Added documentation</p></li>
-<li><p>Added unit testing</p></li>
-</ul>
-</li>
-</ul>
+<div class="toctree-wrapper compound">
+</div>
 </section>
 
     <script type="text/x-thebe-config">
@@ -168,7 +136,8 @@ const thebe_selector_output = ".output, .cell_output"
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="contributor-guide.html" class="btn btn-neutral float-left" title="Contributor’s guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Guide/graphicaltools.html" class="btn btn-neutral float-left" title="Using the graphicaltools module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="Examples/plot-cycles.html" class="btn btn-neutral float-right" title="Plotting cycles" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

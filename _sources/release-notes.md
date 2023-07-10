@@ -1,6 +1,13 @@
 (ReleaseNotes)=
 # Release notes
 
+* Version 0.2.1b
+    * Added a graphicaltools module to help the user in the creation of graphs and plots 
+        * Defined a simple `Color` class to hold, manipulate and carry around RGB color values.
+        * Defined a `ColorShader` class to generate multiple shades of a given color (e.g. to be used when plotting capacity/voltage curves of the same cell during multiple cycles)
+        * Defined a `Palette` class to handle generic color palettes to be used in plotting different experiments. 
+    * Created an early version of the documentation of the module with examples. 
+
 * Version 0.2.1a
     * Refactoring of the `cyclicvoltammetry` module:
         * Easier access to the current and voltage data of each cycle.
