@@ -59,8 +59,8 @@ from echemsuite.graphicaltools import Palette, ColorShader
 
 # Define a dictionary to store the experiments to be plotted
 experiments = {}
-experiments["Sample A"] = CyclicVoltammetry("/home/ppravatto/Dropbox/GES/Progetti/Experimental_data_analysis/GES-echem-suite/docs/utils/cv_example_A.DTA")
-experiments["Sample B"] = CyclicVoltammetry("/home/ppravatto/Dropbox/GES/Progetti/Experimental_data_analysis/GES-echem-suite/docs/utils/cv_example_B.DTA")
+experiments["Sample A"] = CyclicVoltammetry("../utils/cv_example_A.DTA")
+experiments["Sample B"] = CyclicVoltammetry("../utils/cv_example_B.DTA")
 
 # Define a color palette to be used in the plot
 palette = Palette("vivid")

@@ -155,8 +155,8 @@ const thebe_selector_output = ".output, .cell_output"
 
 <span class="c1"># Define a dictionary to store the experiments to be plotted</span>
 <span class="n">experiments</span> <span class="o">=</span> <span class="p">{}</span>
-<span class="n">experiments</span><span class="p">[</span><span class="s2">&quot;Sample A&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">CyclicVoltammetry</span><span class="p">(</span><span class="s2">&quot;/home/ppravatto/Dropbox/GES/Progetti/Experimental_data_analysis/GES-echem-suite/docs/utils/cv_example_A.DTA&quot;</span><span class="p">)</span>
-<span class="n">experiments</span><span class="p">[</span><span class="s2">&quot;Sample B&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">CyclicVoltammetry</span><span class="p">(</span><span class="s2">&quot;/home/ppravatto/Dropbox/GES/Progetti/Experimental_data_analysis/GES-echem-suite/docs/utils/cv_example_B.DTA&quot;</span><span class="p">)</span>
+<span class="n">experiments</span><span class="p">[</span><span class="s2">&quot;Sample A&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">CyclicVoltammetry</span><span class="p">(</span><span class="s2">&quot;../utils/cv_example_A.DTA&quot;</span><span class="p">)</span>
+<span class="n">experiments</span><span class="p">[</span><span class="s2">&quot;Sample B&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">CyclicVoltammetry</span><span class="p">(</span><span class="s2">&quot;../utils/cv_example_B.DTA&quot;</span><span class="p">)</span>
 
 <span class="c1"># Define a color palette to be used in the plot</span>
 <span class="n">palette</span> <span class="o">=</span> <span class="n">Palette</span><span class="p">(</span><span class="s2">&quot;vivid&quot;</span><span class="p">)</span>
@@ -193,25 +193,7 @@ const thebe_selector_output = ".output, .cell_output"
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
-<span class="ne">ValueError</span><span class="g g-Whitespace">                                </span>Traceback (most recent call last)
-<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">line</span> <span class="mi">7</span>
-<span class="g g-Whitespace">      </span><span class="mi">5</span> <span class="c1"># Define a dictionary to store the experiments to be plotted</span>
-<span class="g g-Whitespace">      </span><span class="mi">6</span> <span class="n">experiments</span> <span class="o">=</span> <span class="p">{}</span>
-<span class="ne">----&gt; </span><span class="mi">7</span> <span class="n">experiments</span><span class="p">[</span><span class="s2">&quot;Sample A&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">CyclicVoltammetry</span><span class="p">(</span><span class="s2">&quot;/home/ppravatto/Dropbox/GES/Progetti/Experimental_data_analysis/GES-echem-suite/docs/utils/cv_example_A.DTA&quot;</span><span class="p">)</span>
-<span class="g g-Whitespace">      </span><span class="mi">8</span> <span class="n">experiments</span><span class="p">[</span><span class="s2">&quot;Sample B&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">CyclicVoltammetry</span><span class="p">(</span><span class="s2">&quot;/home/ppravatto/Dropbox/GES/Progetti/Experimental_data_analysis/GES-echem-suite/docs/utils/cv_example_B.DTA&quot;</span><span class="p">)</span>
-<span class="g g-Whitespace">     </span><span class="mi">10</span> <span class="c1"># Define a color palette to be used in the plot</span>
-
-<span class="nn">File /opt/hostedtoolcache/Python/3.8.17/x64/lib/python3.8/site-packages/echemsuite/cyclicvoltammetry/read_input.py:43,</span> in <span class="ni">CyclicVoltammetry.__init__</span><span class="nt">(self, path)</span>
-<span class="g g-Whitespace">     </span><span class="mi">41</span> <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="g g-Whitespace">     </span><span class="mi">42</span>     <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
-<span class="ne">---&gt; </span><span class="mi">43</span>         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The specified file `</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">` does not exist.&quot;</span><span class="p">)</span>
-<span class="g g-Whitespace">     </span><span class="mi">45</span>     <span class="bp">self</span><span class="o">.</span><span class="n">__filepath</span> <span class="o">=</span> <span class="n">path</span>  <span class="c1"># path of input file</span>
-<span class="g g-Whitespace">     </span><span class="mi">46</span>     <span class="bp">self</span><span class="o">.</span><span class="n">settings</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># info from input header</span>
-
-<span class="ne">ValueError</span>: The specified file `/home/ppravatto/Dropbox/GES/Progetti/Experimental_data_analysis/GES-echem-suite/docs/utils/cv_example_A.DTA` does not exist.
-</pre></div>
-</div>
+<img alt="../_images/fcb9c72de07aca2a6761154c7678e9c36fdd403607e62e9e2c65f808158454f0.png" src="../_images/fcb9c72de07aca2a6761154c7678e9c36fdd403607e62e9e2c65f808158454f0.png" />
 </div>
 </div>
 </section>
