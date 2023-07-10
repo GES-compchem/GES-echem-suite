@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Using the graphicaltools module &mdash; GES-echem-suite Documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/togglebutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sphinx-thebe.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script src="../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+        <script>let toggleHintShow = 'Click to show';</script>
+        <script>let toggleHintHide = 'Click to hide';</script>
+        <script>let toggleOpenOnPrint = 'true';</script>
+        <script src="../_static/togglebutton.js"></script>
+        <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+        <script src="../_static/design-tabs.js"></script>
+        <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
+const thebe_selector = ".thebe,.cell"
+const thebe_selector_input = "pre"
+const thebe_selector_output = ".output, .cell_output"
+</script>
+        <script async="async" src="../_static/sphinx-thebe.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="API Documentation" href="../api.html" />
+    <link rel="prev" title="The echemsuite.cyclicvoltammetry module" href="cyclic-voltammetry.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../intro.html" class="icon icon-home">
+            Python
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../getting-started.html">Getting started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../user-guide.html">User guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="cell-cycling.html">The <code class="docutils literal notranslate"><span class="pre">cellcycling</span></code> module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cyclic-voltammetry.html">The <code class="docutils literal notranslate"><span class="pre">echemsuite.cyclicvoltammetry</span></code> module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Using the <code class="docutils literal notranslate"><span class="pre">graphicaltools</span></code> module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributor-guide.html">Contributor’s guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release-notes.html">Release notes</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../intro.html">Python</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../intro.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../user-guide.html">User guide</a></li>
+      <li class="breadcrumb-item active">Using the <code class="docutils literal notranslate"><span class="pre">graphicaltools</span></code> module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/Guide/graphicaltools.md" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section class="tex2jax_ignore mathjax_ignore" id="using-the-graphicaltools-module">
+<span id="graphicalmodule"></span><h1>Using the <code class="docutils literal notranslate"><span class="pre">graphicaltools</span></code> module<a class="headerlink" href="#using-the-graphicaltools-module" title="Permalink to this heading"></a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">graphicaltools</span></code> module contains all the basic tools required to manipulate colors and to help the final user in the creation of plots and graphs required for data visualization.</p>
+<section id="the-color-class">
+<h2>The <code class="docutils literal notranslate"><span class="pre">Color</span></code> class<a class="headerlink" href="#the-color-class" title="Permalink to this heading"></a></h2>
+<p>The core object of the module is the <code class="docutils literal notranslate"><span class="pre">Color</span></code> class. The class is used to represent color values and store the information in RGB format (each channel is stored as a value going from <code class="docutils literal notranslate"><span class="pre">0</span></code> to <code class="docutils literal notranslate"><span class="pre">1</span></code>). An instance of the <code class="docutils literal notranslate"><span class="pre">Color</span></code> class can be created directly, using the default constructor, providing it with a <code class="docutils literal notranslate"><span class="pre">float</span></code> value for each channel color.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">echemsuite.graphicaltools</span> <span class="kn">import</span> <span class="n">Color</span>
+
+<span class="n">red</span> <span class="o">=</span> <span class="n">Color</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">red</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Color(1.00, 0.00, 0.00)
+</pre></div>
+</div>
+</div>
+</div>
+<p>An instance of the color class can also be created by providing an RGB HEX sting to the <code class="docutils literal notranslate"><span class="pre">from_HEX</span></code> classmethod according to:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">red</span> <span class="o">=</span> <span class="n">Color</span><span class="o">.</span><span class="n">from_HEX</span><span class="p">(</span><span class="s2">&quot;#FF0000&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">red</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Color(1.00, 0.00, 0.00)
+</pre></div>
+</div>
+</div>
+</div>
+<p>Once an istance of the <code class="docutils literal notranslate"><span class="pre">Color</span></code> class has been created the color can be obtained using the <code class="docutils literal notranslate"><span class="pre">RGB</span></code> and <code class="docutils literal notranslate"><span class="pre">HEX</span></code> properties.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">color</span> <span class="o">=</span> <span class="n">Color</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">color</span><span class="o">.</span><span class="n">RGB</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">color</span><span class="o">.</span><span class="n">HEX</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(1, 0.5, 0)
+#ff7f00
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="the-colorshader-class">
+<h2>The <code class="docutils literal notranslate"><span class="pre">ColorShader</span></code> class<a class="headerlink" href="#the-colorshader-class" title="Permalink to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">ColorShader</span></code> class provides the user with a simple tool to generate sequential color shades to be used in the plots. A <code class="docutils literal notranslate"><span class="pre">ColorShader</span></code> object can be constructed by specifying a <code class="docutils literal notranslate"><span class="pre">basecolor</span></code> and a number of <code class="docutils literal notranslate"><span class="pre">levels</span></code> of shade according to:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">echemsuite.graphicaltools</span> <span class="kn">import</span> <span class="n">ColorShader</span>
+
+<span class="n">basecolor</span> <span class="o">=</span> <span class="n">Color</span><span class="o">.</span><span class="n">from_HEX</span><span class="p">(</span><span class="s2">&quot;#AA00FF&quot;</span><span class="p">)</span>
+<span class="n">shader</span> <span class="o">=</span> <span class="n">ColorShader</span><span class="p">(</span><span class="n">basecolor</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>The shades of color can be obtained using the bracket notation or using the provided iterator:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Using __getitem__:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">shader</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Using __iter__:&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">shader</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Using __getitem__:
+Color(0.87, 0.62, 1.00)
+Using __iter__:
+Color(0.93, 0.80, 1.00)
+Color(0.90, 0.71, 1.00)
+Color(0.87, 0.62, 1.00)
+Color(0.84, 0.53, 1.00)
+Color(0.81, 0.44, 1.00)
+Color(0.78, 0.35, 1.00)
+Color(0.75, 0.25, 1.00)
+Color(0.72, 0.16, 1.00)
+Color(0.69, 0.07, 1.00)
+Color(0.65, 0.00, 0.98)
+</pre></div>
+</div>
+</div>
+</div>
+<p>The following code demonstrates the effect that a <code class="docutils literal notranslate"><span class="pre">ColorShader</span></code> can have on a plot:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">echemsuite.graphicaltools</span> <span class="kn">import</span> <span class="n">ColorShader</span>
+
+<span class="n">basecolor</span> <span class="o">=</span> <span class="n">Color</span><span class="o">.</span><span class="n">from_HEX</span><span class="p">(</span><span class="s2">&quot;#AA00FF&quot;</span><span class="p">)</span>
+<span class="n">shader</span> <span class="o">=</span> <span class="n">ColorShader</span><span class="p">(</span><span class="n">basecolor</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">color</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">shader</span><span class="p">):</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">([</span><span class="n">i</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">c</span><span class="o">=</span><span class="p">[</span><span class="n">color</span><span class="o">.</span><span class="n">RGB</span><span class="p">],</span> <span class="n">s</span><span class="o">=</span><span class="mi">900</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;s&quot;</span><span class="p">)</span>
+  
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/0d115791ed927efc86229f1c7e0b08bf3f6c8f58d3d2ba24cb3d0b493059ec76.png" src="../_images/0d115791ed927efc86229f1c7e0b08bf3f6c8f58d3d2ba24cb3d0b493059ec76.png" />
+</div>
+</div>
+</section>
+<section id="the-palette-class">
+<h2>The <code class="docutils literal notranslate"><span class="pre">Palette</span></code> class<a class="headerlink" href="#the-palette-class" title="Permalink to this heading"></a></h2>
+<p>The palette class provides the user with a simple interface to colors palettes of various origin. The class currently implements the following set of palettes:</p>
+<ul class="simple">
+<li><p>The default matplotlib color sequence: <code class="docutils literal notranslate"><span class="pre">matplotlib</span></code></p></li>
+<li><p>The <a class="reference external" href="https://jiffyclub.github.io/palettable/cartocolors/qualitative/">qualitative color palettes</a> from palettable: <code class="docutils literal notranslate"><span class="pre">bold</span></code>, <code class="docutils literal notranslate"><span class="pre">pastel</span></code>, <code class="docutils literal notranslate"><span class="pre">prism</span></code>, <code class="docutils literal notranslate"><span class="pre">vivid</span></code></p></li>
+</ul>
+<p>An instance of the <code class="docutils literal notranslate"><span class="pre">Palette</span></code> class can be constructed by specifying the keyword associated to the desired palette. The colors of the palette can then be obtained by index, using the <code class="docutils literal notranslate"><span class="pre">__getitem__</span></code> method, adopting the square brackets notation:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">echemsuite.graphicaltools</span> <span class="kn">import</span> <span class="n">Palette</span>
+
+<span class="n">mypalette</span> <span class="o">=</span> <span class="n">Palette</span><span class="p">(</span><span class="s2">&quot;matplotlib&quot;</span><span class="p">)</span>
+<span class="n">mycolor</span> <span class="o">=</span> <span class="n">mypalette</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The first color of the matplotlib palette is: </span><span class="si">{</span><span class="n">mycolor</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The first color of the matplotlib palette is: Color(0.12, 0.47, 0.71)
+</pre></div>
+</div>
+</div>
+</div>
+<p>Please notice how the palett has a limited number of colors that can be obtained using the <code class="docutils literal notranslate"><span class="pre">len</span></code> function. If the index of the required color is greater than the number of available colors the colorsequece will loop around returning the same color sequece. As an example:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">echemsuite.graphicaltools</span> <span class="kn">import</span> <span class="n">Palette</span>
+
+<span class="n">mypalette</span> <span class="o">=</span> <span class="n">Palette</span><span class="p">(</span><span class="s2">&quot;prism&quot;</span><span class="p">)</span>
+
+<span class="n">ncolors</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">mypalette</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The prism palette has </span><span class="si">{</span><span class="n">ncolors</span><span class="si">}</span><span class="s2"> colors&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The first color is </span><span class="si">{</span><span class="n">mypalette</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The color at index </span><span class="si">{</span><span class="n">ncolors</span><span class="si">}</span><span class="s2"> is: </span><span class="si">{</span><span class="n">mypalette</span><span class="p">[</span><span class="n">ncolors</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The prism palette has 8 colors
+The first color is Color(0.37, 0.27, 0.56)
+The color at index 8 is: Color(0.37, 0.27, 0.56)
+</pre></div>
+</div>
+</div>
+</div>
+<p>A visual representation of all the available palettes is reported in what follows:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">echemsuite.graphicaltools</span> <span class="kn">import</span> <span class="n">Palette</span>
+
+<span class="n">palette_names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;matplotlib&quot;</span><span class="p">,</span> <span class="s2">&quot;bold&quot;</span><span class="p">,</span> <span class="s2">&quot;pastel&quot;</span><span class="p">,</span> <span class="s2">&quot;prism&quot;</span><span class="p">,</span> <span class="s2">&quot;vivid&quot;</span><span class="p">]</span>
+
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">y</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">palette_names</span><span class="p">):</span>
+    <span class="n">palette</span> <span class="o">=</span> <span class="n">Palette</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">22</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">palette</span><span class="p">)):</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="n">palette</span><span class="p">[</span><span class="n">x</span><span class="p">]</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">([</span><span class="n">x</span><span class="p">],</span> <span class="p">[</span><span class="n">y</span><span class="p">],</span> <span class="n">c</span><span class="o">=</span><span class="p">[</span><span class="n">color</span><span class="o">.</span><span class="n">RGB</span><span class="p">],</span> <span class="n">s</span><span class="o">=</span><span class="mi">1200</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;s&quot;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/88b8ed00c0cc5f313137095639d69c9470b7f65b92f998e1bc46c92393748acc.png" src="../_images/88b8ed00c0cc5f313137095639d69c9470b7f65b92f998e1bc46c92393748acc.png" />
+</div>
+</div>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./Guide"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="cyclic-voltammetry.html" class="btn btn-neutral float-left" title="The echemsuite.cyclicvoltammetry module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../api.html" class="btn btn-neutral float-right" title="API Documentation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
