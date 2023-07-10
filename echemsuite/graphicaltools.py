@@ -1,6 +1,10 @@
 from __future__ import annotations
-from typing import Tuple
+from typing import Tuple, List
 
+import matplotlib.pyplot as plt
+
+from palettable.cartocolors.qualitative import Bold_10, Pastel_10, Prism_8, Vivid_10
+from palettable.cartocolors.cartocolorspalette import CartoColorsMap
 from colorsys import rgb_to_hsv, rgb_to_hls, hsv_to_rgb, hls_to_rgb
 
 
@@ -16,25 +20,31 @@ class Color:
         The value of the green channel (float between 0 and 1)
     b: float
         The value of the blue channel (float between 0 and 1)
-    
+
     Raise
     -----
     ValueError
         Exception raised if the arguments specified during construction does
         not match the valid color channel values.
     """
+
     def __init__(self, r: float, g: float, b: float) -> None:
-        
-        if r<0 or r>1:
+        if r < 0 or r > 1:
             raise ValueError(f"Invalid channel value ({r:.2f}) specified for the red channel. (Must be 0<=r<=1)")
-        if g<0 or g>1:
+        if g < 0 or g > 1:
             raise ValueError(f"Invalid channel value ({g:.2f}) specified for the red channel. (Must be 0<=g<=1)")
-        if b<0 or b>1:
+        if b < 0 or b > 1:
             raise ValueError(f"Invalid channel value ({b:.2f}) specified for the red channel. (Must be 0<=b<=1)")
-        
+
         self.r: float = r
         self.g: float = g
         self.b: float = b
+    
+    def __str__(self) -> str:
+        return f"Color({self.r:.2f}, {self.g:.2f}, {self.b:.2f})"
+
+    def __repr__(self) -> str:
+        return str(self)
 
     @classmethod
     def from_HEX(cls, value: str) -> Color:
@@ -110,29 +120,29 @@ class ColorShader:
     luminance_range: Tuple[float, float]
         The tuple encoding the minimum and maximum luminance values
         (between 0 and 1) used by the shader. (default:(`0.4`, `0.9`))
-    
+
     Raise
     -----
     ValueError
         Exception raised if an invalid number of levels has been provided by the user
         or if the luminance_range is invalid
     """
+
     def __init__(
         self,
         basecolor: Color,
         levels: int,
         reversed: bool = False,
         saturate: bool = False,
-        luminance_range: Tuple[float, float] = (0.4, 0.9)
+        luminance_range: Tuple[float, float] = (0.4, 0.9),
     ) -> None:
-        
         if levels <= 0:
             raise ValueError("The number of levels of the shader must be a non-negative integer.")
 
-        if len(luminance_range) != 2 or luminance_range[0]>luminance_range[1]:
+        if len(luminance_range) != 2 or luminance_range[0] > luminance_range[1]:
             raise ValueError("The luminance range must be a tuple of length 2 encoding the minimum and maximum values.")
-        
-        if luminance_range[0]<0 or luminance_range[1] > 1:
+
+        if luminance_range[0] < 0 or luminance_range[1] > 1:
             raise ValueError("The luminance limit values must be between 0 and 1.")
 
         self.basecolor: Color = basecolor if saturate else basecolor.saturate()
@@ -148,7 +158,7 @@ class ColorShader:
         ---------
         index: int
             The index of the desired shade of color.
-        
+
         Returns
         -------
         Color
@@ -172,7 +182,7 @@ class ColorShader:
     def __iter__(self) -> Color:
         """
         Yields the shades of color endoded in the shader.
-        
+
         Yields
         ------
         Color
@@ -180,3 +190,48 @@ class ColorShader:
         """
         for index in range(self.levels):
             yield self[index]
+
+
+class Palette:
+    """
+    A simple palette class capable of providing to the user different types color sequences.
+    The __len__ attribute of the object is set as the length of the color sequence. The __getitem__
+    method allows the user to access the sequence of colors. If the index of the color exceeds the
+    number of colors in the sequence the color provided will loop around the list.
+
+    The available palettes are: `matplotlib`, `bold`, `pastel`, `prism`, `vivid`
+
+    Arguments
+    ---------
+    palette: str
+        The name of the palette to be used.
+    """
+    def __init__(self, palette: str) -> None:
+        if palette == "matplotlib":
+            colors = [Color.from_HEX(c) for c in plt.rcParams["axes.prop_cycle"].by_key()["color"]]
+
+        elif palette in ["bold", "pastel", "prism", "vivid"]:
+
+            if palette == "bold":
+                colors = [Color(*[c/255 for c in color]) for color in Bold_10.colors]
+
+            elif palette == "pastel":
+                colors = [Color(*[c/255 for c in color]) for color in Pastel_10.colors]
+
+            elif palette == "prism":
+                colors = [Color(*[c/255 for c in color]) for color in Prism_8.colors]
+
+            elif palette == "vivid":
+                colors = [Color(*[c/255 for c in color]) for color in Vivid_10.colors]
+
+        else:
+            raise ValueError(f"The color palette {palette} is not supported.")
+
+        self.color_sequence: List[Color] = colors
+    
+    def __len__(self) -> int:
+        return len(self.color_sequence)
+
+    def __getitem__(self, index: int) -> Color:
+        idx = index % len(self)
+        return self.color_sequence[idx]

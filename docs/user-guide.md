@@ -11,3 +11,5 @@ This guide will walk the user through the basic operations required to load an e
 
 * [Structure of the `echemsuite.cyclicvoltammetry` module](CyclicVoltammetryModule)
 
+The library also provides a submodule (`echemsuite.graphicaltools`) containing useful graphical tools to be used in the generation of plots and graphs:
+* [A small introduction to the `echemsuite.graphicaltools` module](GraphicalModule).

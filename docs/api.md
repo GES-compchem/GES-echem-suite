@@ -11,3 +11,6 @@ The API documentation represents an object-level description of the package cont
 
 * The structure of the `cyclicvoltammetry` module is described at the page:
     * [`echemsuite.cyclicvoltammetry.read_input`](API-cyclicvoltammetry-read_input)
+
+* The structure of the `graphicaltools` module is described at the page:
+    * [`echemsuite.graphicaltools`](API-graphicaltools)
