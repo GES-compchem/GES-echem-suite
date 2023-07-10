@@ -6,3 +6,4 @@ The following examples are provided:
 
 * [Plotting the charge and discharge cycles from `.mpt` or `.DTA` files](Examples-plot-cycles)
 * [Plotting rate experiments manually and from a Biologic battery module file](Examples-plot-rate-experiments)
+* [Plotting cyclic voltammetry experiments](Examples-plot-cyclicvoltammetry)
