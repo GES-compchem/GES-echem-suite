@@ -13,6 +13,10 @@ chapters:
         - file: Guide/CellCycling/analyzing-experiments
     - file: Guide/cyclic-voltammetry
     - file: Guide/graphicaltools
+- file: examples
+  sections:
+    - file: Examples/plot-cycles
+    - file: Examples/plot-rate-experiments
 - file: api
   sections:
     - file: API/api_cellcycling_experiments
