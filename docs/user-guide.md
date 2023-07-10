@@ -13,3 +13,5 @@ This guide will walk the user through the basic operations required to load an e
 
 The library also provides a submodule (`echemsuite.graphicaltools`) containing useful graphical tools to be used in the generation of plots and graphs:
 * [A small introduction to the `echemsuite.graphicaltools` module](GraphicalModule).
+
+If you are looking for pre-made scripts ready to be used for data-anlysis tasks please visit the [example page](Examples-main).

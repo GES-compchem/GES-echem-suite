@@ -51,8 +51,26 @@ Contributor's guide 🖥️
 
 A short guide for all the developers that want to contribute to the libray
 :::
+::::
 
+## Example scripts
 
+::::{grid} 1 1 1 1
+:class-container: text-center
+:gutter: 3
+
+:::{grid-item-card}
+:link: examples
+:link-type: doc
+:class-header: bg-light
+
+Example scripts 🧪⚗️
+^^^
+
+A small collection of scripts ready to be downloaded and modified by the user to respond to various possible analysis requirements.
+:::
+
+::::
 
 
 
