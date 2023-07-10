@@ -172,9 +172,9 @@ class ColorShader:
         # Set the maximum or the color luminance to 0.9 and the minimum to 0.3 to avoid full
         # black or full white color shades
         if self.reversed:
-            l = 0.4 + 0.5 * (index / (self.levels + 1))
+            l = 0.4 + 0.5 * (index / (self.levels - 1))
         else:
-            l = 0.9 - 0.5 * (index / (self.levels + 1))
+            l = 0.9 - 0.5 * (index / (self.levels - 1))
 
         color = Color(*hls_to_rgb(h, l, s))
         return color
