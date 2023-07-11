@@ -130,7 +130,7 @@ const thebe_selector_output = ".output, .cell_output"
 <span class="n">CE</span> <span class="o">=</span> <span class="n">experiment</span><span class="o">.</span><span class="n">coulomb_efficiencies</span>
 
 <span class="c1"># Compute on the fly the volumetric capacity in Ah/L starting from the capacity list (in mAh)</span>
-<span class="n">VC</span> <span class="o">=</span> <span class="p">[</span><span class="n">q</span><span class="o">/</span><span class="p">(</span><span class="mi">1000</span><span class="o">*</span><span class="n">volume</span><span class="p">)</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">Q</span><span class="p">]</span>
+<span class="n">VC</span> <span class="o">=</span> <span class="p">[</span><span class="n">q</span><span class="o">/</span><span class="p">(</span><span class="mi">1000</span><span class="o">*</span><span class="n">volume</span><span class="p">)</span> <span class="k">if</span> <span class="n">q</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">Q</span><span class="p">]</span>
 
 <span class="c1"># Setup the figure and define a second y-axis</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;font.size&#39;</span><span class="p">:</span> <span class="mi">18</span><span class="p">})</span> 
@@ -197,7 +197,7 @@ const thebe_selector_output = ".output, .cell_output"
 <span class="n">CE</span> <span class="o">=</span> <span class="n">experiment</span><span class="o">.</span><span class="n">coulomb_efficiencies</span>
 
 <span class="c1"># Compute on the fly the volumetric capacity in Ah/L starting from the capacity list (in mAh)</span>
-<span class="n">VC</span> <span class="o">=</span> <span class="p">[</span><span class="n">q</span><span class="o">/</span><span class="p">(</span><span class="mi">1000</span><span class="o">*</span><span class="n">volume</span><span class="p">)</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">Q</span><span class="p">]</span>
+<span class="n">VC</span> <span class="o">=</span> <span class="p">[</span><span class="n">q</span><span class="o">/</span><span class="p">(</span><span class="mi">1000</span><span class="o">*</span><span class="n">volume</span><span class="p">)</span> <span class="k">if</span> <span class="n">q</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">Q</span><span class="p">]</span>
 
 <span class="c1"># Setup the figure and define a second y-axis</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;font.size&#39;</span><span class="p">:</span> <span class="mi">18</span><span class="p">})</span> 
