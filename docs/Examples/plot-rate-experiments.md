@@ -42,7 +42,7 @@ Q = experiment.capacity
 CE = experiment.coulomb_efficiencies
 
 # Compute on the fly the volumetric capacity in Ah/L starting from the capacity list (in mAh)
-VC = [q/(1000*volume) for q in Q]
+VC = [q/(1000*volume) if q is not None else None for q in Q]
 
 # Setup the figure and define a second y-axis
 plt.rcParams.update({'font.size': 18}) 
@@ -104,7 +104,7 @@ Q = experiment.capacity
 CE = experiment.coulomb_efficiencies
 
 # Compute on the fly the volumetric capacity in Ah/L starting from the capacity list (in mAh)
-VC = [q/(1000*volume) for q in Q]
+VC = [q/(1000*volume) if q is not None else None for q in Q]
 
 # Setup the figure and define a second y-axis
 plt.rcParams.update({'font.size': 18}) 
