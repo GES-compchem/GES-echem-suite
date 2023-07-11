@@ -512,3 +512,20 @@ class RateExperiment:
                 sheet.append([float(x) if x != "" and x != "None" else x for x in row.split(",")])
         
         workbook.save(path)
+    
+    def append(self, object: RateExperiment) -> None:
+        """
+        Concatenate to the curren object the rate experiments datapoints provided by a second RateExperiment object
+
+        Arguments
+        ---------
+        object: RateExperiment
+            The rate experiment object providing the data to be included in the current experiment dataset
+        """
+        if type(object) != RateExperiment:
+            raise TypeError(f"The type of `object` must be `RateExperiment` not `{type(object)}`")
+        
+        for current, cellcycling in zip(object.__current_steps, object.__cellcycling_steps):
+            self.__current_steps.append(current)
+            self.__cellcycling_steps.append(cellcycling)
+
