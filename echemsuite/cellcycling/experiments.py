@@ -282,14 +282,21 @@ class RateExperiment:
             return obj
 
     @classmethod
-    def from_ARBIN_csv_file(cls, csv_path: str) -> RateExperiment:
+    def from_ARBIN_csv_file(cls, csv_path: str, variation_threshold: float = 1.) -> RateExperiment:
         """
-        Classmethod dedicated to the construction of a RateExperiment object starting from a ARBIN csv file.
+        Classmethod dedicated to the construction of a RateExperiment object starting from a ARBIN csv file. Please
+        notice that the ARBIN .csv files do not specify the current associated to each step explicitly, as such the 
+        average current per halfcycle will be used in the definition of the various rate steps. The division of
+        the cell-cyclicing objects in different rate steps is generated automatically by the method using a fixed
+        percentage threshold value. When the percentage variation threshold is exceeded the cell-cycling object is
+        moved to a new current step.
 
         Arguments
         ---------
         csv_path: str
             The path to the `.csv` file generated from the ARBIN battery cycler.
+        variation_threshold: float
+            The threshold (in percentage) to be used in the indetification of a new current step (default: 1%)
 
         Raises
         ------
