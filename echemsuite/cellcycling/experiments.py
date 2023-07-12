@@ -2,6 +2,7 @@ from __future__ import annotations
 from typing import List, Tuple, Dict
 from datetime import datetime, timedelta
 from copy import deepcopy
+from os.path import isfile
 
 import openpyxl
 import pandas as pd
@@ -14,8 +15,8 @@ class RateExperiment:
     """
     The RateExperiment class provides a simple interface to charge rate experiments in which a cell is charged and
     discharged at different constant current values and the voltage and charge time are recorded and monitored. The
-    class can be constructed manually, using the default __init__ method, providing the list of single current 
-    steps and the list of cell-cycling experiments carried out at a given current. The class can also be constructed 
+    class can be constructed manually, using the default __init__ method, providing the list of single current
+    steps and the list of cell-cycling experiments carried out at a given current. The class can also be constructed
     using the `from_Biologic_battery_module` classmethod that is setup to be able to directly parse Biologic modules
     sequences.
 
@@ -25,7 +26,7 @@ class RateExperiment:
         The list of current steps associated to each cell-cycling sequence.
     cellcycling_steps: List[CellCycling]
         The list of cellcycling object encoding the electrochemical data collected at various current steps.
-    
+
     Raises
     ------
     RuntimeError
@@ -35,7 +36,7 @@ class RateExperiment:
     def __init__(self, current_steps: List[float] = [], cellcycling_steps: List[CellCycling] = []) -> None:
         if len(current_steps) != len(cellcycling_steps):
             raise RuntimeError("The current step list and the cellcycling one cannot have different lenght.")
-        
+
         self.__current_steps: List[float] = deepcopy(current_steps)
         self.__cellcycling_steps: List[CellCycling] = deepcopy(cellcycling_steps)
         self.__reference: Tuple[int, int] = (0, 0)
@@ -50,12 +51,11 @@ class RateExperiment:
 
     def __repr__(self) -> str:
         return str(self)
-    
+
     def __iter__(self):
         for cellcycling in self.__cellcycling_steps:
             for cycle in cellcycling:
                 yield cycle
-
 
     @property
     def reference(self) -> Tuple[int, int]:
@@ -72,7 +72,6 @@ class RateExperiment:
 
     @reference.setter
     def reference(self, input: Tuple[int, int]) -> None:
-        
         cellcycling, step = input
         if cellcycling < 0 or cellcycling >= len(self.__cellcycling_steps):
             raise ValueError(
@@ -86,18 +85,25 @@ class RateExperiment:
 
         self.__reference = (cellcycling, step)
 
-
     @classmethod
     def from_Biologic_battery_module(cls, path: str) -> RateExperiment:
         """
-        Classmethod dedicated to the construction of a RateExperiment object starting from a Biologic battery module 
+        Classmethod dedicated to the construction of a RateExperiment object starting from a Biologic battery module
         file.
 
         Arguments
         ---------
         path: str
             The path to the Biologic battery module file.
+
+        Raises
+        ------
+        ValueError
+            Exception raised if the sepcified path to the datafile is invalid.
         """
+        if not isfile(path):
+            raise ValueError(f"The file `{path}` does not exist.")
+
         with open(path, "r", encoding="utf-8", errors="ignore") as file:
             # Define buffers for store the strings encoding date and time
             time_str, date_str = None, None
@@ -262,7 +268,7 @@ class RateExperiment:
                     cycle = Cycle(number=len(cycles), charge=charge, discharge=discharge)
                     cycles.append(cycle)
                     charge, discharge = None, None
-                
+
             del halfcycles
 
             # Manually trigger the creation of the cellcycling object for the last current step, append it to the
@@ -274,6 +280,149 @@ class RateExperiment:
             cycles = []
 
             return obj
+
+    @classmethod
+    def from_ARBIN_csv_file(cls, csv_path: str) -> RateExperiment:
+        """
+        Classmethod dedicated to the construction of a RateExperiment object starting from a ARBIN csv file.
+
+        Arguments
+        ---------
+        csv_path: str
+            The path to the `.csv` file generated from the ARBIN battery cycler.
+
+        Raises
+        ------
+        ValueError
+            Exception raised if the sepcified path to the datafile is invalid.
+        """
+        # Check if the specified file exists
+        if not isfile(csv_path):
+            raise ValueError(f"The file `{csv_path}` does not exist.")
+
+        # Define temporary variable used to store parsed values useful in the definition of the halfcycles list
+        timestamp: datetime = None  # Timestamp recorded at the start of a new data block
+        step_idx: int = None  # Index associated to the current measurement step type
+        time, current, voltage = [], [], []  # Lists to store time, current and voltage values of each halfcycle
+
+        # List to store the parsed halfcycles
+        halfcycles: List[HalfCycle] = []
+
+        def parse_arbin_timestamp(timestamp_str: str) -> datetime:
+            date_str = timestamp_str.split(" ")[0]
+            time_str = timestamp_str.split(" ")[1]
+            month, day, year = (int(n) for n in date_str.split("/"))
+            hour, minute, second = (int(float(n)) for n in time_str.split(":"))
+            timestamp = datetime(year=year, month=month, day=day, hour=hour, minute=minute, second=second)
+            return timestamp
+
+        # Open the specified ARBIN csv datafile
+        with open(csv_path, "r") as file:
+            # Skip the first line containing the header
+            _ = file.readline()
+
+            # Iterate on the file line by line
+            for line in file:
+                # Remove the end of line character and split the comma separated values
+                sline = line.rstrip("\n").split(",")
+
+                # If this is the first iteration set the step index and read the first timestamp
+                if step_idx is None:
+                    step_idx = int(sline[5])
+                    timestamp_str = sline[1].lstrip("\t")
+                    timestamp = parse_arbin_timestamp(timestamp_str)
+
+                # If a step index change is encountered (end of a charge/discharge process) pack the data in an halfcycle,
+                # add the halfcycle to the halfcycles list, empty the buffer values, update the timestamp and step index
+                if step_idx != int(sline[5]):
+                    halfcycle = HalfCycle(
+                        time=pd.Series(time),
+                        voltage=pd.Series(voltage),
+                        current=pd.Series(current),
+                        halfcycle_type="charge" if current[0] > 0 else "discharge",
+                        timestamp=timestamp,
+                    )
+
+                    halfcycles.append(halfcycle)
+
+                    time, current, voltage = [], [], []
+                    step_idx = int(sline[5])
+                    timestamp_str = sline[1].lstrip("\t")
+                    timestamp = parse_arbin_timestamp(timestamp_str)
+
+                # Parse the current line and extract time, current, voltage
+                time.append(float(sline[3]))
+                current.append(float(sline[6]))
+                voltage.append(float(sline[7]))
+
+            # At the end of the file, process the data remaining in the buffer and create the last halfcycle
+            halfcycle = HalfCycle(
+                time=pd.Series(time),
+                voltage=pd.Series(voltage),
+                current=pd.Series(current),
+                halfcycle_type="charge" if current[0] > 0 else "discharge",
+                timestamp=timestamp,
+            )
+
+            halfcycles.append(halfcycle)
+
+        # From the list of halfcycles eliminate those halfcycles with length equal to 1 and those containing only steps
+        # recorded at zero current.
+        halfcycles = [h for h in halfcycles if len(h) > 1 and all([i != 0 for i in h.current])]
+
+        # Define empty lists to store current steps and the corresponding cell-cycling sequences
+        current_steps, cellcycling_steps = [], []
+
+        # Define temporary variables to store the charge halfcycle of each cycle and a list to store the cycles to be
+        # used in composing the cell-cycling objects
+        charge = None
+        cycles_buffer = []
+
+        # Iterate over all the halfcycles
+        for hidx, halfcycle in enumerate(halfcycles):
+            # Average magnitude of the current in the halfcycle
+            iavg = abs(sum(halfcycle.current)) / len(halfcycle)
+
+            # If this is the first iteration add the average current in the current steps list
+            if current_steps == []:
+                current_steps.append(iavg)
+
+            # Compute the error between the stored average current value and the current average value.
+            relative_error = 100 * abs(iavg - current_steps[-1]) / current_steps[-1]
+
+            # If the relative error exceeds the 1% threshold or we reached the end of the halfcycles list trigger the
+            # creation of the cell-cycling object corresponding to the current step
+            if relative_error > 1 or hidx == len(halfcycles) - 1:
+                # If a charge halfcycle is left in the buffer conclude the cycle buffer with the last charge
+                if charge is not None:
+                    cycle = Cycle(number=len(cycles_buffer) + 1, charge=charge, discharge=None)
+                    cycles_buffer.append(cycle)
+                    charge = None
+
+                # Create the cellcycling object from the cycles buffer
+                cellcycling = CellCycling(cycles_buffer)
+                cellcycling_steps.append(cellcycling)
+                cycles_buffer = []
+
+                # If this is not the last halfcycle in the halfcyles list append the new current value to the current step list
+                if hidx != len(halfcycles) - 1:
+                    current_steps.append(iavg)
+
+            # If the current halfcycle is a charge add it to the buffer else complete the cycle using the buffered object,
+            # append the cycle to the cycles buffer and clean the charge buffer
+            if halfcycle.halfcycle_type == "charge":
+                charge = halfcycle
+            else:
+                cycle = Cycle(number=len(cycles_buffer) + 1, charge=charge, discharge=halfcycle)
+                cycles_buffer.append(cycle)
+                charge = None
+
+        # Format the current steps list by rounding the current values to the third decimal place
+        current_steps = [round(i, 3) for i in current_steps]
+
+        # Creat a RateExperiment object with the obtained data ad return it
+        obj = cls(current_steps=current_steps, cellcycling_steps=cellcycling_steps)
+        return obj
 
     @property
     def capacity_retention(self) -> List[float]:
@@ -436,7 +585,7 @@ class RateExperiment:
         List[int]
             A simple array with a progressive number for all datapoints.
         """
-        return [i+1 for i, _ in enumerate(self)]
+        return [i + 1 for i, _ in enumerate(self)]
 
     @property
     def current_steps(self) -> List[float]:
@@ -471,8 +620,7 @@ class RateExperiment:
                 cycles.append(cycle)
 
         return cycles
-        
-    
+
     def dump_to_excel(self, path: str, volume: float, area: float) -> None:
         """
         Dump an excel report containing all the information associated with the experiment.
@@ -488,18 +636,18 @@ class RateExperiment:
         """
         csv = "N°,C.D,A.P.D.,C,E,C.R.,CE,VE,EE,V.C,E.D\n"
         csv += "N°,mA/cm2,mW/cm2,mAh,mWh,%,%,%,%,Ah/L,Wh/L\n"
-        
+
         for i, N in enumerate(self.numbers):
-            CD = 1000*self.current_steps[i]/area
-            APD = 1000*self.average_power[i]/area
+            CD = 1000 * self.current_steps[i] / area
+            APD = 1000 * self.average_power[i] / area
             C = self.capacity[i]
             E = self.total_energy[i]
             CR = self.capacity_retention[i]
             CE = self.coulomb_efficiencies[i]
             VE = self.voltage_efficiency[i]
             EE = self.energy_efficiencies[i]
-            VC = self.capacity[i]/volume
-            ED = self.total_energy[i]/volume
+            VC = self.capacity[i] / volume
+            ED = self.total_energy[i] / volume
             csv += f"{N},{CD},{APD},{C},{E},{CR},{CE},{VE},{EE},{VC},{ED}\n"
 
         # Convert the csv file into xlsx format
@@ -510,9 +658,9 @@ class RateExperiment:
                 sheet.append(row.split(","))
             else:
                 sheet.append([float(x) if x != "" and x != "None" else x for x in row.split(",")])
-        
+
         workbook.save(path)
-    
+
     def append(self, object: RateExperiment) -> None:
         """
         Concatenate to the curren object the rate experiments datapoints provided by a second RateExperiment object
@@ -524,8 +672,7 @@ class RateExperiment:
         """
         if type(object) != RateExperiment:
             raise TypeError(f"The type of `object` must be `RateExperiment` not `{type(object)}`")
-        
+
         for current, cellcycling in zip(object.__current_steps, object.__cellcycling_steps):
             self.__current_steps.append(current)
             self.__cellcycling_steps.append(cellcycling)
-

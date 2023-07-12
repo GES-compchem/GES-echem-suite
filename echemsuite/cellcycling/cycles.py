@@ -574,6 +574,9 @@ class HalfCycle:
 
         self._Q, self._capacity = self.calculate_Q()
         self._power, self._energy, self._total_energy = self.calculate_energy()
+    
+    def __len__(self):
+        return len(self._time)
 
     def __repr__(self):
         return f"""
