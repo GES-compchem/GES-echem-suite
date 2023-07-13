@@ -506,6 +506,10 @@ class RateExperiment:
             nsamples: int = 0
             for cycle in cellcycling:
                 for halfcycle in [cycle.charge.current, cycle.discharge.current]:
+                    
+                    if halfcycle is None:
+                        continue
+                    
                     for current in halfcycle:
                         iavg += abs(current)
                         nsamples += 1
