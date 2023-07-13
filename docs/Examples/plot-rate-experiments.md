@@ -16,6 +16,7 @@ kernelspec:
 A rate experiment can be constructed directly from a Biologic battery module file or can be generated manually by a set of user specified cell-cycling experiments. In this page we will present scripts that cover different types of situations encountered during routine data-analysis tasks:
 
 * [Plot a single set of data from a Biologic Battery module file](Examples-plot-rate-experiments-battmodule)
+* [Plot a single set of data from an ARBIN `.csv` file](Examples-plot-rate-experiments-ARBIN)
 * [Plot a single set of data from a user defined experiment](Examples-plot-rate-experiments-user-defined)
 * [Plot more than one experiment in the same figure](Examples-plot-rate-experiments-comparison)
 
@@ -23,7 +24,7 @@ A rate experiment can be constructed directly from a Biologic battery module fil
 (Examples-plot-rate-experiments-battmodule)=
 ## Plot a single set of data from a Biologic Battery module file
 
-The following script can be used to diectly parse a Biologic battery module file (in `.mpt` format) to generate an instance of the `RateExperiment` class. Volumetric capacity and coulombic efficiencies are then plotted on a double y-axis graph. In this case the color of the markers has been set manually to `#FF00BB` and a transparency of 20% (`alpha=0.8`) as been set.
+The following script can be used to diectly parse a Biologic battery module file (in `.mpt` format) to generate an instance of the `RateExperiment` class. Volumetric capacity and coulombic efficiencies are then plotted on a double y-axis graph. In this case the color of the markers has been set manually to `#FF00BB` and a transparency of 20% (`alpha=0.8`) has been set.
 
 ```{code-cell} python
 import matplotlib.pyplot as plt
@@ -69,10 +70,59 @@ plt.tight_layout()
 plt.show()
 ```
 
+(Examples-plot-rate-experiments-ARBIN)=
+## Plot a single set of data from an ARBIN `.csv` file
+
+The following script can be used to diectly parse an ARBIN `.csv` file to generate an instance of the `RateExperiment` class. Volumetric capacity and coulombic efficiencies are then plotted on a double y-axis graph. In this case the color of the markers has been set manually to `#03FC3D` and a transparency of 20% (`alpha=0.8`) has been set.
+
+```{code-cell} python
+import matplotlib.pyplot as plt
+from echemsuite.cellcycling.experiments import RateExperiment
+
+# Read the rate experiment data from the Biologic battery module file and set the electorlyte volume
+volume = 0.1
+experiment = RateExperiment.from_ARBIN_csv_file("../utils/arbin_sample.CSV")
+
+# Set the color to be used in the plot
+color = "#03FC3D"
+
+# Extract the data that needs to be plotted
+N = experiment.numbers
+Q = experiment.capacity
+CE = experiment.coulomb_efficiencies
+
+# Compute on the fly the volumetric capacity in Ah/L starting from the capacity list (in mAh)
+VC = [q/(1000*volume) if q is not None else None for q in Q]
+
+# Setup the figure and define a second y-axis
+plt.rcParams.update({'font.size': 18}) 
+fig, ax1 = plt.subplots(figsize=(10, 6))
+ax2 = ax1.twinx()
+
+# Plot the volumetric capacity on the main axis
+ax1.scatter(N, VC, s=100, c=color, marker="s", edgecolors="black", alpha=0.8, zorder=3)
+ax1.set_ylabel("◼  Volumetric capacity (Ah/L)", size=20)
+ax1.set_ylim((2.5, 44))
+ax1.grid(which="major", c="#DDDDDD")
+ax1.grid(which="minor", c="#EEEEEE")
+
+# Plot the coulombic efficiency on the secondary axis
+ax2.scatter(N, CE, s=100, c=color, marker="o", edgecolors="black", alpha=0.8, zorder=3)
+ax2.set_ylabel("●  Coulumbic efficiency (%)", size=20)
+ax2.set_ylim((20, 110))
+
+# Set the x-label of the plot
+ax1.set_xlabel("Cycle number", size=20)
+
+# Show the plot
+plt.tight_layout()
+plt.show()
+```
+
 (Examples-plot-rate-experiments-user-defined)=
 ## Plot a single set of data from a user defined experiment
 
-The following script can be used to generate a `RateExperiment` object starting from a set of discrate current steps recorded in separated files. In this case the two current steps are in the format of multiple `.DTA` files located in different folders. Once loaded in `CellCycling` format, the data are merged into the final `RateExperiment` object. Volumetric capacity and coulombic efficiencies are then plotted on a double y-axis graph. In this case the color of the markers has been set manually to `#00FFDD` and a transparency of 20% (`alpha=0.8`) as been set.
+The following script can be used to generate a `RateExperiment` object starting from a set of discrate current steps recorded in separated files. In this case the two current steps are in the format of multiple `.DTA` files located in different folders. Once loaded in `CellCycling` format, the data are merged into the final `RateExperiment` object. Volumetric capacity and coulombic efficiencies are then plotted on a double y-axis graph. In this case the color of the markers has been set manually to `#00FFDD` and a transparency of 20% (`alpha=0.8`) has been set.
 
 ```{code-cell} python
 import matplotlib.pyplot as plt
