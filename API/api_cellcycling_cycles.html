@@ -701,6 +701,22 @@ for which the capacity retention reaches the threshold specified in the input li
 </dl>
 </dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="echemsuite.cellcycling.cycles.CellCycling.timestamp">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">timestamp</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">datetime</span></em><a class="headerlink" href="#echemsuite.cellcycling.cycles.CellCycling.timestamp" title="Permalink to this definition"></a></dt>
+<dd><p>The timestamp at which the measurement has been started. If the first cycle is complete,
+the timestamp will be that of its charge halfcycle else the timestamp of the discharge
+halfcycle will be returned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The timestamp object encoding the start of the measurement.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>datetime</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="echemsuite.cellcycling.cycles.CellCycling.unhide">
 <span class="sig-name descname"><span class="pre">unhide</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unhide_indices</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#echemsuite.cellcycling.cycles.CellCycling.unhide" title="Permalink to this definition"></a></dt>

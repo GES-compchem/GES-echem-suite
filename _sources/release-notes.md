@@ -1,6 +1,13 @@
 (ReleaseNotes)=
 # Release notes
 
+* Version 0.2.1b2
+    * Added classmethod to `RateExperiment` to load ARBIN `.csv` files.
+    * Added timestamp propery to `CellCycling` class to more easily track the start of the experiment.
+    * Added a `quickload_folder` method to the `cellcycling.read_input` module.
+    * Added classmethod to `RateExperiment` to load GAMRY standard folder format.
+    * Update to the documentation with more examples and new types of plot
+
 * Version 0.2.1b
     * Added a graphicaltools module to help the user in the creation of graphs and plots 
         * Defined a simple `Color` class to hold, manipulate and carry around RGB color values.

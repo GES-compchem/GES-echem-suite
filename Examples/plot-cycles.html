@@ -171,7 +171,7 @@ const thebe_selector_output = ".output, .cell_output"
 <span class="kn">from</span> <span class="nn">echemsuite.graphicaltools</span> <span class="kn">import</span> <span class="n">ColorShader</span><span class="p">,</span> <span class="n">Palette</span>
 
 <span class="c1"># Read a single set of .DTA files using the `fetch_from_folder` method</span>
-<span class="n">path</span> <span class="o">=</span> <span class="s2">&quot;../utils/gamry_cellcycling/step_0,1A&quot;</span>      <span class="c1"># Set here the path to the folder containing the files</span>
+<span class="n">path</span> <span class="o">=</span> <span class="s2">&quot;../utils/gamry_cellcycling/step_0,1A/CHARGE_DISCHARGE&quot;</span>      <span class="c1"># Set here the path to the folder containing the files</span>
 <span class="n">manager</span> <span class="o">=</span> <span class="n">FileManager</span><span class="p">()</span>
 <span class="n">manager</span><span class="o">.</span><span class="n">fetch_from_folder</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">extension</span><span class="o">=</span><span class="s2">&quot;.DTA&quot;</span><span class="p">)</span>
 <span class="n">cellcycling</span> <span class="o">=</span> <span class="n">manager</span><span class="o">.</span><span class="n">get_cellcycling</span><span class="p">()</span>
@@ -227,8 +227,8 @@ const thebe_selector_output = ".output, .cell_output"
 
 <span class="c1"># Define a dictionary encoding the name of the experiment and the corresponding cellcycling object</span>
 <span class="n">experiments</span> <span class="o">=</span> <span class="p">{}</span>
-<span class="n">experiments</span><span class="p">[</span><span class="s2">&quot;0.1A&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">quickload_folder</span><span class="p">(</span><span class="s2">&quot;../utils/gamry_cellcycling/step_0,1A&quot;</span><span class="p">,</span> <span class="s2">&quot;.DTA&quot;</span><span class="p">)</span>
-<span class="n">experiments</span><span class="p">[</span><span class="s2">&quot;0.3A&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">quickload_folder</span><span class="p">(</span><span class="s2">&quot;../utils/gamry_cellcycling/step_0,3A&quot;</span><span class="p">,</span> <span class="s2">&quot;.DTA&quot;</span><span class="p">)</span>
+<span class="n">experiments</span><span class="p">[</span><span class="s2">&quot;0.1A&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">quickload_folder</span><span class="p">(</span><span class="s2">&quot;../utils/gamry_cellcycling/step_0,1A/CHARGE_DISCHARGE&quot;</span><span class="p">,</span> <span class="s2">&quot;.DTA&quot;</span><span class="p">)</span>
+<span class="n">experiments</span><span class="p">[</span><span class="s2">&quot;0.3A&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">quickload_folder</span><span class="p">(</span><span class="s2">&quot;../utils/gamry_cellcycling/step_0,3A/CHARGE_DISCHARGE&quot;</span><span class="p">,</span> <span class="s2">&quot;.DTA&quot;</span><span class="p">)</span>
 
 <span class="c1"># Select a color palette and set the font size</span>
 <span class="n">palette</span> <span class="o">=</span> <span class="n">Palette</span><span class="p">(</span><span class="s2">&quot;matplotlib&quot;</span><span class="p">)</span>
@@ -292,8 +292,8 @@ const thebe_selector_output = ".output, .cell_output"
 <span class="c1"># Define a dictionary encoding the name of the experiment and the corresponding cellcycling object</span>
 <span class="n">experiments</span> <span class="o">=</span> <span class="p">{}</span>
 <span class="n">experiments</span><span class="p">[</span><span class="s2">&quot;Experiment A&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">quickload_folder</span><span class="p">(</span><span class="s2">&quot;../utils/biologic_single_cycling&quot;</span><span class="p">,</span> <span class="s2">&quot;.mpt&quot;</span><span class="p">)</span>
-<span class="n">experiments</span><span class="p">[</span><span class="s2">&quot;Experiment B&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">quickload_folder</span><span class="p">(</span><span class="s2">&quot;../utils/gamry_cellcycling/step_0,1A&quot;</span><span class="p">,</span> <span class="s2">&quot;.DTA&quot;</span><span class="p">)</span>
-<span class="n">experiments</span><span class="p">[</span><span class="s2">&quot;Experiment C&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">quickload_folder</span><span class="p">(</span><span class="s2">&quot;../utils/gamry_cellcycling/step_0,3A&quot;</span><span class="p">,</span> <span class="s2">&quot;.DTA&quot;</span><span class="p">)</span>
+<span class="n">experiments</span><span class="p">[</span><span class="s2">&quot;Experiment B&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">quickload_folder</span><span class="p">(</span><span class="s2">&quot;../utils/gamry_cellcycling/step_0,1A/CHARGE_DISCHARGE&quot;</span><span class="p">,</span> <span class="s2">&quot;.DTA&quot;</span><span class="p">)</span>
+<span class="n">experiments</span><span class="p">[</span><span class="s2">&quot;Experiment C&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">quickload_folder</span><span class="p">(</span><span class="s2">&quot;../utils/gamry_cellcycling/step_0,3A/CHARGE_DISCHARGE&quot;</span><span class="p">,</span> <span class="s2">&quot;.DTA&quot;</span><span class="p">)</span>
 
 <span class="c1"># Select a color palette and set the font size</span>
 <span class="n">palette</span> <span class="o">=</span> <span class="n">Palette</span><span class="p">(</span><span class="s2">&quot;pastel&quot;</span><span class="p">)</span>

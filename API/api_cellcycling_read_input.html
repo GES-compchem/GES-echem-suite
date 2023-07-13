@@ -310,6 +310,30 @@ be merged in a single HalfCycle class.</p>
 </dd></dl>
 
 </section>
+<section id="the-quickload-folder-function">
+<h2>The <code class="docutils literal notranslate"><span class="pre">quickload_folder</span></code> function<a class="headerlink" href="#the-quickload-folder-function" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="echemsuite.cellcycling.read_input.quickload_folder">
+<span class="sig-prename descclassname"><span class="pre">echemsuite.cellcycling.read_input.</span></span><span class="sig-name descname"><span class="pre">quickload_folder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extension</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#echemsuite.cellcycling.read_input.quickload_folder" title="Permalink to this definition"></a></dt>
+<dd><p>Simple helper function to be used in scripting to quicky load cell-cycling data from a user-specified folder.
+The function uses the <cite>fetch_from_folder</cite> method of the file manager class and applies all the default options.
+If a custom order needs to be specified, the function cannot be used.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>folder</strong> (<em>str</em>) – The path to the folder where the data are stored.</p></li>
+<li><p><strong>extension</strong> (<em>str</em>) – The extension of the file to be loaded.</p></li>
+<li><p><strong>clean</strong> (<em>bool</em>) – If set to True, will activate the clean option in the <cite>get_cellcycling</cite> method used to generate the output
+CellCycling object</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="api_cellcycling_cycles.html#echemsuite.cellcycling.cycles.CellCycling" title="echemsuite.cellcycling.cycles.CellCycling"><em>CellCycling</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
 </section>
 
     <script type="text/x-thebe-config">
