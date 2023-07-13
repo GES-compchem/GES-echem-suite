@@ -505,12 +505,12 @@ class RateExperiment:
             iavg: float = 0
             nsamples: int = 0
             for cycle in cellcycling:
-                for halfcycle in [cycle.charge.current, cycle.discharge.current]:
+                for halfcycle in [cycle.charge, cycle.discharge]:
                     
                     if halfcycle is None:
                         continue
                     
-                    for current in halfcycle:
+                    for current in halfcycle.current:
                         iavg += abs(current)
                         nsamples += 1
 
