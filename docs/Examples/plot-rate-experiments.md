@@ -138,8 +138,8 @@ def quickload_folder(folder: str, extension: str) -> CellCycling:
     return cellcycling
 
 # Manually read the cell-cycling steps recorded, at different currents, in the .DTA files
-step_1 = quickload_folder("../utils/gamry_cellcycling/step_0,1A", ".DTA")
-step_2 = quickload_folder("../utils/gamry_cellcycling/step_0,3A", ".DTA")
+step_1 = quickload_folder("../utils/gamry_cellcycling/step_0,1A/CHARGE_DISCHARGE", ".DTA")
+step_2 = quickload_folder("../utils/gamry_cellcycling/step_0,3A/CHARGE_DISCHARGE", ".DTA")
 
 # Define an experiment from the data just obtained and set the electrolyte volume
 experiment = RateExperiment(current_steps=[0.1, 0.3], cellcycling_steps=[step_1, step_2])
@@ -201,8 +201,8 @@ def quickload_folder(folder: str, extension: str) -> CellCycling:
     return cellcycling
 
 # Manually read the cell-cycling steps recorded, at different currents, in the .DTA files
-step_1 = quickload_folder("../utils/gamry_cellcycling/step_0,1A", ".DTA")
-step_2 = quickload_folder("../utils/gamry_cellcycling/step_0,3A", ".DTA")
+step_1 = quickload_folder("../utils/gamry_cellcycling/step_0,1A/CHARGE_DISCHARGE", ".DTA")
+step_2 = quickload_folder("../utils/gamry_cellcycling/step_0,3A/CHARGE_DISCHARGE", ".DTA")
 
 # Define an experiment from the data just obtained and define a second one using the Biologic battery module file
 experiment_1 = RateExperiment(current_steps=[0.1, 0.3], cellcycling_steps=[step_1, step_2])

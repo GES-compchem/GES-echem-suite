@@ -77,7 +77,7 @@ from echemsuite.cellcycling.read_input import FileManager
 from echemsuite.graphicaltools import ColorShader, Palette
 
 # Read a single set of .DTA files using the `fetch_from_folder` method
-path = "../utils/gamry_cellcycling/step_0,1A"      # Set here the path to the folder containing the files
+path = "../utils/gamry_cellcycling/step_0,1A/CHARGE_DISCHARGE"      # Set here the path to the folder containing the files
 manager = FileManager()
 manager.fetch_from_folder(path, extension=".DTA")
 cellcycling = manager.get_cellcycling()
@@ -128,8 +128,8 @@ def quickload_folder(folder: str, extension: str) -> CellCycling:
 
 # Define a dictionary encoding the name of the experiment and the corresponding cellcycling object
 experiments = {}
-experiments["0.1A"] = quickload_folder("../utils/gamry_cellcycling/step_0,1A", ".DTA")
-experiments["0.3A"] = quickload_folder("../utils/gamry_cellcycling/step_0,3A", ".DTA")
+experiments["0.1A"] = quickload_folder("../utils/gamry_cellcycling/step_0,1A/CHARGE_DISCHARGE", ".DTA")
+experiments["0.3A"] = quickload_folder("../utils/gamry_cellcycling/step_0,3A/CHARGE_DISCHARGE", ".DTA")
 
 # Select a color palette and set the font size
 palette = Palette("matplotlib")
@@ -189,8 +189,8 @@ def quickload_folder(folder: str, extension: str) -> CellCycling:
 # Define a dictionary encoding the name of the experiment and the corresponding cellcycling object
 experiments = {}
 experiments["Experiment A"] = quickload_folder("../utils/biologic_single_cycling", ".mpt")
-experiments["Experiment B"] = quickload_folder("../utils/gamry_cellcycling/step_0,1A", ".DTA")
-experiments["Experiment C"] = quickload_folder("../utils/gamry_cellcycling/step_0,3A", ".DTA")
+experiments["Experiment B"] = quickload_folder("../utils/gamry_cellcycling/step_0,1A/CHARGE_DISCHARGE", ".DTA")
+experiments["Experiment C"] = quickload_folder("../utils/gamry_cellcycling/step_0,3A/CHARGE_DISCHARGE", ".DTA")
 
 # Select a color palette and set the font size
 palette = Palette("pastel")
@@ -245,8 +245,8 @@ def quickload_folder(folder: str, extension: str) -> CellCycling:
 # Define a dictionary encoding the name of the experiment and the corresponding cellcycling object
 experiments = {}
 experiments["Experiment A"] = quickload_folder("../utils/biologic_single_cycling", ".mpt")
-experiments["Experiment B"] = quickload_folder("../utils/gamry_cellcycling/step_0,1A", ".DTA")
-experiments["Experiment C"] = quickload_folder("../utils/gamry_cellcycling/step_0,3A", ".DTA")
+experiments["Experiment B"] = quickload_folder("../utils/gamry_cellcycling/step_0,1A/CHARGE_DISCHARGE", ".DTA")
+experiments["Experiment C"] = quickload_folder("../utils/gamry_cellcycling/step_0,3A/CHARGE_DISCHARGE", ".DTA")
 
 # Select a color palette and set the font size
 palette = Palette("pastel")
