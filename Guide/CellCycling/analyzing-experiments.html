@@ -119,8 +119,34 @@ const thebe_selector_output = ".output, .cell_output"
 <ul class="simple">
 <li><p>Directly constructued by the user, by providing a list of current values and a list of the corresponding <code class="docutils literal notranslate"><span class="pre">CellCycling</span></code> objects</p></li>
 <li><p>Constructed from a Bilogic Battery module file using the <code class="docutils literal notranslate"><span class="pre">from_Biologic_battery_module</span></code> classmethod.</p></li>
+<li><p>Constructed from a ARBIN datafile formatted as a <code class="docutils literal notranslate"><span class="pre">.csv</span></code> table using the <code class="docutils literal notranslate"><span class="pre">from_ARBIN_csv_file</span></code> classmethod.</p></li>
 </ul>
-<p>An example of the latter option is provided in what follows:</p>
+<p>A ARBIN <code class="docutils literal notranslate"><span class="pre">.csv</span></code> file can be loaded following the code:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">echemsuite.cellcycling.experiments</span> <span class="kn">import</span> <span class="n">RateExperiment</span>
+
+<span class="c1"># Create a RateExperiment from a Biologic Battery Module file</span>
+<span class="n">experiment</span> <span class="o">=</span> <span class="n">RateExperiment</span><span class="p">()</span><span class="o">.</span><span class="n">from_ARBIN_csv_file</span><span class="p">(</span><span class="s2">&quot;../../utils/arbin_sample.CSV&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">experiment</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Rate Experiment
+----------------------------------------
+0.5A : 1 cycles
+1.0A : 4 cycles
+1.5A : 5 cycles
+2.0A : 5 cycles
+2.5A : 1 cycles
+1.5A : 29 cycles
+----------------------------------------
+</pre></div>
+</div>
+</div>
+</div>
+<p>Similarly, a Biologic Battery module file can be loaded following the code:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">echemsuite.cellcycling.experiments</span> <span class="kn">import</span> <span class="n">RateExperiment</span>
@@ -192,6 +218,7 @@ const thebe_selector_output = ".output, .cell_output"
 <img alt="../../_images/034c4390b4513d7e8e49aad68532db5225a8e5dfe7ccb5bafa26e96fd9866d5b.png" src="../../_images/034c4390b4513d7e8e49aad68532db5225a8e5dfe7ccb5bafa26e96fd9866d5b.png" />
 </div>
 </div>
+<p>In similar manner a ARBIN <code class="docutils literal notranslate"><span class="pre">.csv</span></code> file can be easily loaded following this</p>
 </section>
 </section>
 

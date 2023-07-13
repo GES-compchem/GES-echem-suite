@@ -106,12 +106,13 @@ const thebe_selector_output = ".output, .cell_output"
 <p>A rate experiment can be constructed directly from a Biologic battery module file or can be generated manually by a set of user specified cell-cycling experiments. In this page we will present scripts that cover different types of situations encountered during routine data-analysis tasks:</p>
 <ul class="simple">
 <li><p><a class="reference internal" href="#examples-plot-rate-experiments-battmodule"><span class="std std-ref">Plot a single set of data from a Biologic Battery module file</span></a></p></li>
+<li><p><a class="reference internal" href="#examples-plot-rate-experiments-arbin"><span class="std std-ref">Plot a single set of data from an ARBIN <code class="docutils literal notranslate"><span class="pre">.csv</span></code> file</span></a></p></li>
 <li><p><a class="reference internal" href="#examples-plot-rate-experiments-user-defined"><span class="std std-ref">Plot a single set of data from a user defined experiment</span></a></p></li>
 <li><p><a class="reference internal" href="#examples-plot-rate-experiments-comparison"><span class="std std-ref">Plot more than one experiment in the same figure</span></a></p></li>
 </ul>
 <section id="plot-a-single-set-of-data-from-a-biologic-battery-module-file">
 <span id="examples-plot-rate-experiments-battmodule"></span><h2>Plot a single set of data from a Biologic Battery module file<a class="headerlink" href="#plot-a-single-set-of-data-from-a-biologic-battery-module-file" title="Permalink to this heading"></a></h2>
-<p>The following script can be used to diectly parse a Biologic battery module file (in <code class="docutils literal notranslate"><span class="pre">.mpt</span></code> format) to generate an instance of the <code class="docutils literal notranslate"><span class="pre">RateExperiment</span></code> class. Volumetric capacity and coulombic efficiencies are then plotted on a double y-axis graph. In this case the color of the markers has been set manually to <code class="docutils literal notranslate"><span class="pre">#FF00BB</span></code> and a transparency of 20% (<code class="docutils literal notranslate"><span class="pre">alpha=0.8</span></code>) as been set.</p>
+<p>The following script can be used to diectly parse a Biologic battery module file (in <code class="docutils literal notranslate"><span class="pre">.mpt</span></code> format) to generate an instance of the <code class="docutils literal notranslate"><span class="pre">RateExperiment</span></code> class. Volumetric capacity and coulombic efficiencies are then plotted on a double y-axis graph. In this case the color of the markers has been set manually to <code class="docutils literal notranslate"><span class="pre">#FF00BB</span></code> and a transparency of 20% (<code class="docutils literal notranslate"><span class="pre">alpha=0.8</span></code>) has been set.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
@@ -163,9 +164,63 @@ const thebe_selector_output = ".output, .cell_output"
 </div>
 </div>
 </section>
+<section id="plot-a-single-set-of-data-from-an-arbin-csv-file">
+<span id="examples-plot-rate-experiments-arbin"></span><h2>Plot a single set of data from an ARBIN <code class="docutils literal notranslate"><span class="pre">.csv</span></code> file<a class="headerlink" href="#plot-a-single-set-of-data-from-an-arbin-csv-file" title="Permalink to this heading"></a></h2>
+<p>The following script can be used to diectly parse an ARBIN <code class="docutils literal notranslate"><span class="pre">.csv</span></code> file to generate an instance of the <code class="docutils literal notranslate"><span class="pre">RateExperiment</span></code> class. Volumetric capacity and coulombic efficiencies are then plotted on a double y-axis graph. In this case the color of the markers has been set manually to <code class="docutils literal notranslate"><span class="pre">#03FC3D</span></code> and a transparency of 20% (<code class="docutils literal notranslate"><span class="pre">alpha=0.8</span></code>) has been set.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">echemsuite.cellcycling.experiments</span> <span class="kn">import</span> <span class="n">RateExperiment</span>
+
+<span class="c1"># Read the rate experiment data from the Biologic battery module file and set the electorlyte volume</span>
+<span class="n">volume</span> <span class="o">=</span> <span class="mf">0.1</span>
+<span class="n">experiment</span> <span class="o">=</span> <span class="n">RateExperiment</span><span class="o">.</span><span class="n">from_ARBIN_csv_file</span><span class="p">(</span><span class="s2">&quot;../utils/arbin_sample.CSV&quot;</span><span class="p">)</span>
+
+<span class="c1"># Set the color to be used in the plot</span>
+<span class="n">color</span> <span class="o">=</span> <span class="s2">&quot;#03FC3D&quot;</span>
+
+<span class="c1"># Extract the data that needs to be plotted</span>
+<span class="n">N</span> <span class="o">=</span> <span class="n">experiment</span><span class="o">.</span><span class="n">numbers</span>
+<span class="n">Q</span> <span class="o">=</span> <span class="n">experiment</span><span class="o">.</span><span class="n">capacity</span>
+<span class="n">CE</span> <span class="o">=</span> <span class="n">experiment</span><span class="o">.</span><span class="n">coulomb_efficiencies</span>
+
+<span class="c1"># Compute on the fly the volumetric capacity in Ah/L starting from the capacity list (in mAh)</span>
+<span class="n">VC</span> <span class="o">=</span> <span class="p">[</span><span class="n">q</span><span class="o">/</span><span class="p">(</span><span class="mi">1000</span><span class="o">*</span><span class="n">volume</span><span class="p">)</span> <span class="k">if</span> <span class="n">q</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">Q</span><span class="p">]</span>
+
+<span class="c1"># Setup the figure and define a second y-axis</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;font.size&#39;</span><span class="p">:</span> <span class="mi">18</span><span class="p">})</span> 
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+<span class="n">ax2</span> <span class="o">=</span> <span class="n">ax1</span><span class="o">.</span><span class="n">twinx</span><span class="p">()</span>
+
+<span class="c1"># Plot the volumetric capacity on the main axis</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">VC</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;s&quot;</span><span class="p">,</span> <span class="n">edgecolors</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;◼  Volumetric capacity (Ah/L)&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">((</span><span class="mf">2.5</span><span class="p">,</span> <span class="mi">44</span><span class="p">))</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">which</span><span class="o">=</span><span class="s2">&quot;major&quot;</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s2">&quot;#DDDDDD&quot;</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">which</span><span class="o">=</span><span class="s2">&quot;minor&quot;</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s2">&quot;#EEEEEE&quot;</span><span class="p">)</span>
+
+<span class="c1"># Plot the coulombic efficiency on the secondary axis</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">CE</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;o&quot;</span><span class="p">,</span> <span class="n">edgecolors</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;●  Coulumbic efficiency (%)&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">((</span><span class="mi">20</span><span class="p">,</span> <span class="mi">110</span><span class="p">))</span>
+
+<span class="c1"># Set the x-label of the plot</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Cycle number&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+
+<span class="c1"># Show the plot</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/a1e656ffb7ba48764cf0556e68f217b2863a326dbdbcd2be6dcf74d1fe08566b.png" src="../_images/a1e656ffb7ba48764cf0556e68f217b2863a326dbdbcd2be6dcf74d1fe08566b.png" />
+</div>
+</div>
+</section>
 <section id="plot-a-single-set-of-data-from-a-user-defined-experiment">
 <span id="examples-plot-rate-experiments-user-defined"></span><h2>Plot a single set of data from a user defined experiment<a class="headerlink" href="#plot-a-single-set-of-data-from-a-user-defined-experiment" title="Permalink to this heading"></a></h2>
-<p>The following script can be used to generate a <code class="docutils literal notranslate"><span class="pre">RateExperiment</span></code> object starting from a set of discrate current steps recorded in separated files. In this case the two current steps are in the format of multiple <code class="docutils literal notranslate"><span class="pre">.DTA</span></code> files located in different folders. Once loaded in <code class="docutils literal notranslate"><span class="pre">CellCycling</span></code> format, the data are merged into the final <code class="docutils literal notranslate"><span class="pre">RateExperiment</span></code> object. Volumetric capacity and coulombic efficiencies are then plotted on a double y-axis graph. In this case the color of the markers has been set manually to <code class="docutils literal notranslate"><span class="pre">#00FFDD</span></code> and a transparency of 20% (<code class="docutils literal notranslate"><span class="pre">alpha=0.8</span></code>) as been set.</p>
+<p>The following script can be used to generate a <code class="docutils literal notranslate"><span class="pre">RateExperiment</span></code> object starting from a set of discrate current steps recorded in separated files. In this case the two current steps are in the format of multiple <code class="docutils literal notranslate"><span class="pre">.DTA</span></code> files located in different folders. Once loaded in <code class="docutils literal notranslate"><span class="pre">CellCycling</span></code> format, the data are merged into the final <code class="docutils literal notranslate"><span class="pre">RateExperiment</span></code> object. Volumetric capacity and coulombic efficiencies are then plotted on a double y-axis graph. In this case the color of the markers has been set manually to <code class="docutils literal notranslate"><span class="pre">#00FFDD</span></code> and a transparency of 20% (<code class="docutils literal notranslate"><span class="pre">alpha=0.8</span></code>) has been set.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>

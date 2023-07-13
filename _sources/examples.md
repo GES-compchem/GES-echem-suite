@@ -5,5 +5,5 @@ The `GES-echem-suite` library is shipped with a small set of example scripts tha
 The following examples are provided:
 
 * [Plotting the charge and discharge cycles from `.mpt` or `.DTA` files](Examples-plot-cycles)
-* [Plotting rate experiments manually and from a Biologic battery module file](Examples-plot-rate-experiments)
+* [Plotting rate experiments from various sources](Examples-plot-rate-experiments)
 * [Plotting cyclic voltammetry experiments](Examples-plot-cyclicvoltammetry)

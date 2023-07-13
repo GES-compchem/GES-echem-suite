@@ -269,6 +269,31 @@ contained in all the cell-cycling experiments. Energy efficiency of the cycle co
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="echemsuite.cellcycling.experiments.RateExperiment.from_ARBIN_csv_file">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_ARBIN_csv_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">csv_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variation_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#echemsuite.cellcycling.experiments.RateExperiment.from_ARBIN_csv_file" title="Permalink to this definition"></a></dt>
+<dd><p>Classmethod dedicated to the construction of a RateExperiment object starting from a ARBIN csv file. Please
+notice that the ARBIN .csv files do not specify the current associated to each step explicitly, as such the
+average current per halfcycle will be used in the definition of the various rate steps. The division of
+the cell-cyclicing objects in different rate steps is generated automatically by the method using a fixed
+percentage threshold value. When the percentage variation threshold is exceeded the cell-cycling object is
+moved to a new current step.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>csv_path</strong> (<em>str</em>) – The path to the <cite>.csv</cite> file generated from the ARBIN battery cycler.</p></li>
+<li><p><strong>variation_threshold</strong> (<em>float</em>) – The threshold (in percentage) to be used in the indetification of a new current step (default: 1%)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – Exception raised if the sepcified path to the datafile is invalid.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#echemsuite.cellcycling.experiments.RateExperiment" title="echemsuite.cellcycling.experiments.RateExperiment"><em>RateExperiment</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="echemsuite.cellcycling.experiments.RateExperiment.from_Biologic_battery_module">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_Biologic_battery_module</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#echemsuite.cellcycling.experiments.RateExperiment.from_Biologic_battery_module" title="Permalink to this definition"></a></dt>
 <dd><p>Classmethod dedicated to the construction of a RateExperiment object starting from a Biologic battery module
@@ -277,8 +302,11 @@ file.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – The path to the Biologic battery module file.</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#echemsuite.cellcycling.experiments.RateExperiment" title="echemsuite.cellcycling.experiments.RateExperiment"><em>RateExperiment</em></a></p>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – Exception raised if the sepcified path to the datafile is invalid.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#echemsuite.cellcycling.experiments.RateExperiment" title="echemsuite.cellcycling.experiments.RateExperiment"><em>RateExperiment</em></a></p>
 </dd>
 </dl>
 </dd></dl>
