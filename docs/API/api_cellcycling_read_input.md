@@ -16,3 +16,9 @@
 .. autoclass:: echemsuite.cellcycling.read_input.FileManager
     :members:
 ```
+
+## The `quickload_folder` function
+
+```{eval-rst}
+.. autofunction:: echemsuite.cellcycling.read_input.quickload_folder
+```

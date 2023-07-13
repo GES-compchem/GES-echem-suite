@@ -733,3 +733,26 @@ class FileManager:
 
         cycles = self.get_cycles(custom_order=custom_order, clean=clean)
         return CellCycling(cycles)
+
+
+
+def quickload_folder(folder: str, extension: str, clean: bool = False) -> CellCycling:
+    """
+    Simple helper function to be used in scripting to quicky load cell-cycling data from a user-specified folder.
+    The function uses the `fetch_from_folder` method of the file manager class and applies all the default options.
+    If a custom order needs to be specified, the function cannot be used.
+
+    Arguments
+    ---------
+    folder: str
+        The path to the folder where the data are stored.
+    extension: str
+        The extension of the file to be loaded.
+    clean: bool
+        If set to True, will activate the clean option in the `get_cellcycling` method used to generate the output
+        CellCycling object
+    """
+    manager = FileManager()
+    manager.fetch_from_folder(folder, extension)
+    cellcycling = manager.get_cellcycling()
+    return cellcycling
