@@ -58,6 +58,7 @@ class CellCycling:
     def __repr__(self):
         return f"""
 <echemsuite.cellcycling.cycles.CellCycling at {hex(id(self))}>
+    ├─ timestamp:                 {self.timestamp}
     ├─ total number of cycles:    {len(self._cycles)}
     ├─ number of visible cycles:  {len(self)}
     └─ reference cycle:           {self.reference}"""
@@ -95,6 +96,21 @@ class CellCycling:
             self._cycles[i]._hidden = False
 
         self.get_numbers()
+
+    @property
+    def timestamp(self) -> datetime:
+        """
+        The timestamp at which the measurement has been started. If the first cycle is complete,
+        the timestamp will be that of its charge halfcycle else the timestamp of the discharge
+        halfcycle will be returned.
+
+        Returns
+        -------
+        datetime
+            The timestamp object encoding the start of the measurement.
+        """
+        first_cycle = self._cycles[0]
+        return first_cycle.charge.timestamp if first_cycle.charge is not None else first_cycle.discharge.timestamp
 
     @property
     def capacity_retention(self) -> List[float]:
