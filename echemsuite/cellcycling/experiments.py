@@ -5,10 +5,10 @@ from copy import deepcopy
 from warnings import warn
 from os import listdir
 from os.path import isfile, isdir, join
+from textwrap import wrap
 
 import openpyxl
 import pandas as pd
-import numpy as np
 
 from echemsuite.cellcycling.read_input import quickload_folder
 from echemsuite.cellcycling.cycles import CellCycling, Cycle, HalfCycle
@@ -36,9 +36,18 @@ class RateExperiment:
         Exception raised if a mismatch between the length fo the two lists has been detected.
     """
 
-    def __init__(self, current_steps: List[float] = [], cellcycling_steps: List[CellCycling] = []) -> None:
+    def __init__(self, current_steps: List[float] = None, cellcycling_steps: List[CellCycling] = None) -> None:
+        if current_steps is None:
+            current_steps = []
+
+        if cellcycling_steps is None:
+            cellcycling_steps = []
+
+        print(current_steps)
+
         if len(current_steps) != len(cellcycling_steps):
-            raise RuntimeError("The current step list and the cellcycling one cannot have different lenght.")
+            raise RuntimeError(
+                "The current step list and the cellcycling one cannot have different lenght.")
 
         self.__current_steps: List[float] = deepcopy(current_steps)
         self.__cellcycling_steps: List[CellCycling] = deepcopy(cellcycling_steps)
@@ -74,8 +83,8 @@ class RateExperiment:
         return self.__reference
 
     @reference.setter
-    def reference(self, input: Tuple[int, int]) -> None:
-        cellcycling, step = input
+    def reference(self, input_ref: Tuple[int, int]) -> None:
+        cellcycling, step = input_ref
         if cellcycling < 0 or cellcycling >= len(self.__cellcycling_steps):
             raise ValueError(
                 f"Cannot use the cellcycling {cellcycling} as reference. Only {len(self.__cellcycling_steps)} are available."
@@ -114,12 +123,16 @@ class RateExperiment:
             raw_data: Dict[str, str] = {}
             keywords = ["Ns", "ctrl1_val", "ctrl_type", "charge/discharge"]
 
+            field_length = 20  # each data field in biologic is 20 char long
+
             # Read the beginning of the file to obtain all the fields containing the parameters describing the sequence
             # of operations in the module. End the cycle when the header of the table is encountered.
             for line in file:
                 for keyword in keywords:
                     if line.startswith(f"{keyword} "):
-                        raw_data[keyword] = line.split()[1::]
+                        # raw_data[keyword] = line.split()[1::]
+                        raw_data[keyword] = wrap(
+                            line, field_length, drop_whitespace=False)[1:-1]
 
                 if "Acquisition started on :" in line:
                     time_str = line.split(" ")[-1]
@@ -149,9 +162,10 @@ class RateExperiment:
                 # TO BE CHANGED AS SOON AS MORE INFO ABOUT .mpt FILES ARE AVAILABLE
                 # TEMPORARY FIX to solve the issue of US date format with european
                 if int(month) > 12:
-                    tmp = month
-                    month = day
-                    day = tmp
+                    month, day = day, month
+                    # tmp = month
+                    # month = day
+                    # day = tmp
 
                 timestamp = datetime(
                     int(year),
@@ -166,6 +180,7 @@ class RateExperiment:
                 raise RuntimeError("Failed to build file timestamp.")
 
             # Build conversion dictionaries to define operation type and associated charge/discharge rates
+            controltype_dict: Dict[int, str] = {}
             operation_dict: Dict[int, str] = {}
             current_dict: Dict[int, float] = {}
             for n, optype, ctrl, current in zip(
@@ -177,12 +192,16 @@ class RateExperiment:
                 if ctrl.lower() == "loop":
                     continue
 
-                operation_dict[int(n)] = optype
-                current_dict[int(n)] = float(current.replace(",", "."))
+                controltype_dict[int(n)] = ctrl.strip()
+                operation_dict[int(n)] = optype.strip()
+
+                if current != '                    ':
+                    current_dict[int(n)] = float(current.replace(",", "."))
 
             # Define buffer arrays to store the experimental step halfcycles together with their identifier
             halfcycles: List[HalfCycle] = []
             identifiers: List[int] = []
+            skipped_operations: List[int] = []
 
             # Define temporary variables to store values carried on during the parsing iterations
             last_label: int = None
@@ -192,8 +211,14 @@ class RateExperiment:
             for line in file:
                 sline = line.split()
 
+                exp_n = int(sline[6])
+
+                if controltype_dict[exp_n] != "CC":
+                    skipped_operations.append(exp_n)
+                    continue
+
                 # If not yet set, set the lable of the experiment in the buffer
-                if last_label == None:
+                if last_label is None:
                     last_label = int(sline[6])
 
                 # If the label of the new line differs from the previous a new halfcyle is about to begin. Pack the old
@@ -229,6 +254,7 @@ class RateExperiment:
             identifiers.append(last_label)
 
             # Just to be sure delete all the temporary variable previously defined
+            # n.d.: please hire a decent python dev who does not write this bs
             del last_label
             del time
             del current
@@ -241,6 +267,7 @@ class RateExperiment:
             cycles = []
             current_rate = None
             charge, discharge = None, None
+
             for identifier, halfcycle in zip(identifiers, halfcycles):
                 # If the current rate is not set, set it.
                 if current_rate is None:
@@ -321,7 +348,8 @@ class RateExperiment:
         # Define temporary variable used to store parsed values useful in the definition of the halfcycles list
         timestamp: datetime = None  # Timestamp recorded at the start of a new data block
         step_idx: int = None  # Index associated to the current measurement step type
-        time, current, voltage = [], [], []  # Lists to store time, current and voltage values of each halfcycle
+        # Lists to store time, current and voltage values of each halfcycle
+        time, current, voltage = [], [], []
 
         # List to store the parsed halfcycles
         halfcycles: List[HalfCycle] = []
@@ -331,7 +359,8 @@ class RateExperiment:
             time_str = timestamp_str.split(" ")[1]
             month, day, year = (int(n) for n in date_str.split("/"))
             hour, minute, second = (int(float(n)) for n in time_str.split(":"))
-            timestamp = datetime(year=year, month=month, day=day, hour=hour, minute=minute, second=second)
+            timestamp = datetime(year=year, month=month, day=day,
+                                 hour=hour, minute=minute, second=second)
             return timestamp
 
         # Open the specified ARBIN csv datafile
@@ -386,7 +415,8 @@ class RateExperiment:
 
         # From the list of halfcycles eliminate those halfcycles with length equal to 1 and those containing only steps
         # recorded at zero current.
-        halfcycles = [h for h in halfcycles if len(h) > 1 and all([i != 0 for i in h.current])]
+        halfcycles = [h for h in halfcycles if len(
+            h) > 1 and all([i != 0 for i in h.current])]
 
         # Define empty lists to store current steps and the corresponding cell-cycling sequences
         current_steps, cellcycling_steps = [], []
@@ -402,7 +432,7 @@ class RateExperiment:
             iavg = abs(sum(halfcycle.current)) / len(halfcycle)
 
             # If this is the first iteration add the average current in the current steps list
-            if current_steps == []:
+            if not current_steps:
                 current_steps.append(iavg)
 
             # Compute the error between the stored average current value and the current average value.
@@ -413,7 +443,8 @@ class RateExperiment:
             if relative_error > variation_threshold or hidx == len(halfcycles) - 1:
                 # If a charge halfcycle is left in the buffer conclude the cycle buffer with the last charge
                 if charge is not None:
-                    cycle = Cycle(number=len(cycles_buffer) + 1, charge=charge, discharge=None)
+                    cycle = Cycle(number=len(cycles_buffer) + 1,
+                                  charge=charge, discharge=None)
                     cycles_buffer.append(cycle)
                     charge = None
 
@@ -431,7 +462,8 @@ class RateExperiment:
             if halfcycle.halfcycle_type == "charge":
                 charge = halfcycle
             else:
-                cycle = Cycle(number=len(cycles_buffer) + 1, charge=charge, discharge=halfcycle)
+                cycle = Cycle(number=len(cycles_buffer) + 1,
+                              charge=charge, discharge=halfcycle)
                 cycles_buffer.append(cycle)
                 charge = None
 
@@ -486,6 +518,7 @@ class RateExperiment:
             # return a warning messange to the user
             cellcycling: CellCycling = None
             try:
+                # bare except should be fixed!!!
                 cellcycling = quickload_folder(path, ".DTA")
             except:
                 warn(f"Failed to load file from {path}. The folder will be skipped")
@@ -493,8 +526,9 @@ class RateExperiment:
                 cellcycling_steps.append(cellcycling)
 
         # Check if data has been loaded, if not raise an exception
-        if cellcycling_steps == []:
-            raise RuntimeError("No valid GAMRY cell-cycling data has been found in the specified folder.")
+        if not cellcycling_steps:
+            raise RuntimeError(
+                "No valid GAMRY cell-cycling data has been found in the specified folder.")
 
         # Sort the cell-cycling objects based on their timestamp
         cellcycling_steps.sort(key=lambda x: x.timestamp)
@@ -506,10 +540,10 @@ class RateExperiment:
             nsamples: int = 0
             for cycle in cellcycling:
                 for halfcycle in [cycle.charge, cycle.discharge]:
-                    
+
                     if halfcycle is None:
                         continue
-                    
+
                     for current in halfcycle.current:
                         iavg += abs(current)
                         nsamples += 1
@@ -541,7 +575,8 @@ class RateExperiment:
         for cellcycling in self.__cellcycling_steps:
             for cycle in cellcycling:
                 if cycle.discharge:
-                    capacity_retention.append(cycle.discharge.capacity / initial_capacity * 100)
+                    capacity_retention.append(
+                        cycle.discharge.capacity / initial_capacity * 100)
                 else:
                     capacity_retention.append(None)
 
@@ -568,7 +603,8 @@ class RateExperiment:
                         coulomb_efficiency.append(101)
 
                     else:
-                        coulomb_efficiency.append(cycle.discharge.capacity / cycle.charge.capacity * 100)
+                        coulomb_efficiency.append(
+                            cycle.discharge.capacity / cycle.charge.capacity * 100)
 
                 else:
                     coulomb_efficiency.append(None)
@@ -596,7 +632,8 @@ class RateExperiment:
                         energy_efficiency.append(101)
 
                     else:
-                        energy_efficiency.append(cycle.discharge.total_energy / cycle.charge.total_energy * 100)
+                        energy_efficiency.append(
+                            cycle.discharge.total_energy / cycle.charge.total_energy * 100)
 
                 else:
                     energy_efficiency.append(None)
@@ -634,7 +671,8 @@ class RateExperiment:
         capacity = []
         for cellcycling in self.__cellcycling_steps:
             for cycle in cellcycling:
-                capacity.append(cycle.discharge.capacity if cycle.discharge is not None else None)
+                capacity.append(
+                    cycle.discharge.capacity if cycle.discharge is not None else None)
 
         return capacity
 
@@ -651,7 +689,8 @@ class RateExperiment:
         total_energy = []
         for cellcycling in self.__cellcycling_steps:
             for cycle in cellcycling:
-                total_energy.append(cycle.discharge.total_energy if cycle.discharge is not None else None)
+                total_energy.append(
+                    cycle.discharge.total_energy if cycle.discharge is not None else None)
 
         return total_energy
 
@@ -668,7 +707,8 @@ class RateExperiment:
         average_power = []
         for cellcycling in self.__cellcycling_steps:
             for cycle in cellcycling:
-                average_power.append(cycle.discharge.average_power if cycle.discharge is not None else None)
+                average_power.append(
+                    cycle.discharge.average_power if cycle.discharge is not None else None)
 
         return average_power
 
@@ -754,22 +794,24 @@ class RateExperiment:
             if r < 2:
                 sheet.append(row.split(","))
             else:
-                sheet.append([float(x) if x != "" and x != "None" else x for x in row.split(",")])
+                sheet.append([float(x) if x != "" and x !=
+                             "None" else x for x in row.split(",")])
 
         workbook.save(path)
 
-    def append(self, object: RateExperiment) -> None:
+    def append(self, object_rate_exp: RateExperiment) -> None:
         """
-        Concatenate to the curren object the rate experiments datapoints provided by a second RateExperiment object
+        Concatenate to the current object the rate experiments datapoints provided by a second RateExperiment object
 
         Arguments
         ---------
         object: RateExperiment
             The rate experiment object providing the data to be included in the current experiment dataset
         """
-        if type(object) != RateExperiment:
-            raise TypeError(f"The type of `object` must be `RateExperiment` not `{type(object)}`")
+        if type(object_rate_exp) != RateExperiment:
+            raise TypeError(
+                f"The type of `object` must be `RateExperiment` not `{type(object)}`")
 
-        for current, cellcycling in zip(object.__current_steps, object.__cellcycling_steps):
+        for current, cellcycling in zip(object_rate_exp.__current_steps, object_rate_exp.__cellcycling_steps):
             self.__current_steps.append(current)
             self.__cellcycling_steps.append(cellcycling)
