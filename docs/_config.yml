@@ -29,6 +29,7 @@ sphinx:
   extra_extensions:
     - 'sphinx.ext.autodoc'
     - 'sphinx.ext.napoleon'
-  # config:
-  #   html_theme: 'sphinx_rtd_theme'
+  config:
+     html_theme: sphinx_rtd_theme
+     autodoc_typehints: "description"
     

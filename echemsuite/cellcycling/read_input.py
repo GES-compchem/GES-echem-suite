@@ -47,7 +47,6 @@ class FileManager:
     """
 
     def __init__(self, verbose: bool = False) -> None:
-
         self.verbose: bool = verbose  # Enable output to the terminal
 
         # Dictionary for the BytesIO streams containing the datafiles ordered by a valid path string
@@ -72,17 +71,17 @@ class FileManager:
     @bytestreams.setter
     def bytestreams(self, value: Dict[str, BytesIO]) -> None:
         if type(value) != dict:
-            logger.error(
-                f"Bytestream setter expects a Dict type. Received '{type(value)}' instead"
-            )
-            raise TypeError
+            logger.error(f"Bytestream setter expects a Dict type. Received '{type(value)}' instead")
+            raise TypeError(f"Bytestream setter expects a Dict type. Received '{type(value)}' instead")
 
         for key, item in value.items():
             if type(key) != str or type(item) != BytesIO:
                 logger.error(
                     f"Bytestream dictionary must be of type Dict[str, BytesIO]. Received 'Dict[{type(key)}, {type(item)}]' instead."
                 )
-                raise ValueError
+                raise ValueError(
+                    f"Bytestream dictionary must be of type Dict[str, BytesIO]. Received 'Dict[{type(key)}, {type(item)}]' instead."
+                )
 
         self._bytestreams = value
 
@@ -107,17 +106,17 @@ class FileManager:
     @halfcycles.setter
     def halfcycles(self, value: Dict[str, HalfCycle]):
         if type(value) != dict:
-            logger.error(
-                f"Halfcycles setter expects a Dict type. Received '{type(value)}' instead"
-            )
-            raise TypeError
+            logger.error(f"Halfcycles setter expects a Dict type. Received '{type(value)}' instead")
+            raise TypeError(f"Halfcycles setter expects a Dict type. Received '{type(value)}' instead")
 
         for key, item in value.items():
             if type(key) != str or type(item) != HalfCycle:
                 logger.error(
                     f"Halfcycles dictionary must be of type Dict[str, HalfCycle]. Received 'Dict[{type(key)}, {type(item)}]' instead."
                 )
-                raise ValueError
+                raise ValueError(
+                    f"Halfcycles dictionary must be of type Dict[str, HalfCycle]. Received 'Dict[{type(key)}, {type(item)}]' instead."
+                )
         self._halfcycles = value
 
     @property
@@ -165,7 +164,6 @@ class FileManager:
 
         # Load each file in the filelist
         for filepath in filelist:
-
             filename = path.basename(filepath)
 
             if self.verbose:
@@ -175,7 +173,7 @@ class FileManager:
             file_extension = path.splitext(filename)[1]
             if file_extension != extension:
                 logger.error("file extensions in filelist do not match")
-                raise ValueError
+                raise ValueError("file extensions in filelist do not match")
 
             # Check if the extension matches any of the existing instrument profiles
             if extension.lower() == ".dta":
@@ -183,19 +181,14 @@ class FileManager:
             elif extension.lower() == ".mpt":
                 self._instrument = Instrument.BIOLOGIC
             else:
-                logger.error(
-                    f"The extension '{extension}' does not appear among the known file types."
-                )
-                raise TypeError
+                logger.error(f"The extension '{extension}' does not appear among the known file types.")
+                raise TypeError(f"The extension '{extension}' does not appear among the known file types.")
 
             # Load the whole file in the bytestreams buffer
             with open(filepath, "r", encoding="utf-8", errors="ignore") as file:
-
                 if file.readlines() == []:
                     if self.verbose:
-                        print(
-                            f"\u001b[35;1mWARNING:\u001b[0m empty file found. Skipping {filename}."
-                        )
+                        print(f"\u001b[35;1mWARNING:\u001b[0m empty file found. Skipping {filename}.")
                     logger.warning(f"Empty file found. Skipping {filename}.")
                     continue
 
@@ -208,9 +201,7 @@ class FileManager:
         if autoparse:
             self.parse()
 
-    def fetch_from_folder(
-        self, folder: str, extension: str, autoparse: bool = True
-    ) -> None:
+    def fetch_from_folder(self, folder: str, extension: str, autoparse: bool = True) -> None:
         """
         Loads, as BytesIO streams, multiple files from a folder filtering them by extension.
 
@@ -236,15 +227,13 @@ class FileManager:
         # Check if directory exists
         if path.isdir(folder) == False:
             logger.error(f"The path '{folder}' does not correspond to a folder.")
-            raise ValueError
+            raise ValueError(f"The path '{folder}' does not correspond to a folder.")
         folder = path.abspath(folder)
 
         # Check if the extension matches any of the existing instrument profiles
         if extension.lower() not in [".dta", ".mpt"]:
-            logger.error(
-                f"The extension '{extension}' does not appear among the known file types."
-            )
-            raise TypeError
+            logger.error(f"The extension '{extension}' does not appear among the known file types.")
+            raise TypeError(f"The extension '{extension}' does not appear among the known file types.")
 
         # Load the file in the bytestream buffer
         filelist = []
@@ -269,13 +258,12 @@ class FileManager:
         # Check if the bytestreams buffer is empty
         if self.bytestreams == {}:
             logger.error("Parse function called on empty bytestreams dictionary.")
-            raise RuntimeError
+            raise RuntimeError("Parse function called on empty bytestreams dictionary.")
 
         # Load the halfcycles from data in the bytestreams buffer based on the type of instrument
         self._halfcycles = {}
         if self._instrument == Instrument.GAMRY:
             for filename, bytestream in self.bytestreams.items():
-
                 if self.verbose:
                     print(f"-> Parsing: {filename}")
 
@@ -295,7 +283,6 @@ class FileManager:
                 textStream = TextIOWrapper(bytestream, encoding="utf-8")
                 textStream_lines = textStream.readlines()
                 for line_num, line in enumerate(textStream_lines):
-
                     line = line.strip("\n")
 
                     # Read the time and date lines
@@ -337,11 +324,10 @@ class FileManager:
                 # Confirm that the data has been loaded
                 if data.empty:
                     logger.error("Failed to locate the CURVE section.")
-                    raise RuntimeError
+                    raise RuntimeError("Failed to locate the CURVE section.")
 
                 # Build the timestamp object
                 if date_str is not None and time_str is not None:
-
                     # Custom time format switch based on the number format used in the file
                     if US_number_format:
                         month, day, year = date_str.split("/")
@@ -359,7 +345,7 @@ class FileManager:
                     )
                 else:
                     logger.error("Failed to build file timestamp.")
-                    raise RuntimeError
+                    raise RuntimeError("Failed to build file timestamp.")
 
                 # Renaming columns to standard format
                 if "V vs. Ref." in data.columns:
@@ -399,14 +385,10 @@ class FileManager:
                     elif current[0] < 0:
                         halfcycle_type = "discharge"
 
-                self._halfcycles[filename] = HalfCycle(
-                    time, voltage, current, halfcycle_type, timestamp
-                )
+                self._halfcycles[filename] = HalfCycle(time, voltage, current, halfcycle_type, timestamp)
 
         elif self._instrument == Instrument.BIOLOGIC:
-
             for filename, bytestream in self.bytestreams.items():
-
                 if self.verbose:
                     print(f"-> Parsing: {filename}")
 
@@ -417,10 +399,13 @@ class FileManager:
                 date_str, time_str = None, None  # Date and time string buffers
                 timestamp = None  # Timestamp reported in the file
 
+                # Flag to check the format of the numbers used in the file
+                US_number_format: bool = True
+
                 # Parsing the file
                 textStream = TextIOWrapper(bytestream, encoding="utf-8")
-                for line_num, line in enumerate(textStream.readlines()):
-
+                textStream_lines = textStream.readlines()
+                for line_num, line in enumerate(textStream_lines):
                     line = line.strip("\n")
 
                     if "Acquisition started on :" in line:
@@ -442,13 +427,12 @@ class FileManager:
                     elif "mode\t" in line:
                         beginning = line_num
 
-                        # if no cycles are found, default to "read everything"
-                        if len(delims) == 0:
-                            delims = [[0, 0, -2]]  # -2 will be converted to -1 later
+                        # Check if the first number of the data line contains ","
+                        if "," in textStream_lines[beginning + 1].split()[4]:
+                            US_number_format = False  # If yes switch to european format
 
-                        textStream.seek(
-                            0
-                        )  # Rewind the pointer to the beginning of the stream
+                        # Rewind the pointer to the beginning of the stream
+                        textStream.seek(0)
 
                         # reading data from file
                         data = pd.read_table(
@@ -456,7 +440,7 @@ class FileManager:
                             dtype=np.float64,
                             delimiter="\t",
                             skiprows=beginning,
-                            decimal=",",
+                            decimal="." if US_number_format else ",",
                             encoding_errors="ignore",
                         )
 
@@ -466,12 +450,30 @@ class FileManager:
                 # Confirm that the data has been loaded
                 if data.empty:
                     logger.error("Failed to locate the header section.")
-                    raise RuntimeError
+                    raise RuntimeError("Failed to locate the header section.")
 
                 # Build the timestamp object
                 if date_str is not None and time_str is not None:
-                    day, month, year = date_str.split("/")
+                    # Custom time format switch based on the number format used in the file
+                    if US_number_format:
+                        month, day, year = date_str.split("/")
+                    else:
+                        day, month, year = date_str.split("/")
+
                     hours, minutes, seconds = time_str.split(":")
+
+                    # Check if the seconds field contains a decimal part and discard it
+                    if "." in seconds:
+                        seconds = seconds.split(".")[0]
+
+                    # TO BE CHANGED AS SOON AS MORE INFO ABOUT .mpt FILES ARE AVAILABLE
+                    # TEMPORARY FIX to solve the issue of US date format with european
+                    if int(month) > 12:
+                        logger.warning("Unexpected date format, reversing day and month ordering")
+                        tmp = month
+                        month = day
+                        day = tmp
+
                     timestamp = datetime(
                         int(year),
                         int(month),
@@ -480,9 +482,38 @@ class FileManager:
                         int(minutes),
                         int(seconds),
                     )
+
                 else:
                     logger.error("Failed to build file timestamp.")
-                    raise RuntimeError
+                    raise RuntimeError("Failed to build file timestamp.")
+
+                # Check if the loop section has been found and the delims value saved, if not
+                # check the ox/red column to generate the delims from scratch
+                if delims == []:
+                    logger.warning("Failed to locate the loop section, generating delimiters from ox/red value")
+
+                    # Set the current cycle number and the start line to zero
+                    cycle, start = 0, 0
+
+                    # Compute the difference between adjacent ox/red values and search for 1 values
+                    # (A cycle is intended as charge followed by a discharge, passing from charge
+                    # to a discharge will generate a difference of -1 while passing from a discharge
+                    # to a new charge-discharge cycle will generate a difference of 1)
+                    ox_red_diff = data["ox/red"].diff().to_list()
+
+                    # Get the index of all the 1 in the ox_red_diff list
+                    switch_points = [idx for idx, value in enumerate(ox_red_diff) if value == 1]
+
+                    # Iterate over the switch points to generate the cycle delims list
+                    for index in switch_points:
+                        delims.append([cycle, start, index - 1])
+                        start = index
+                        cycle += 1
+
+                    # Close the iteration by generating the last cycle (the only one not followed
+                    # by a switch point)
+                    delims.append([cycle, start, len(ox_red_diff)])
+                    ncycles = len(delims)
 
                 # renaming columns to standard format
                 data.rename(
@@ -500,7 +531,6 @@ class FileManager:
                 # Iterate on the provided data and build the halfcycles dictionary
                 cycle_num = 0
                 while cycle_num < ncycles:
-
                     first_row = delims[cycle_num][1]
                     last_row = delims[cycle_num][2] + 1
 
@@ -511,10 +541,7 @@ class FileManager:
                     charge = None
                     charge_data = cycle_sub_data[cycle_sub_data["ox/red"] == 1]
                     if charge_data.empty == False:
-
-                        charge_timestamp = timestamp + timedelta(
-                            seconds=charge_data["Time (s)"].tolist()[0]
-                        )
+                        charge_timestamp = timestamp + timedelta(seconds=charge_data["Time (s)"].tolist()[0])
 
                         start_time = charge_data["Time (s)"].iloc[0]
                         shifted_timescale = charge_data["Time (s)"].subtract(start_time)
@@ -531,10 +558,7 @@ class FileManager:
                     discharge = None
                     discharge_data = cycle_sub_data[cycle_sub_data["ox/red"] == 0]
                     if discharge_data.empty == False:
-
-                        discharge_timestamp = timestamp + timedelta(
-                            seconds=discharge_data["Time (s)"].tolist()[0]
-                        )
+                        discharge_timestamp = timestamp + timedelta(seconds=discharge_data["Time (s)"].tolist()[0])
 
                         start_time = discharge_data["Time (s)"].iloc[0]
                         shifted_timescale = discharge_data["Time (s)"].subtract(start_time)
@@ -548,17 +572,12 @@ class FileManager:
                         )
 
                     if charge is not None and discharge is not None:
-
                         # Apply a preventive ordering in halfcycle insertion into dictionary
                         if charge_timestamp < discharge_timestamp:
                             self._halfcycles[f"charge_{cycle_num}_{filename}"] = charge
-                            self._halfcycles[
-                                f"discharge_{cycle_num}_{filename}"
-                            ] = discharge
+                            self._halfcycles[f"discharge_{cycle_num}_{filename}"] = discharge
                         else:
-                            self._halfcycles[
-                                f"discharge_{cycle_num}_{filename}"
-                            ] = discharge
+                            self._halfcycles[f"discharge_{cycle_num}_{filename}"] = discharge
                             self._halfcycles[f"charge_{cycle_num}_{filename}"] = charge
 
                     elif charge is not None:
@@ -590,7 +609,6 @@ class FileManager:
 
         ncycles, index = 0, 0
         while index <= len(ordered_items) - 1:
-
             name, ref_obj = ordered_items[index]  # Take the first object as a reference
             order.append([name])  # Add the first object name to the list
             index += 1  # Move the pointer to the next element in the ordered_items list
@@ -601,7 +619,6 @@ class FileManager:
 
             # Start a iteration loop to search for partial halfcycles
             while True:
-
                 # Check if the halfcycle pointed by index is the same type as the reference one
                 if ordered_items[index][1].halfcycle_type == ref_obj.halfcycle_type:
                     # Append the partial halfcycle to the current halfcycle index and move the pointer
@@ -622,7 +639,7 @@ class FileManager:
         """
         Build the Cycles list from a given halfcycles order.
 
-        Parameters:
+        Parameters
         -----------
         custom_order: List[str]
             list of lists of filenames. Each list contains the half-cycles entries that must
@@ -632,7 +649,7 @@ class FileManager:
             if set to True, only displays cycles with physical meaning (efficiencies < 100%
             and both charge + discharge available). If False (default), load everything.
 
-        Returns:
+        Returns
         --------
         List[:py:class:`~echemsuite.cellcycling.cycles.Cycle`]
             list containing the set of charge/discharge Cycles objects created from the
@@ -640,9 +657,7 @@ class FileManager:
         """
 
         # If available use user ordering as order list else use the suggested one
-        order: List[List[str]] = (
-            self.suggest_ordering() if custom_order == [] else custom_order
-        )
+        order: List[List[str]] = self.suggest_ordering() if custom_order == [] else custom_order
 
         # Create a local list of subsequent halfcycles by joining partial ones if existent
         halfcycles = []
@@ -684,7 +699,6 @@ class FileManager:
 
         # Perform the cleaning operation if clean is set to true
         for cycle in cycles:
-
             # Remove cycles with efficiencies higher than 100%
             if cycle.energy_efficiency and cycle.energy_efficiency > 100 and clean:
                 cycle._hidden = True
@@ -697,13 +711,11 @@ class FileManager:
 
         return cycles  # Return the cycle list to the user
 
-    def get_cellcycling(
-        self, custom_order: List[str] = [], clean: bool = False
-    ) -> CellCycling:
+    def get_cellcycling(self, custom_order: List[str] = [], clean: bool = False) -> CellCycling:
         """
         Build a CellCycling object from a given halfcycles order.
 
-        Parameters:
+        Parameters
         -----------
         custom_order: List[str]
             list of lists of filenames. Each list contains the half-cycles entries that must
@@ -713,7 +725,7 @@ class FileManager:
             if set to True, only displays cycles with physical meaning (efficiencies < 100%
             and both charge + discharge available). If False (default), load everything.
 
-        Returns:
+        Returns
         --------
         :py:class:`~echemsuite.cellcycling.cycles.CellCycling`
             CellCycling instance containing all the charge/discharge Cycles objects.
@@ -723,129 +735,24 @@ class FileManager:
         return CellCycling(cycles)
 
 
-# LEGACY FUNCTIONS
 
-
-def build_DTA_cycles(
-    filelist: List[str], clean: bool, verbose: bool = False
-) -> List[Cycle]:
+def quickload_folder(folder: str, extension: str, clean: bool = False) -> CellCycling:
     """
-    .. deprecated:: 0.2.0a
-        Should be substituted by the direct call to the
-        :py:class:`~echemsuite.cellcycling.read_input.FileManager` class structure
+    Simple helper function to be used in scripting to quicky load cell-cycling data from a user-specified folder.
+    The function uses the `fetch_from_folder` method of the file manager class and applies all the default options.
+    If a custom order needs to be specified, the function cannot be used.
 
-    Builds a list of cycles from a list containing charge/discharge file paths
-
-    Parameters
-    ----------
-    filelist : List[str]
-        file list containing the .DTA file paths.
-    clean : bool
-        if set to True, only displays cycles with physical meaning (efficiencies < 100% and
-        both charge + discharge available). If False (default), load everything.
-
-    Returns
-    -------
-    List[:py:class:`~echemsuite.cellcycling.cycles.Cycle`]
-        list containing various cycles objects built according to the given list pairs
+    Arguments
+    ---------
+    folder: str
+        The path to the folder where the data are stored.
+    extension: str
+        The extension of the file to be loaded.
+    clean: bool
+        If set to True, will activate the clean option in the `get_cellcycling` method used to generate the output
+        CellCycling object
     """
-    deprecation_warning("build_DTA_cycles", "FileManager")
-
-    manager = FileManager(verbose=verbose)
-    manager.fetch_files(filelist)
-    cycles = manager.get_cycles(clean=clean)
-
-    return cycles
-
-
-def read_mpt_cycles(filelist: List[str], clean: bool, verbose: bool = False):
-    """
-    .. deprecated:: 0.2.0a
-        Should be substituted by the direct call to the
-        :py:class:`~echemsuite.cellcycling.read_input.FileManager` class structure
-
-    Reads a list of cycles from a list containing cell cycling file paths from BIOLOGIC
-    instruments (.mpt files)
-
-    Parameters
-    ----------
-    filelist : List[str]
-        file list containing .mpt file paths.
-    clean : bool
-        if True, only displays cycles with physical meaning (efficiencies < 100% and both
-        charge + discharge available). If False (default), load everything.
-
-    Returns
-    -------
-    List[:py:class:`~echemsuite.cellcycling.cycles.Cycle`]
-        list containing various Cycles objects built according to the given list pairs
-    """
-    deprecation_warning("read_mpt_cycles", "FileManager")
-
-    manager = FileManager(verbose=verbose)
-    manager.fetch_files(filelist)
-    cycles = manager.get_cycles(clean=clean)
-
-    return cycles
-
-
-def read_cycles(filelist, clean=False):
-    """
-    .. deprecated:: 0.2.0a
-        Should be substituted by the direct call to the
-        :py:class:`~echemsuite.cellcycling.read_input.FileManager` class structure
-
-    Reads a list of cycles from a list containing cell cycling file paths from BIOLOGIC
-    instruments (.mpt files)
-
-    Parameters
-    ----------
-    filelist : List[str]
-        file list containing .mpt file paths.
-    clean : bool
-        if True, only displays cycles with physical meaning (efficiencies < 100% and both
-        charge + discharge available). If False (default), load everything.
-
-    Returns
-    -------
-    :py:class:`~echemsuite.cellcycling.cycles.CellCycling`
-            CellCycling instance containing all the charge/discharge Cycles objects.
-    """
-
-    deprecation_warning("read_cycles", "FileManager")
-
-    if type(filelist) is str:
-        filelist = [filelist]
-
-    cycles = read_mpt_cycles(filelist, clean)
-
-    return CellCycling(cycles)
-
-
-def build_cycles(filelist, clean=False):
-    """
-    .. deprecated:: 0.2.0a
-        Should be substituted by the direct call to the
-        :py:class:`~echemsuite.cellcycling.read_input.FileManager` class structure
-
-    Builds a list of cycles from a list containing charge/discharge file paths
-
-    Parameters
-    ----------
-    filelist : List[str]
-        file list containing the .DTA file paths.
-    clean : bool
-        if set to True, only displays cycles with physical meaning (efficiencies < 100% and
-        both charge + discharge available). If False (default), load everything.
-
-    Returns
-    -------
-    :py:class:`~echemsuite.cellcycling.cycles.CellCycling`
-            CellCycling instance containing all the charge/discharge Cycles objects.
-    """
-
-    deprecation_warning("build_cycles", "FileManager")
-
-    cycles = build_DTA_cycles(filelist, clean)
-
-    return CellCycling(cycles)
+    manager = FileManager()
+    manager.fetch_from_folder(folder, extension)
+    cellcycling = manager.get_cellcycling()
+    return cellcycling

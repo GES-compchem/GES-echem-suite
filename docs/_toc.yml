@@ -3,11 +3,27 @@
 format: jb-book
 root: intro
 chapters:
-- file: cellcycling-module
+- file: getting-started
+- file: user-guide
   sections:
-    - file: Tutorials/loading-files
-    - file: Tutorials/computing-properties
+    - file: Guide/cell-cycling
+      sections:
+        - file: Guide/CellCycling/loading-files
+        - file: Guide/CellCycling/accessing-data
+        - file: Guide/CellCycling/analyzing-experiments
+    - file: Guide/cyclic-voltammetry
+    - file: Guide/graphicaltools
+- file: examples
+  sections:
+    - file: Examples/plot-cycles
+    - file: Examples/plot-rate-experiments
+    - file: Examples/plot-cyclicvoltammetry
 - file: api
   sections:
+    - file: API/api_cellcycling_experiments
     - file: API/api_cellcycling_cycles
     - file: API/api_cellcycling_read_input
+    - file: API/api_cyclicvoltammetry_read_input
+    - file: API/api_graphicaltools
+- file: contributor-guide
+- file: release-notes

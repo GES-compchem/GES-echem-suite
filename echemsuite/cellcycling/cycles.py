@@ -33,9 +33,7 @@ class CellCycling:
 
         self._numbers: list = None  # initialized by get_numbers()
 
-        self._capacity_retention: list = (
-            None  # initialized in capacity_retention() property
-        )
+        self._capacity_retention: list = None  # initialized in capacity_retention() property
         self.reference: int = 0  # used for calculating retentions
 
         self._retention_fit_parameters = None  # initialized by fit_retention()
@@ -56,6 +54,17 @@ class CellCycling:
 
     def __len__(self):
         return len([cycle for cycle in self])
+
+    def __repr__(self):
+        return f"""
+<echemsuite.cellcycling.cycles.CellCycling at {hex(id(self))}>
+    ├─ timestamp:                 {self.timestamp}
+    ├─ total number of cycles:    {len(self._cycles)}
+    ├─ number of visible cycles:  {len(self)}
+    └─ reference cycle:           {self.reference}"""
+
+    def __str__(self) -> str:
+        return repr(self)
 
     def get_numbers(self) -> None:
         self._numbers = [cycle.number for cycle in self]
@@ -89,6 +98,21 @@ class CellCycling:
         self.get_numbers()
 
     @property
+    def timestamp(self) -> datetime:
+        """
+        The timestamp at which the measurement has been started. If the first cycle is complete,
+        the timestamp will be that of its charge halfcycle else the timestamp of the discharge
+        halfcycle will be returned.
+
+        Returns
+        -------
+        datetime
+            The timestamp object encoding the start of the measurement.
+        """
+        first_cycle = self._cycles[0]
+        return first_cycle.charge.timestamp if first_cycle.charge is not None else first_cycle.discharge.timestamp
+
+    @property
     def capacity_retention(self) -> List[float]:
         """
         List of capacity retentions calculated as the ratios between the discharge capacity
@@ -106,9 +130,7 @@ class CellCycling:
 
         for cycle in self:
             if cycle.discharge:
-                self._capacity_retention.append(
-                    cycle.discharge.capacity / initial_capacity * 100
-                )
+                self._capacity_retention.append(cycle.discharge.capacity / initial_capacity * 100)
             else:
                 self._capacity_retention.append(None)
 
@@ -188,10 +210,7 @@ class CellCycling:
 
         predicted_retentions = []
         for cycle_number in cycle_numbers:
-            retention = (
-                self._retention_fit_parameters.slope * cycle_number
-                + self._retention_fit_parameters.intercept
-            )
+            retention = self._retention_fit_parameters.slope * cycle_number + self._retention_fit_parameters.intercept
             predicted_retentions.append(retention)
 
         return predicted_retentions
@@ -215,11 +234,7 @@ class CellCycling:
         predicted_cycle_numbers = []
         for retention in thresholds:
             cycle_number = int(
-                (
-                    (retention - self._retention_fit_parameters.intercept)
-                    / self._retention_fit_parameters.slope
-                )
-                // 1
+                ((retention - self._retention_fit_parameters.intercept) / self._retention_fit_parameters.slope) // 1
             )
             predicted_cycle_numbers.append(cycle_number)
 
@@ -286,20 +301,20 @@ class Cycle:
         if either one of the given charge/discharge half-cycles are of the wrong type
     """
 
-    def __init__(
-        self, number: int, charge: HalfCycle = None, discharge: HalfCycle = None
-    ) -> None:
-
+    def __init__(self, number: int, charge: HalfCycle = None, discharge: HalfCycle = None) -> None:
         self._number = number
 
         self._charge: HalfCycle = charge
         self._discharge: HalfCycle = discharge
 
         if charge and charge._halfcycle_type != "charge":
-            raise TypeError
+            raise TypeError(f"Half-cycle type is {charge._halfcycle_type}. Must be 'charge'.")
 
         if discharge and discharge._halfcycle_type != "discharge":
-            raise TypeError
+            raise TypeError(f"Half-cycle type is {discharge._halfcycle_type}. Must be 'discharge'.")
+
+        if not charge and not discharge:
+            raise RuntimeError("No charge/discharge data found.")
 
         self._hidden: bool = False
 
@@ -308,6 +323,23 @@ class Cycle:
             self._energy_efficiency,
             self._voltage_efficiency,
         ) = self.calculate_efficiencies()
+
+    def __repr__(self):
+        if self._charge and self._discharge:
+            status = "Both charge and discharge"
+        elif self._charge:
+            status = "Charge only"
+        elif self._discharge:
+            status = "Discharge only"
+
+        return f"""
+<echemsuite.cellcycling.cycles.Cycle at {hex(id(self))}>
+    ├─ number:     {self.number}
+    ├─ halfcycles: {status}
+    └─ hidden:     {self._hidden}"""
+
+    def __str__(self) -> str:
+        return repr(self)
 
     # CYCLE NUMBER
     @property
@@ -454,22 +486,15 @@ class Cycle:
         """
 
         if self.charge and self.discharge:
-
             if self.charge.capacity <= 0 or self.charge.total_energy <= 0:
                 # 101 is a sentinel value
                 self._coulomb_efficiency = 101
                 self._energy_efficiency = 101
                 self._voltage_efficiency = 101
             else:
-                self._coulomb_efficiency = (
-                    self.discharge.capacity / self.charge.capacity * 100
-                )
-                self._energy_efficiency = (
-                    self.discharge.total_energy / self.charge.total_energy * 100
-                )
-                self._voltage_efficiency = (
-                    self._energy_efficiency / self._coulomb_efficiency * 100
-                )
+                self._coulomb_efficiency = self.discharge.capacity / self.charge.capacity * 100
+                self._energy_efficiency = self.discharge.total_energy / self.charge.total_energy * 100
+                self._voltage_efficiency = self._energy_efficiency / self._coulomb_efficiency * 100
 
             return (
                 self._coulomb_efficiency,
@@ -519,248 +544,6 @@ class Cycle:
         """
         return self._voltage_efficiency
 
-    # LEGACY PROPERTIES
-
-    @property
-    def time_charge(self) -> pd.Series:
-        """
-        .. deprecated:: 0.1.17a
-            Should be substituted by the direct call to the halfcycle property ``Cycle.charge.time``.
-
-        Returns the time data points (in s) for the charge half-cycle
-
-        Returns
-        -------
-        ``pandas.core.series.Series``
-        """
-        deprecation_warning("Cycle.time_charge", "Cycle.charge.time")
-        return self.charge.time
-
-    @property
-    def time_discharge(self) -> pd.Series:
-        """
-        .. deprecated:: 0.1.17a
-            Should be substituted by the direct call to the halfcycle property ``Cycle.discharge.time``.
-
-        Returns the time data points (in s) for the discharge half-cycle
-
-        Returns
-        -------
-        ``pandas.core.series.Series``
-        """
-        deprecation_warning("Cycle.time_disharge", "Cycle.discharge.time")
-        return self.discharge.time
-
-    @property
-    def voltage_charge(self) -> pd.Series:
-        """
-        .. deprecated:: 0.1.17a
-            Should be substituted by the direct call to the halfcycle property ``Cycle.charge.voltage``.
-
-        Returns the voltage data points (in V) for the charge half-cycle
-
-        Returns
-        -------
-        ``pandas.core.series.Series``
-        """
-        deprecation_warning("Cycle.voltage_charge", "Cycle.charge.voltage")
-        return self.charge.voltage
-
-    @property
-    def voltage_discharge(self) -> pd.Series:
-        """
-        .. deprecated:: 0.1.17a
-            Should be substituted by the direct call to the halfcycle property ``Cycle.discharge.voltage``.
-
-        Returns the voltage data points (in V) for the discharge half-cycle
-
-        Returns
-        -------
-        ``pandas.core.series.Series``
-        """
-        deprecation_warning("Cycle.voltage_discharge", "Cycle.discharge.voltage")
-        return self.discharge.voltage
-
-    @property
-    def current_charge(self) -> pd.Series:
-        """
-        .. deprecated:: 0.1.17a
-            Should be substituted by the direct call to the halfcycle property ``Cycle.charge.current``.
-
-        Returns the current data points (in A) for the charge half-cycle
-
-        Returns
-        -------
-        ``pandas.core.series.Series``
-        """
-        deprecation_warning("Cycle.current_charge", "Cycle.charge.current")
-        return self.charge.current
-
-    @property
-    def current_discharge(self) -> pd.Series:
-        """
-        .. deprecated:: 0.1.17a
-            Should be substituted by the direct call to the halfcycle property ``Cycle.discharge.current``.
-
-        Returns the current data points (in A) for the discharge half-cycle
-
-        Returns
-        -------
-        ``pandas.core.series.Series``
-        """
-        deprecation_warning("Cycle.current_discharge", "Cycle.discharge.current")
-        return self.discharge.current
-
-    @property
-    def power_charge(self) -> pd.Series:
-        """
-        .. deprecated:: 0.1.17a
-            Should be substituted by the direct call to the halfcycle property ``Cycle.charge.power``.
-
-        Returns the power data points (in W) for the charge half-cycle
-
-        Returns
-        -------
-        ``pandas.core.series.Series``
-        """
-        deprecation_warning("Cycle.power_charge", "Cycle.charge.power")
-        return self.charge.power
-
-    @property
-    def power_discharge(self) -> pd.Series:
-        """
-        .. deprecated:: 0.1.17a
-            Should be substituted by the direct call to the halfcycle property ``Cycle.discharge.power``.
-
-        Returns the power data points (in W) for the discharge half-cycle
-
-        Returns
-        -------
-        ``pandas.core.series.Series``
-        """
-        deprecation_warning("Cycle.power_discharge", "Cycle.discharge.power")
-        return self.discharge.power
-
-    @property
-    def energy_charge(self) -> pd.Series:
-        """
-        .. deprecated:: 0.1.17a
-            Should be substituted by the direct call to the halfcycle property ``Cycle.charge.energy``.
-
-        Returns the energy data points (in mWh) for the charge half-cycle
-
-        Returns
-        -------
-        ``pandas.core.series.Series``
-        """
-        deprecation_warning("Cycle.energy_charge", "Cycle.charge.energy")
-        return self.charge.energy
-
-    @property
-    def energy_discharge(self) -> pd.Series:
-        """
-        .. deprecated:: 0.1.17a
-            Should be substituted by the direct call to the halfcycle property ``Cycle.discharge.energy``.
-
-        Returns the energy data points (in mWh) for the discharge half-cycle
-
-        Returns
-        -------
-        ``pandas.core.series.Series``
-        """
-        deprecation_warning("Cycle.energy_discharge", "Cycle.discharge.energy")
-        return self.discharge.energy
-
-    @property
-    def capacity_charge(self) -> float:
-        """
-        .. deprecated:: 0.1.17a
-            Should be substituted by the direct call to the halfcycle property ``Cycle.charge.capacity``.
-
-        Returns the capacity data points (in mAh) for the charge half-cycle
-
-        Returns
-        -------
-        float
-        """
-        deprecation_warning("Cycle.capacity_charge", "Cycle.charge.capacity")
-        return self.charge.capacity
-
-    @property
-    def capacity_discharge(self) -> float:
-        """
-        .. deprecated:: 0.1.17a
-            Should be substituted by the direct call to the halfcycle property ``Cycle.discharge.capacity``.
-
-        Returns the capacity data points (in mAh) for the discharge half-cycle
-
-        Returns
-        -------
-        float
-        """
-        deprecation_warning("Cycle.capacity_discharge", "Cycle.discharge.capacity")
-        return self.discharge.capacity
-
-    @property
-    def Q_charge(self) -> pd.Series:
-        """
-        .. deprecated:: 0.1.17a
-            Should be substituted by the direct call to the halfcycle property ``Cycle.charge.Q``.
-
-        Returns the cumulative charge data points (in mAh) for the charge half-cycle
-
-        Returns
-        -------
-        ``pandas.core.series.Series``
-        """
-        deprecation_warning("Cycle.Q_charge", "Cycle.charge.Q")
-        return self.charge.Q
-
-    @property
-    def Q_discharge(self) -> pd.Series:
-        """
-        .. deprecated:: 0.1.17a
-            Should be substituted by the direct call to the halfcycle property ``Cycle.discharge.Q``.
-
-        Returns the cumulative charge data points (in mAh) for the discharge half-cycle
-
-        Returns
-        -------
-        ``pandas.core.series.Series``
-        """
-        deprecation_warning("Cycle.Q_discharge", "Cycle.discharge.Q")
-        return self.discharge.Q
-
-    @property
-    def total_energy_charge(self) -> float:
-        """
-        .. deprecated:: 0.1.17a
-            Should be substituted by the direct call to the halfcycle property ``Cycle.charge.total_energy``.
-
-        Returns the total energy (in mWh) for the charge half-cycle
-
-        Returns
-        -------
-        float
-        """
-        deprecation_warning("Cycle.total_energy_charge", "Cycle.charge.total_energy")
-        return self.charge.total_energy
-
-    @property
-    def total_energy_discharge(self) -> float:
-        """
-        .. deprecated:: 0.1.17a
-            Should be substituted by the direct call to the halfcycle property ``Cycle.discharge.total_energy``.
-
-        Returns the total energy (in mWh) for the discharge half-cycle
-
-        Returns
-        -------
-        float
-        """
-        deprecation_warning("Cycle.total_energy_discharge", "Cycle.discharge.total_energy")
-        return self.discharge.total_energy
-
 
 class HalfCycle:
     """
@@ -796,9 +579,8 @@ class HalfCycle:
         halfcycle_type: str,
         timestamp: datetime,
     ) -> None:
-
         if halfcycle_type != "discharge" and halfcycle_type != "charge":
-            raise ValueError
+            raise ValueError(f"Half-cycle type is {halfcycle_type}. Must either be 'charge' or 'discharge'.")
 
         self._timestamp = timestamp
         self._time = time
@@ -808,6 +590,19 @@ class HalfCycle:
 
         self._Q, self._capacity = self.calculate_Q()
         self._power, self._energy, self._total_energy = self.calculate_energy()
+    
+    def __len__(self):
+        return len(self._time)
+
+    def __repr__(self):
+        return f"""
+<echemsuite.cellcycling.cycles.HalfCycle at {hex(id(self))}>
+    ├─ timestamp: {self.timestamp}
+    ├─ type:      {self.halfcycle_type}
+    └─ points:    {len(self.time)}"""
+
+    def __str__(self) -> str:
+        return repr(self)
 
     def calculate_Q(self) -> Tuple[pd.Series, float]:
         """
@@ -879,7 +674,7 @@ class HalfCycle:
     @timestamp.setter
     def timestamp(self, value: datetime) -> None:
         if type(value) != datetime:
-            raise TypeError
+            raise TypeError(f"Provided timestamp is of type {type(value)}. Must be `datetime`.")
         self._timestamp = value
 
     # HALFCYCLE TYPE (charge/discharge)
@@ -976,6 +771,18 @@ class HalfCycle:
         """
         return self._power
 
+    @property
+    def average_power(self) -> float:
+        """
+        The Average power (in W) for the selected half-cycle.
+
+        Returns
+        -------
+        float
+            the average power value.
+        """
+        return self._power.mean()
+
     # ENERGY
     @property
     def energy(self) -> pd.Series:
@@ -1037,9 +844,11 @@ def join_HalfCycles(join_list: List[HalfCycle]) -> HalfCycle:
     halfcycle_type = join_list[0]._halfcycle_type
 
     # Do a sanity check on the halfcycle_type associated to the given objects
-    for obj in join_list:
+    for idx, obj in enumerate(join_list):
         if obj._halfcycle_type != halfcycle_type:
-            raise RuntimeError
+            raise RuntimeError(
+                f"HalfCycle {idx} is of type {obj._halfcycle_type}. Must be {halfcycle_type}. Cannot join HalfCycles."
+            )
 
     # Concatenate the data series for voltage and current
     voltage = pd.concat([obj._voltage for obj in join_list], ignore_index=True)
@@ -1072,7 +881,7 @@ def time_adjust(cycle: Cycle, reverse: bool = False) -> Tuple[pd.Series, pd.Seri
         the cycle to which the charge/discharge half-cycles belong to
     reverse : bool
         if True apply the time reversal to the discharge halfcycle
-    
+
     Returns
     -------
     Tuple[``pandas.core.series.Series``, ``pandas.core.series.Series``]
