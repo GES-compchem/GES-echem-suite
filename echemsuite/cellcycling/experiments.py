@@ -37,8 +37,13 @@ class RateExperiment:
     """
 
     def __init__(self, current_steps: List[float] = None, cellcycling_steps: List[CellCycling] = None) -> None:
-        current_steps = []
-        cellcycling_steps = []
+        if current_steps is None:
+            current_steps = []
+
+        if cellcycling_steps is None:
+            cellcycling_steps = []
+
+        print(current_steps)
 
         if len(current_steps) != len(cellcycling_steps):
             raise RuntimeError(

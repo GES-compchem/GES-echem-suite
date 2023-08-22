@@ -66,6 +66,8 @@ def test_RateExperiment___init___with_arguments(generate_sample_cellcycling):
 
     obj = RateExperiment(current_steps=[0.1, 0.2], cellcycling_steps=[cc, cc])
 
+    print(obj.numbers)
+    
     assert obj.numbers == [1, 2, 3, 4]
     assert len(obj.cycles) == 4
     assert obj.reference == (0, 0)
