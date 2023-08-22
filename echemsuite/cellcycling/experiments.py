@@ -37,12 +37,12 @@ class RateExperiment:
     """
 
     def __init__(self, current_steps: List[float] = None, cellcycling_steps: List[CellCycling] = None) -> None:
+        current_steps = []
+        cellcycling_steps = []
+
         if len(current_steps) != len(cellcycling_steps):
             raise RuntimeError(
                 "The current step list and the cellcycling one cannot have different lenght.")
-
-        current_steps = []
-        cellcycling_steps = []
 
         self.__current_steps: List[float] = deepcopy(current_steps)
         self.__cellcycling_steps: List[CellCycling] = deepcopy(cellcycling_steps)
@@ -158,9 +158,9 @@ class RateExperiment:
                 # TEMPORARY FIX to solve the issue of US date format with european
                 if int(month) > 12:
                     month, day = day, month
-                    #tmp = month
-                    #month = day
-                    #day = tmp
+                    # tmp = month
+                    # month = day
+                    # day = tmp
 
                 timestamp = datetime(
                     int(year),
